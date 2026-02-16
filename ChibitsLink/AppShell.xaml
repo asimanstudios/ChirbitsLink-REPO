@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="ChibitsLink.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:ChibitsLink"
+    xmlns:view="clr-namespace:ChibitsLink.main.cs.view"
+    Shell.FlyoutBehavior="Disabled">
+
+    <ShellContent
+        Title="Intro"
+        ContentTemplate="{DataTemplate view:IntroPage}"
+        Route="IntroPage" />
+
+    <ShellContent
+        Title="Login"
+        ContentTemplate="{DataTemplate view:LoginPage}"
+        Route="LoginPage" />
+
+    <ShellContent
+        Title="Main Menu"
+        ContentTemplate="{DataTemplate view:MainMenuPage}"
+        Route="MainMenuPage" />
+
+    <ShellContent
+        Title="Selection"
+        ContentTemplate="{DataTemplate view:SelectionPage}"
+        Route="SelectionPage" />
+
+    <ShellContent
+        Title="Controller"
+        ContentTemplate="{DataTemplate view:ControllerPage}"
+        Route="ControllerPage" />
+
+    <ShellContent
+        Title="Settings"
+        ContentTemplate="{DataTemplate view:SettingsPage}"
+        Route="SettingsPage" />
+
+</Shell>

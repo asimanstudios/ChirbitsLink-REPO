@@ -1,0 +1,76 @@
+<?xml version = "1.0" encoding = "UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:ChibitsLink"
+             x:Class="ChibitsLink.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <!-- Premium Vibrant Palette -->
+            <Color x:Key="Primary">#FFD700</Color> <!-- Vibrant Gold -->
+            <Color x:Key="Secondary">#FF8C00</Color> <!-- Dark Orange -->
+            <Color x:Key="Tertiary">#4B0082</Color> <!-- Indigo for contrast -->
+            <Color x:Key="Background">#87CEEB</Color> <!-- Sky Blue -->
+            <Color x:Key="Surface">#FFFFFF</Color>
+            <Color x:Key="TextMain">#333333</Color>
+            <Color x:Key="Highlight">#FF4500</Color> <!-- Orange-Red -->
+
+            <Style x:Key="PremiumLabel" TargetType="Label">
+                <Setter Property="TextColor" Value="{StaticResource TextMain}" />
+                <Setter Property="FontFamily" Value="OutfitBold" />
+                <Setter Property="FontSize" Value="18" />
+            </Style>
+
+            <Style x:Key="BouncyButton" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                <Setter Property="TextColor" Value="{StaticResource TextMain}" />
+                <Setter Property="CornerRadius" Value="25" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="FontSize" Value="20" />
+                <Setter Property="HeightRequest" Value="60" />
+                <Setter Property="BorderColor" Value="{StaticResource Secondary}" />
+                <Setter Property="BorderWidth" Value="3" />
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal" />
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="Scale" Value="0.9" />
+                                    <Setter Property="BackgroundColor" Value="{StaticResource Secondary}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+
+            <Style x:Key="VibrantEntry" TargetType="Entry">
+                <Setter Property="BackgroundColor" Value="White" />
+                <Setter Property="TextColor" Value="{StaticResource TextMain}" />
+                <Setter Property="PlaceholderColor" Value="Gray" />
+                <Setter Property="HeightRequest" Value="55" />
+                <Setter Property="HorizontalTextAlignment" Value="Center" />
+                <Setter Property="FontSize" Value="18" />
+            </Style>
+
+            <!-- Neon Button Style for Selection Page -->
+            <Style x:Key="NeonButton" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="#1E1E2E" />
+                <Setter Property="TextColor" Value="#00FFFF" />
+                <Setter Property="BorderColor" Value="#00FFFF" />
+                <Setter Property="BorderWidth" Value="2" />
+                <Setter Property="CornerRadius" Value="15" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="FontSize" Value="18" />
+                <Setter Property="HeightRequest" Value="60" />
+                <Setter Property="Margin" Value="10" />
+                <Setter Property="Padding" Value="20,10" />
+            </Style>
+
+            <!-- Keep legacy styles for compatibility while upgrading -->
+            <Style x:Key="MedievalButton" TargetType="Button" BasedOn="{StaticResource BouncyButton}" />
+            <Style x:Key="ParchmentEntry" TargetType="Entry" BasedOn="{StaticResource VibrantEntry}" />
+            
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

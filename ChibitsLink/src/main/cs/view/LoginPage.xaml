@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ChibitsLink.main.cs.view.LoginPage"
+             Title="Chibits Link - Login">
+
+    <Grid RowDefinitions="*, Auto, Auto, Auto, *" Padding="30" RowSpacing="20">
+        
+        <VerticalStackLayout Grid.Row="1" Spacing="5" HorizontalOptions="Center">
+            <Label Text="CHIBITS" 
+                   FontSize="54" 
+                   FontAttributes="Bold" 
+                   TextColor="White" 
+                   HorizontalOptions="Center"
+                   Style="{StaticResource PremiumLabel}"/>
+            <Label Text="LINK" 
+                   FontSize="28" 
+                   TextColor="{StaticResource Primary}" 
+                   HorizontalOptions="Center" 
+                   CharacterSpacing="12"
+                   FontAttributes="Bold"/>
+        </VerticalStackLayout>
+
+        <VerticalStackLayout Grid.Row="2" Spacing="15">
+            <Entry x:Name="UsernameEntry" 
+                   Placeholder="Correo del Aventurero" 
+                   Style="{StaticResource VibrantEntry}"/>
+            <Entry x:Name="PasswordEntry" 
+                   Placeholder="Palabra Secreta" 
+                   IsPassword="True" 
+                   Style="{StaticResource VibrantEntry}"/>
+        </VerticalStackLayout>
+
+        <Button Grid.Row="3" 
+                Text="¡ENTRAR AL REINO!" 
+                Style="{StaticResource BouncyButton}" 
+                Clicked="OnLoginClicked" />
+
+        <Button Grid.Row="4"
+                Text="CREAR NUEVO HÉROE"
+                TextColor="White"
+                FontAttributes="Bold"
+                BackgroundColor="Transparent"
+                Clicked="OnRegisterClicked"
+                FontSize="16"
+                VerticalOptions="Start"/>
+
+        <ActivityIndicator x:Name="LoadingIndicator" 
+                           Grid.Row="4" 
+                           IsRunning="False" 
+                           Color="{StaticResource Tertiary}" 
+                           HorizontalOptions="Center"/>
+    </Grid>
+</ContentPage>

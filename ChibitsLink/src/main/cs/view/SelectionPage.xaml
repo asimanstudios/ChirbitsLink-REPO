@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ChibitsLink.main.cs.view.SelectionPage"
+             Title="Chibits Link - Setup">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="30" Spacing="25">
+            <Label Text="SELECT CONNECTION" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center" TextColor="{StaticResource Tertiary}"/>
+            
+            <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                <Button Text="QR SCAN" Style="{StaticResource NeonButton}" Clicked="OnQRClicked"/>
+                <Button Text="BLUETOOTH" Style="{StaticResource NeonButton}" Clicked="OnBluetoothClicked"/>
+                <Button Text="WEBSOCKET" Style="{StaticResource NeonButton}" Clicked="OnWebSocketClicked"/>
+            </HorizontalStackLayout>
+
+            <BoxView HeightRequest="1" Color="Gray" Margin="0,10"/>
+
+            <!-- Lobby Section (R02) -->
+            <VerticalStackLayout Spacing="10" Padding="10">
+                <Label Text="JOIN A PARTY" FontSize="18" TextColor="{StaticResource Secondary}" HorizontalOptions="Center"/>
+                <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
+                    <Entry x:Name="RoomCodeEntry" 
+                           Placeholder="6-DIGIT CODE" 
+                           MaxLength="6"
+                           Keyboard="Numeric"
+                           BackgroundColor="#222" 
+                           TextColor="White" 
+                           PlaceholderColor="Gray"/>
+                    <Button Grid.Column="1" 
+                            Text="JOIN" 
+                            Style="{StaticResource NeonButton}" 
+                            WidthRequest="80"
+                            Clicked="OnJoinLobbyClicked"/>
+                </Grid>
+            </VerticalStackLayout>
+
+            <Label Text="OR SELECT A GAME" FontSize="18" TextColor="{StaticResource Tertiary}" HorizontalOptions="Center"/>
+
+            <CollectionView x:Name="GamesCollection" SelectionMode="Single" SelectionChanged="OnGameSelected">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Margin="0,5" Padding="15" BackgroundColor="#1AFFFFFF" BorderColor="{StaticResource Tertiary}">
+                            <VerticalStackLayout>
+                                <Label Text="{Binding Name}" FontSize="18" FontAttributes="Bold"/>
+                                <Label Text="{Binding Description}" FontSize="12" TextColor="Gray"/>
+                            </VerticalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Button x:Name="StartButton" 
+                    Text="START CONTROLLER" 
+                    IsEnabled="False"
+                    Style="{StaticResource NeonButton}" 
+                    Clicked="OnStartClicked"
+                    HeightRequest="60"
+                    Margin="0,20,0,0"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

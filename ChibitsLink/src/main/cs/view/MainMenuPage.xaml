@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:model="clr-namespace:ChibitsLink.main.cs.model"
+             x:Class="ChibitsLink.main.cs.view.MainMenuPage"
+             Title="Chibits Hub"
+             BackgroundColor="{StaticResource Background}">
+    
+    <Grid RowDefinitions="Auto, *, Auto" Padding="20" RowSpacing="20">
+        
+        <!-- Header -->
+        <VerticalStackLayout Grid.Row="0" Spacing="5" HorizontalOptions="Center">
+            <Label Text="¡HOLA, AVENTURERO!" 
+                   Style="{StaticResource PremiumLabel}" 
+                   HorizontalOptions="Center" 
+                   TextColor="{StaticResource DefaultSecondaryColor}" />
+            <Label x:Name="UsernameLabel" 
+                   Text="HERO NAME" 
+                   FontSize="28" 
+                   FontAttributes="Bold" 
+                   HorizontalOptions="Center" 
+                   TextColor="White" />
+        </VerticalStackLayout>
+
+        <!-- Character Selection (RecyclerView style) -->
+        <VerticalStackLayout Grid.Row="1" Spacing="10">
+            <Label Text="ELIGE TU PERSONAJE" 
+                   Style="{StaticResource PremiumLabel}" 
+                   HorizontalOptions="Start" 
+                   FontSize="16" />
+            
+            <CollectionView x:Name="CharactersCollection"
+                            SelectionMode="Single"
+                            SelectionChanged="OnCharacterSelected"
+                            HeightRequest="240">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Horizontal" ItemSpacing="15" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="model:Character">
+                        <Frame Padding="5" 
+                               CornerRadius="20" 
+                               HasShadow="True" 
+                               BorderColor="White" 
+                               BackgroundColor="White"
+                               WidthRequest="160"
+                               HeightRequest="220">
+                            <VerticalStackLayout VerticalOptions="Center" Spacing="10">
+                                <Image Source="{Binding ImageUrl}" 
+                                       HeightRequest="140" 
+                                       WidthRequest="140" 
+                                       Aspect="AspectFit" />
+                                <Label Text="{Binding Name}" 
+                                       FontAttributes="Bold" 
+                                       HorizontalOptions="Center" 
+                                       FontSize="18" 
+                                       TextColor="{StaticResource DefaultPrimaryColor}" />
+                            </VerticalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+
+        <!-- Join Game Section -->
+        <VerticalStackLayout Grid.Row="2" Spacing="15">
+            <Label Text="UNIRSE A PARTIDA" 
+                   Style="{StaticResource PremiumLabel}" 
+                   HorizontalOptions="Center" />
+            
+            <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
+                <Entry x:Name="RoomCodeEntry"
+                       Placeholder="CÓDIGO (6)"
+                       MaxLength="6"
+                       Keyboard="Numeric"
+                       Style="{StaticResource VibrantEntry}"
+                       Grid.Column="0" />
+                
+                <Button Text="¡ENTRAR!"
+                        Style="{StaticResource BouncyButton}"
+                        Clicked="OnJoinClicked"
+                        Grid.Column="1"
+                        WidthRequest="120" />
+            </Grid>
+
+            <Button Text="🎮 MANDO RÁPIDO"
+                    Style="{StaticResource BouncyButton}"
+                    BackgroundColor="{StaticResource Tertiary}"
+                    TextColor="White"
+                    Clicked="OnControllerClicked" />
+
+            <Label Text="CERRAR SESIÓN"
+                   TextColor="White"
+                   FontAttributes="Bold"
+                   FontSize="12"
+                   HorizontalOptions="Center"
+                   Margin="0,10,0,0">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnLogoutClicked" />
+                </Label.GestureRecognizers>
+            </Label>
+        </VerticalStackLayout>
+
+    </Grid>
+</ContentPage>

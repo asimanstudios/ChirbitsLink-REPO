@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ChibitsLink.main.cs.view.IntroPage"
+             BackgroundColor="{StaticResource Background}">
+    
+    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="20">
+        <Image x:Name="LogoImage"
+               Source="dotnet_bot.png"
+               HeightRequest="150"
+               WidthRequest="150"
+               Opacity="0"
+               Scale="0.5" />
+        
+        <Label Text="Chibits Link"
+               FontSize="40"
+               FontAttributes="Bold"
+               TextColor="White"
+               HorizontalOptions="Center"
+               Opacity="0"
+               x:Name="TitleLabel" />
+        
+        <Label Text="¡TU AVENTURA COMIENZA AQUÍ!"
+               FontSize="18"
+               FontAttributes="Bold"
+               TextColor="{StaticResource Primary}"
+               HorizontalOptions="Center"
+               Opacity="0"
+               x:Name="SubtitleLabel" />
+    </VerticalStackLayout>
+</ContentPage>

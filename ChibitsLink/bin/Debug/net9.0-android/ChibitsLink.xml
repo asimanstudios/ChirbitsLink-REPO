@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ChibitsLink</name>
+    </assembly>
+    <members>
+        <member name="T:ChibitsLink.main.repository.Connection">
+            <summary>
+            Provee el acceso a la instancia de Cloud Firestore.
+            </summary>
+        </member>
+        <member name="T:ChibitsLink.main.repository.Database">
+            <summary>
+            Gestiona las operaciones CRUD sobre Cloud Firestore.
+            </summary>
+        </member>
+        <member name="T:ChibitsLink.Resource">
+            <summary>
+            Android Resource Designer class.
+            Exposes the Android Resource designer assembly into the project Namespace.
+            </summary>
+        </member>
+    </members>
+</doc>

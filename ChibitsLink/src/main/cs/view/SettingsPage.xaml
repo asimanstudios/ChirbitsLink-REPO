@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ChibitsLink.main.cs.view.SettingsPage"
+             Title="Ajustes del Héroe"
+             BackgroundColor="{StaticResource Background}">
+    
+    <ScrollView Padding="20">
+        <VerticalStackLayout Spacing="25">
+            <!-- Profile Section -->
+            <Label Text="Perfil de Aventurero"
+                   FontSize="22"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource Primary}" />
+            
+            <Frame BackgroundColor="#F5F5DC" 
+                   BorderColor="{StaticResource Secondary}"
+                   Padding="15">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Nombre de Usuario" TextColor="{StaticResource TextMain}" FontAttributes="Bold" />
+                    <Entry x:Name="UsernameEntry" Style="{StaticResource ParchmentEntry}" />
+                    
+                    <Label Text="Correo Mágico" TextColor="{StaticResource TextMain}" FontAttributes="Bold" />
+                    <Label x:Name="EmailLabel" Text="aventurero@reino.com" TextColor="Gray" Margin="5,0,0,0" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Preferences Section -->
+            <Label Text="Preferencias"
+                   FontSize="22"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource Primary}" />
+            
+            <Frame BackgroundColor="#F5F5DC" 
+                   BorderColor="{StaticResource Secondary}"
+                   Padding="15">
+                <VerticalStackLayout Spacing="20">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Text="Mantener Sesión (30 días)" VerticalOptions="Center" />
+                        <Switch x:Name="PersistenceSwitch" Grid.Column="1" IsToggled="True" ThumbColor="{StaticResource Secondary}" OnColor="{StaticResource Primary}" />
+                    </Grid>
+                    
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Text="Vibración en Mando" VerticalOptions="Center" />
+                        <Switch IsToggled="True" Grid.Column="1" ThumbColor="{StaticResource Secondary}" OnColor="{StaticResource Primary}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Button Text="GUARDAR CAMBIOS"
+                    Style="{StaticResource MedievalButton}"
+                    Clicked="OnSaveClicked"
+                    Margin="0,20,0,0" />
+            
+            <Button Text="VOLVER"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource Tertiary}"
+                    BorderColor="{StaticResource Tertiary}"
+                    BorderWidth="1"
+                    Clicked="OnBackClicked" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

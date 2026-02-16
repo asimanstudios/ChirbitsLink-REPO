@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ChibitsLink.main.cs.view.RegisterPage"
+             Title="Chibits Link - Register">
+
+    <Grid RowDefinitions="Auto, *, Auto, Auto, Auto, *" Padding="30" RowSpacing="15">
+        
+        <VerticalStackLayout Grid.Row="0" Spacing="5" HorizontalOptions="Center">
+            <Label Text="NUEVO HÉROE" 
+                   FontSize="32" 
+                   FontAttributes="Bold" 
+                   TextColor="{StaticResource Primary}" 
+                   HorizontalOptions="Center"/>
+        </VerticalStackLayout>
+
+        <VerticalStackLayout Grid.Row="1" Spacing="15" VerticalOptions="Center">
+            <Entry x:Name="UsernameEntry" 
+                   Placeholder="Nombre de Usuario" 
+                   Style="{StaticResource ParchmentEntry}"/>
+            <Entry x:Name="EmailEntry" 
+                   Placeholder="Correo Mágico" 
+                   Keyboard="Email"
+                   Style="{StaticResource ParchmentEntry}"/>
+            <Entry x:Name="PasswordEntry" 
+                   Placeholder="Contraseña Secreta" 
+                   IsPassword="True" 
+                   Style="{StaticResource ParchmentEntry}"/>
+        </VerticalStackLayout>
+
+        <Button Grid.Row="2" 
+                Text="UNIRSE AL REINO" 
+                Style="{StaticResource MedievalButton}" 
+                Clicked="OnRegisterClicked"
+                HeightRequest="60"
+                FontSize="18"/>
+
+        <Button Grid.Row="3" 
+                Text="YA TENGO UNA CUENTA" 
+                TextColor="{StaticResource Tertiary}"
+                BackgroundColor="Transparent"
+                Clicked="OnBackClicked"
+                FontSize="14"/>
+
+        <ActivityIndicator x:Name="LoadingIndicator" 
+                           Grid.Row="4" 
+                           IsRunning="False" 
+                           Color="{StaticResource Tertiary}" 
+                           HorizontalOptions="Center"/>
+    </Grid>
+</ContentPage>
