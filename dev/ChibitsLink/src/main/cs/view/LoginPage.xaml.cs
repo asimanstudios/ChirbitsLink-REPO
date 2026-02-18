@@ -45,4 +45,9 @@ public partial class LoginPage : ContentPage
     {
         await Shell.Current.GoToAsync("RegisterPage");
     }
+
+    private async void OnForgotPasswordTapped(object sender, EventArgs e)
+    {
+        await DisplayAlert("Recuperar Contraseña", "Se ha enviado un correo de recuperación a tu dirección mágica.", "Entendido");
+    }
 }

@@ -22,17 +22,18 @@ public partial class RegisterPage : ContentPage
 
     private async void OnRegisterClicked(object sender, EventArgs e)
     {
+        string realName = RealNameEntry.Text;
         string username = UsernameEntry.Text;
         string email = EmailEntry.Text;
         string password = PasswordEntry.Text;
 
-        if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+        if (string.IsNullOrEmpty(realName) || string.IsNullOrEmpty(username) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
         {
-            await DisplayAlert("Error", "Please fill all fields", "OK");
+            await DisplayAlert("Error", "Por favor, completa todos los campos", "Vale");
             return;
         }
 
-        await _controller.Register(this, username, email, password);
+        await _controller.Register(this, realName, username, email, password);
     }
 
     private async void OnBackClicked(object sender, EventArgs e)

@@ -24,7 +24,7 @@ public static class MauiProgram
 #endif
 
         // Repositories
-        builder.Services.AddSingleton<ChibitsLink.main.repository.Connection>();
+        builder.Services.AddSingleton<ChibitsLink.main.repository.FirebaseConnection>();
         builder.Services.AddSingleton<ChibitsLink.main.repository.Database>();
 
         // Services
@@ -45,6 +45,9 @@ public static class MauiProgram
         builder.Services.AddTransient<SelectionPage>();
         builder.Services.AddTransient<MainMenuPage>();
         builder.Services.AddTransient<SettingsPage>();
+        builder.Services.AddTransient<JoinRoomPage>();
+        builder.Services.AddTransient<LobbyPage>();
+        builder.Services.AddTransient<HistoryPage>();
 
         // Controllers (Services for the pages)
         builder.Services.AddSingleton<AccountController>();

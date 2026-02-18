@@ -6,93 +6,148 @@
              Title="Chibits Hub"
              BackgroundColor="{StaticResource Background}">
     
-    <Grid RowDefinitions="Auto, *, Auto" Padding="20" RowSpacing="20">
+    <Grid RowDefinitions="Auto, *, Auto" Padding="25" RowSpacing="20">
         
-        <!-- Header -->
-        <VerticalStackLayout Grid.Row="0" Spacing="5" HorizontalOptions="Center">
-            <Label Text="¡HOLA, AVENTURERO!" 
-                   Style="{StaticResource PremiumLabel}" 
-                   HorizontalOptions="Center" 
-                   TextColor="{StaticResource DefaultSecondaryColor}" />
-            <Label x:Name="UsernameLabel" 
-                   Text="HERO NAME" 
-                   FontSize="28" 
-                   FontAttributes="Bold" 
-                   HorizontalOptions="Center" 
-                   TextColor="White" />
+        <!-- Header & Profile -->
+        <VerticalStackLayout Grid.Row="0" Spacing="15" HorizontalOptions="Center">
+            
+            <!-- Circular Profile Image -->
+            <Frame WidthRequest="110" 
+                   HeightRequest="110" 
+                   CornerRadius="55" 
+                   Padding="0" 
+                   IsClippedToBounds="True" 
+                   HorizontalOptions="Center"
+                   BorderColor="{StaticResource Primary}"
+                   HasShadow="True">
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnProfileTapped" />
+                </Frame.GestureRecognizers>
+                <Image x:Name="ProfileImage" 
+                       Source="dotnet_bot.png" 
+                       Aspect="AspectFill" 
+                       BackgroundColor="{StaticResource Background}"/>
+            </Frame>
+            
+            <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                <Label Text="HOLA de nuevo," 
+                       FontSize="12" 
+                       TextColor="{StaticResource TextLight}" 
+                       HorizontalOptions="Center" 
+                       CharacterSpacing="2"/>
+                <Label x:Name="UsernameLabel" 
+                       Text="AVENTURERO" 
+                       Style="{StaticResource ModernTitle}"
+                       HorizontalOptions="Center"/>
+                <Label x:Name="LevelLabel" 
+                       Text="Nivel 1" 
+                       FontSize="14" 
+                       TextColor="{StaticResource Primary}" 
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"/>
+            </VerticalStackLayout>
         </VerticalStackLayout>
 
-        <!-- Character Selection (RecyclerView style) -->
-        <VerticalStackLayout Grid.Row="1" Spacing="10">
-            <Label Text="ELIGE TU PERSONAJE" 
-                   Style="{StaticResource PremiumLabel}" 
-                   HorizontalOptions="Start" 
-                   FontSize="16" />
-            
-            <CollectionView x:Name="CharactersCollection"
-                            SelectionMode="Single"
-                            SelectionChanged="OnCharacterSelected"
-                            HeightRequest="240">
-                <CollectionView.ItemsLayout>
-                    <LinearItemsLayout Orientation="Horizontal" ItemSpacing="15" />
-                </CollectionView.ItemsLayout>
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="model:Character">
-                        <Frame Padding="5" 
-                               CornerRadius="20" 
-                               HasShadow="True" 
-                               BorderColor="White" 
-                               BackgroundColor="White"
-                               WidthRequest="160"
-                               HeightRequest="220">
-                            <VerticalStackLayout VerticalOptions="Center" Spacing="10">
-                                <Image Source="{Binding ImageUrl}" 
-                                       HeightRequest="140" 
-                                       WidthRequest="140" 
-                                       Aspect="AspectFit" />
-                                <Label Text="{Binding Name}" 
-                                       FontAttributes="Bold" 
-                                       HorizontalOptions="Center" 
-                                       FontSize="18" 
-                                       TextColor="{StaticResource DefaultPrimaryColor}" />
-                            </VerticalStackLayout>
-                        </Frame>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </VerticalStackLayout>
-
-        <!-- Join Game Section -->
-        <VerticalStackLayout Grid.Row="2" Spacing="15">
-            <Label Text="UNIRSE A PARTIDA" 
-                   Style="{StaticResource PremiumLabel}" 
-                   HorizontalOptions="Center" />
-            
-            <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
-                <Entry x:Name="RoomCodeEntry"
-                       Placeholder="CÓDIGO (6)"
-                       MaxLength="6"
-                       Keyboard="Numeric"
-                       Style="{StaticResource VibrantEntry}"
-                       Grid.Column="0" />
+        <!-- Main Content -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="20">
                 
-                <Button Text="¡ENTRAR!"
-                        Style="{StaticResource BouncyButton}"
-                        Clicked="OnJoinClicked"
-                        Grid.Column="1"
-                        WidthRequest="120" />
-            </Grid>
+                <!-- Character Selection (Hidden by default) -->
+                <VerticalStackLayout x:Name="CharacterSelectionLayout" IsVisible="False" Spacing="10">
+                    <Label Text="CAMBIAR PERSONAJE" 
+                           FontSize="14" 
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource Secondary}"
+                           HorizontalOptions="Center" />
+                    
+                    <CollectionView x:Name="CharactersCollection"
+                                    SelectionMode="Single"
+                                    SelectionChanged="OnCharacterSelected"
+                                    HeightRequest="200">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Horizontal" ItemSpacing="15" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="model:Character">
+                                <Frame Padding="5" 
+                                       CornerRadius="16" 
+                                       HasShadow="False" 
+                                       BorderColor="{StaticResource Primary}" 
+                                       BackgroundColor="{StaticResource Surface}"
+                                       WidthRequest="120"
+                                       HeightRequest="180">
+                                    <VerticalStackLayout VerticalOptions="Center" Spacing="5">
+                                        <Image Source="{Binding ImageUrl}" 
+                                               HeightRequest="100" 
+                                               WidthRequest="100" 
+                                               Aspect="AspectFit" />
+                                        <Label Text="{Binding Name}" 
+                                               FontAttributes="Bold" 
+                                               HorizontalOptions="Center" 
+                                               FontSize="14" 
+                                               TextColor="{StaticResource TextMain}" />
+                                    </VerticalStackLayout>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
 
-            <Button Text="🎮 MANDO RÁPIDO"
-                    Style="{StaticResource BouncyButton}"
-                    BackgroundColor="{StaticResource Tertiary}"
-                    TextColor="White"
-                    Clicked="OnControllerClicked" />
+                <!-- Action Cards -->
+                <Grid ColumnDefinitions="*, *" ColumnSpacing="15">
+                    <Frame x:Name="MandoPreviewCard" Grid.Column="0" Style="{StaticResource GlassFrame}" Padding="15">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnControllerClicked" />
+                        </Frame.GestureRecognizers>
+                        <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
+                            <Label Text="🎮" FontSize="32" HorizontalOptions="Center"/>
+                            <Label Text="MANDO" FontAttributes="Bold" HorizontalOptions="Center" TextColor="{StaticResource TextMain}"/>
+                            <Label Text="Ver diseño" FontSize="10" TextColor="{StaticResource TextLight}" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Frame>
 
-            <Label Text="CERRAR SESIÓN"
-                   TextColor="White"
-                   FontAttributes="Bold"
-                   FontSize="12"
+                    <Frame x:Name="HistoryCard" Grid.Column="1" Style="{StaticResource GlassFrame}" Padding="15">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnHistoryClicked" />
+                        </Frame.GestureRecognizers>
+                        <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
+                            <Label Text="📜" FontSize="32" HorizontalOptions="Center"/>
+                            <Label Text="HISTORIAL" FontAttributes="Bold" HorizontalOptions="Center" TextColor="{StaticResource TextMain}"/>
+                            <Label Text="Tus aventuras" FontSize="10" TextColor="{StaticResource TextLight}" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Frame>
+                </Grid>
+
+                <!-- Description Card -->
+                <Frame Style="{StaticResource GlassFrame}" Padding="20">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Sobre ChirBits Link" 
+                               FontAttributes="Bold" 
+                               FontSize="18" 
+                               TextColor="{StaticResource Tertiary}"/>
+                        <Label Text="Esta aplicación convierte tu dispositivo móvil en un mando mágico para interactuar con el mundo de ChirBits. Únete a partidas en Unity, elige tu héroe y prepárate para la aventura." 
+                               FontSize="14" 
+                               TextColor="{StaticResource TextLight}" 
+                               LineHeight="1.4"/>
+                    </VerticalStackLayout>
+                </Frame>
+                
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Action Buttons -->
+        <VerticalStackLayout Grid.Row="2" Spacing="12" VerticalOptions="End">
+            <Button Text="CONECTAR A PARTIDA" 
+                    Style="{StaticResource ModernButton}" 
+                    Clicked="OnJoinRoomClicked" />
+            
+            <Button Text="CONFIGURAR PERFIL" 
+                    Style="{StaticResource SecondaryButton}" 
+                    Clicked="OnProfileClicked" />
+            
+            <Label Text="Cerrar Sesión" 
+                   TextColor="{StaticResource Secondary}" 
+                   FontSize="14" 
                    HorizontalOptions="Center"
                    Margin="0,10,0,0">
                 <Label.GestureRecognizers>

@@ -13,17 +13,19 @@ public partial class ControllerPage : ContentPage
 {
     private readonly ControllerController _controller;
     private readonly Connection _connection;
+    private readonly AccountService _accountService;
     private readonly IOrientationService? _orientationService;
     private double _baseX, _baseY;
 
     public event Action<float, float>? OnJoystickMoved;
     public event Action<string>? OnButtonPressed;
 
-    public ControllerPage(ControllerController controller, Connection connection, IOrientationService? orientationService = null)
+    public ControllerPage(ControllerController controller, Connection connection, AccountService accountService, IOrientationService? orientationService = null)
     {
         InitializeComponent();
         _controller = controller;
         _connection = connection;
+        _accountService = accountService;
         _orientationService = orientationService;
 
         _connection.LatencyUpdated += (ms) => 
@@ -32,9 +34,18 @@ public partial class ControllerPage : ContentPage
         };
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
+        
+        // Security check
+        var user = _accountService.GetCurrentUser();
+        if (user == null)
+        {
+            await Shell.Current.GoToAsync("//LoginPage");
+            return;
+        }
+
         _orientationService?.SetLandscape();
     }
 
@@ -42,6 +53,12 @@ public partial class ControllerPage : ContentPage
     {
         base.OnDisappearing();
         _orientationService?.SetPortrait();
+    }
+
+    private async void OnBackClicked(object sender, EventArgs e)
+    {
+        // Optional: Disconnect logic if needed here
+        await Shell.Current.GoToAsync("//MainMenuPage");
     }
 
     private void OnTiltToggled(object sender, ToggledEventArgs e)

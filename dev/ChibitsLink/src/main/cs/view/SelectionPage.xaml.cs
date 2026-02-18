@@ -14,15 +14,28 @@ public partial class SelectionPage : ContentPage
     private readonly GameService _gameService;
     private readonly BluetoothService _bluetoothService;
     private readonly Connection _connection;
+    private readonly AccountService _accountService;
     private Game? _selectedGame;
 
-    public SelectionPage(GameService gameService, BluetoothService bluetoothService, Connection connection)
+    public SelectionPage(GameService gameService, BluetoothService bluetoothService, Connection connection, AccountService accountService)
     {
         InitializeComponent();
         _gameService = gameService;
         _bluetoothService = bluetoothService;
         _connection = connection;
+        _accountService = accountService;
         LoadGames();
+    }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        var user = _accountService.GetCurrentUser();
+        if (user == null)
+        {
+            await Shell.Current.GoToAsync("//LoginPage");
+            return;
+        }
     }
 
     private async void LoadGames()

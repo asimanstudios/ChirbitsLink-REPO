@@ -20,6 +20,10 @@
 		<ApplicationVersion>1</ApplicationVersion>
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
+		
+		<!-- Android Build Optimizations -->
+		<JavaMaxHeapSize>1G</JavaMaxHeapSize>
+		<AndroidEnableMultiDex>true</AndroidEnableMultiDex>
 	</PropertyGroup>
 
 	<ItemGroup>

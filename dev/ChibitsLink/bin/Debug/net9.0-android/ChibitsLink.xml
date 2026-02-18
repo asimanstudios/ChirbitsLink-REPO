@@ -4,7 +4,7 @@
         <name>ChibitsLink</name>
     </assembly>
     <members>
-        <member name="T:ChibitsLink.main.repository.Connection">
+        <member name="T:ChibitsLink.main.repository.FirebaseConnection">
             <summary>
             Provee el acceso a la instancia de Cloud Firestore.
             </summary>

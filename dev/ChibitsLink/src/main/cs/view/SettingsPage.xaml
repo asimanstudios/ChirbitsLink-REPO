@@ -5,59 +5,100 @@
              Title="Ajustes del Héroe"
              BackgroundColor="{StaticResource Background}">
     
-    <ScrollView Padding="20">
+    <ScrollView Padding="25">
         <VerticalStackLayout Spacing="25">
-            <!-- Profile Section -->
-            <Label Text="Perfil de Aventurero"
-                   FontSize="22"
-                   FontAttributes="Bold"
-                   TextColor="{StaticResource Primary}" />
+            <!-- Header Section -->
+            <VerticalStackLayout Spacing="5">
+                <Label Text="PERFIL DEL AVENTURERO"
+                       Style="{StaticResource ModernTitle}" />
+                <Label Text="Gestiona tus datos sagrados"
+                       FontSize="13"
+                       TextColor="{StaticResource TextLight}"
+                       HorizontalOptions="Center"
+                       CharacterSpacing="1"/>
+            </VerticalStackLayout>
             
-            <Frame BackgroundColor="#F5F5DC" 
-                   BorderColor="{StaticResource Secondary}"
-                   Padding="15">
+            <!-- Profile Form -->
+            <Frame Style="{StaticResource GlassFrame}" Padding="20">
                 <VerticalStackLayout Spacing="15">
-                    <Label Text="Nombre de Usuario" TextColor="{StaticResource TextMain}" FontAttributes="Bold" />
-                    <Entry x:Name="UsernameEntry" Style="{StaticResource ParchmentEntry}" />
+                    <Label Text="Nombre Real" 
+                           FontSize="14" 
+                           TextColor="{StaticResource Secondary}" 
+                           FontAttributes="Bold" />
+                    <Entry x:Name="RealNameEntry" 
+                           Placeholder="Tu nombre mortal"
+                           Style="{StaticResource ModernEntry}" />
+
+                    <Label Text="Nombre de Usuario" 
+                           FontSize="14" 
+                           TextColor="{StaticResource Secondary}" 
+                           FontAttributes="Bold" />
+                    <Entry x:Name="UsernameEntry" 
+                           Placeholder="@hero"
+                           Style="{StaticResource ModernEntry}" />
                     
-                    <Label Text="Correo Mágico" TextColor="{StaticResource TextMain}" FontAttributes="Bold" />
-                    <Label x:Name="EmailLabel" Text="aventurero@reino.com" TextColor="Gray" Margin="5,0,0,0" />
+                    <Label Text="Correo Mágico" 
+                           FontSize="14" 
+                           TextColor="{StaticResource Secondary}" 
+                           FontAttributes="Bold" />
+                    <Entry x:Name="EmailEntry" 
+                           Placeholder="tu@correo.com"
+                           Keyboard="Email"
+                           Style="{StaticResource ModernEntry}" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Security Section -->
+            <Label Text="SEGURIDAD"
+                   FontSize="16"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource Tertiary}" 
+                   CharacterSpacing="1"/>
+            
+            <Frame Style="{StaticResource GlassFrame}" Padding="20">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Nueva Contraseña" 
+                           FontSize="14" 
+                           TextColor="{StaticResource Secondary}" 
+                           FontAttributes="Bold" />
+                    <Entry x:Name="NewPasswordEntry" 
+                           Placeholder="Dejar en blanco para no cambiar"
+                           IsPassword="True"
+                           Style="{StaticResource ModernEntry}" />
                 </VerticalStackLayout>
             </Frame>
 
             <!-- Preferences Section -->
-            <Label Text="Preferencias"
-                   FontSize="22"
+            <Label Text="PREFERENCIAS"
+                   FontSize="16"
                    FontAttributes="Bold"
-                   TextColor="{StaticResource Primary}" />
+                   TextColor="{StaticResource Tertiary}"
+                   CharacterSpacing="1"/>
             
-            <Frame BackgroundColor="#F5F5DC" 
-                   BorderColor="{StaticResource Secondary}"
-                   Padding="15">
+            <Frame Style="{StaticResource GlassFrame}" Padding="20">
                 <VerticalStackLayout Spacing="20">
                     <Grid ColumnDefinitions="*, Auto">
-                        <Label Text="Mantener Sesión (30 días)" VerticalOptions="Center" />
-                        <Switch x:Name="PersistenceSwitch" Grid.Column="1" IsToggled="True" ThumbColor="{StaticResource Secondary}" OnColor="{StaticResource Primary}" />
+                        <Label Text="Mantener Sesión (30 días)" VerticalOptions="Center" TextColor="{StaticResource TextMain}" />
+                        <Switch x:Name="PersistenceSwitch" Grid.Column="1" IsToggled="True" OnColor="{StaticResource Secondary}" />
                     </Grid>
                     
                     <Grid ColumnDefinitions="*, Auto">
-                        <Label Text="Vibración en Mando" VerticalOptions="Center" />
-                        <Switch IsToggled="True" Grid.Column="1" ThumbColor="{StaticResource Secondary}" OnColor="{StaticResource Primary}" />
+                        <Label Text="Vibración en Mando" VerticalOptions="Center" TextColor="{StaticResource TextMain}" />
+                        <Switch IsToggled="True" Grid.Column="1" OnColor="{StaticResource Secondary}" />
                     </Grid>
                 </VerticalStackLayout>
             </Frame>
 
-            <Button Text="GUARDAR CAMBIOS"
-                    Style="{StaticResource MedievalButton}"
-                    Clicked="OnSaveClicked"
-                    Margin="0,20,0,0" />
-            
-            <Button Text="VOLVER"
-                    BackgroundColor="Transparent"
-                    TextColor="{StaticResource Tertiary}"
-                    BorderColor="{StaticResource Tertiary}"
-                    BorderWidth="1"
-                    Clicked="OnBackClicked" />
+            <!-- Actions -->
+            <VerticalStackLayout Spacing="12" Margin="0,10,0,0">
+                <Button Text="GUARDAR CAMBIOS"
+                        Style="{StaticResource ModernButton}"
+                        Clicked="OnSaveClicked" />
+                
+                <Button Text="VOLVER"
+                        Style="{StaticResource SecondaryButton}"
+                        Clicked="OnBackClicked" />
+            </VerticalStackLayout>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

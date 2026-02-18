@@ -7,13 +7,13 @@ using Microsoft.Maui.Storage;
 public class AccountService : BaseService
 {
     private readonly ChibitsLink.main.repository.Database _db;
-    private readonly ChibitsLink.main.repository.Connection _connection;
+    private readonly ChibitsLink.main.repository.FirebaseConnection _connection;
     private User? _currentUser;
     
     private const string SESSION_UID_KEY = "session_uid";
     private const string SESSION_EXPIRY_KEY = "session_expiry";
 
-    public AccountService(ChibitsLink.main.repository.Database db, ChibitsLink.main.repository.Connection connection)
+    public AccountService(ChibitsLink.main.repository.Database db, ChibitsLink.main.repository.FirebaseConnection connection)
     {
         _db = db;
         _connection = connection;
@@ -28,11 +28,13 @@ public class AccountService : BaseService
 
             if (!string.IsNullOrEmpty(uid) && !string.IsNullOrEmpty(expiryStr))
             {
-                var expiry = DateTime.Parse(expiryStr);
-                if (DateTime.Now < expiry)
+                if (DateTime.TryParse(expiryStr, out var expiry))
                 {
-                    _currentUser = await _db.GetUser(uid);
-                    return _currentUser != null;
+                    if (DateTime.Now < expiry)
+                    {
+                        _currentUser = await _db.GetUser(uid);
+                        return _currentUser != null;
+                    }
                 }
             }
         }
@@ -49,12 +51,7 @@ public class AccountService : BaseService
         Preferences.Set(SESSION_EXPIRY_KEY, DateTime.Now.AddDays(30).ToString());
     }
 
-    public async Task Logout()
-    {
-        SecureStorage.Remove(SESSION_UID_KEY);
-        Preferences.Remove(SESSION_EXPIRY_KEY);
-        _currentUser = null;
-    }
+
 
     public async Task<(bool Success, string? ErrorMessage)> Login(string email, string password)
     {
@@ -76,7 +73,7 @@ public class AccountService : BaseService
         return (false, "Login failed");
     }
 
-    public async Task<(bool Success, string? ErrorMessage)> Register(string username, string email, string password)
+    public async Task<(bool Success, string? ErrorMessage)> Register(string realName, string username, string email, string password)
     {
         try
         {
@@ -86,6 +83,7 @@ public class AccountService : BaseService
                 var newUser = new User 
                 { 
                     Id = result.User.Uid,
+                    RealName = realName,
                     Username = username 
                 };
                 await _db.SaveUser(newUser);
@@ -100,6 +98,47 @@ public class AccountService : BaseService
             return (false, ex.Message);
         }
         return (false, "Registration failed");
+    }
+
+    public async Task UpdateUser(User user)
+    {
+        await _db.UpdateUser(user);
+        _currentUser = user;
+    }
+
+    public async Task<(bool Success, string? ErrorMessage)> UpdateEmail(string newEmail)
+    {
+        try
+        {
+            await _connection.Auth.CurrentUser.UpdateEmailAsync(newEmail);
+            return (true, null);
+        }
+        catch (Exception e)
+        {
+            return (false, e.Message);
+        }
+    }
+
+    public async Task<(bool Success, string? ErrorMessage)> ChangePassword(string newPassword)
+    {
+        try
+        {
+            await _connection.Auth.CurrentUser.UpdatePasswordAsync(newPassword);
+            return (true, null);
+        }
+        catch (Exception e)
+        {
+            return (false, e.Message);
+        }
+    }
+
+    public async Task Logout()
+    {
+        _connection.Auth.SignOut();
+        _currentUser = null;
+        SecureStorage.Remove(SESSION_UID_KEY);
+        Preferences.Remove(SESSION_EXPIRY_KEY);
+        await Task.CompletedTask;
     }
 
     public User? GetCurrentUser() => _currentUser;

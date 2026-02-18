@@ -4,46 +4,44 @@
              x:Class="ChibitsLink.main.cs.view.SelectionPage"
              Title="Chibits Link - Setup">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="30" Spacing="25">
-            <Label Text="SELECT CONNECTION" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center" TextColor="{StaticResource Tertiary}"/>
+    <ScrollView BackgroundColor="{StaticResource Background}">
+        <VerticalStackLayout Padding="30" Spacing="25" BackgroundColor="{StaticResource Background}">
+            <Label Text="MODO DE CONEXIÓN" Style="{StaticResource ModernTitle}" TextColor="{StaticResource Secondary}"/>
             
-            <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
-                <Button Text="QR SCAN" Style="{StaticResource NeonButton}" Clicked="OnQRClicked"/>
-                <Button Text="BLUETOOTH" Style="{StaticResource NeonButton}" Clicked="OnBluetoothClicked"/>
-                <Button Text="WEBSOCKET" Style="{StaticResource NeonButton}" Clicked="OnWebSocketClicked"/>
+            <HorizontalStackLayout Spacing="12" HorizontalOptions="Center">
+                <Button Text="QR SCAN" Style="{StaticResource NeonButton}" Clicked="OnQRClicked" HeightRequest="45" Padding="15,0"/>
+                <Button Text="BLUETOOTH" Style="{StaticResource NeonButton}" Clicked="OnBluetoothClicked" HeightRequest="45" Padding="15,0"/>
+                <Button Text="WEBSOCKET" Style="{StaticResource NeonButton}" Clicked="OnWebSocketClicked" HeightRequest="45" Padding="15,0"/>
             </HorizontalStackLayout>
 
-            <BoxView HeightRequest="1" Color="Gray" Margin="0,10"/>
+            <BoxView HeightRequest="1" Color="{StaticResource Surface}" Margin="0,10"/>
 
             <!-- Lobby Section (R02) -->
             <VerticalStackLayout Spacing="10" Padding="10">
-                <Label Text="JOIN A PARTY" FontSize="18" TextColor="{StaticResource Secondary}" HorizontalOptions="Center"/>
+                <Label Text="UNIRSE A SALA" FontSize="18" TextColor="{StaticResource Primary}" HorizontalOptions="Center" FontAttributes="Bold"/>
                 <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
                     <Entry x:Name="RoomCodeEntry" 
-                           Placeholder="6-DIGIT CODE" 
+                           Placeholder="CÓDIGO DE 6 DÍGITOS" 
                            MaxLength="6"
                            Keyboard="Numeric"
-                           BackgroundColor="#222" 
-                           TextColor="White" 
-                           PlaceholderColor="Gray"/>
+                           Style="{StaticResource ModernEntry}"/>
                     <Button Grid.Column="1" 
-                            Text="JOIN" 
-                            Style="{StaticResource NeonButton}" 
-                            WidthRequest="80"
+                            Text="UNIRSE" 
+                            Style="{StaticResource MedievalButton}" 
+                            WidthRequest="100"
                             Clicked="OnJoinLobbyClicked"/>
                 </Grid>
             </VerticalStackLayout>
 
-            <Label Text="OR SELECT A GAME" FontSize="18" TextColor="{StaticResource Tertiary}" HorizontalOptions="Center"/>
+            <Label Text="O ELIGE UN JUEGO" FontSize="16" TextColor="{StaticResource TextLight}" HorizontalOptions="Center" FontAttributes="Bold"/>
 
             <CollectionView x:Name="GamesCollection" SelectionMode="Single" SelectionChanged="OnGameSelected">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Frame Margin="0,5" Padding="15" BackgroundColor="#1AFFFFFF" BorderColor="{StaticResource Tertiary}">
+                        <Frame Margin="0,5" Padding="15" Style="{StaticResource GlassFrame}" BorderColor="{StaticResource Tertiary}">
                             <VerticalStackLayout>
-                                <Label Text="{Binding Name}" FontSize="18" FontAttributes="Bold"/>
-                                <Label Text="{Binding Description}" FontSize="12" TextColor="Gray"/>
+                                <Label Text="{Binding Name}" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource TextMain}"/>
+                                <Label Text="{Binding Description}" FontSize="12" TextColor="{StaticResource TextLight}"/>
                             </VerticalStackLayout>
                         </Frame>
                     </DataTemplate>
@@ -51,9 +49,9 @@
             </CollectionView>
 
             <Button x:Name="StartButton" 
-                    Text="START CONTROLLER" 
+                    Text="ENTRAR AL MANDO" 
                     IsEnabled="False"
-                    Style="{StaticResource NeonButton}" 
+                    Style="{StaticResource ModernButton}" 
                     Clicked="OnStartClicked"
                     HeightRequest="60"
                     Margin="0,20,0,0"/>

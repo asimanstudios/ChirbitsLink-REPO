@@ -4,6 +4,8 @@ build_property.EnableSingleFileAnalyzer = true
 build_property.EnableTrimAnalyzer = false
 build_property.IncludeAllContentForSelfExtract = 
 build_property.TargetFramework = net9.0-android
+build_property.TargetFrameworkIdentifier = .NETCoreApp
+build_property.TargetFrameworkVersion = v9.0
 build_property.TargetPlatformMinVersion = 
 build_property.UsingMicrosoftNETSdkWeb = 
 build_property.ProjectTypeGuids = 
@@ -36,11 +38,29 @@ build_metadata.AdditionalFiles.ManifestResourceName = ChibitsLink.src.main.cs.vi
 build_metadata.AdditionalFiles.TargetPath = src\main\cs\view\ControllerPage.xaml
 build_metadata.AdditionalFiles.RelativePath = src\main\cs\view\ControllerPage.xaml
 
+[C:/Users/adris/RiderProjects/ChirbitsLink/ChibitsLink/src/main/cs/view/HistoryPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = ChibitsLink.src.main.cs.view.HistoryPage.xaml
+build_metadata.AdditionalFiles.TargetPath = src\main\cs\view\HistoryPage.xaml
+build_metadata.AdditionalFiles.RelativePath = src\main\cs\view\HistoryPage.xaml
+
 [C:/Users/adris/RiderProjects/ChirbitsLink/ChibitsLink/src/main/cs/view/IntroPage.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = ChibitsLink.src.main.cs.view.IntroPage.xaml
 build_metadata.AdditionalFiles.TargetPath = src\main\cs\view\IntroPage.xaml
 build_metadata.AdditionalFiles.RelativePath = src\main\cs\view\IntroPage.xaml
+
+[C:/Users/adris/RiderProjects/ChirbitsLink/ChibitsLink/src/main/cs/view/JoinRoomPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = ChibitsLink.src.main.cs.view.JoinRoomPage.xaml
+build_metadata.AdditionalFiles.TargetPath = src\main\cs\view\JoinRoomPage.xaml
+build_metadata.AdditionalFiles.RelativePath = src\main\cs\view\JoinRoomPage.xaml
+
+[C:/Users/adris/RiderProjects/ChirbitsLink/ChibitsLink/src/main/cs/view/LobbyPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = ChibitsLink.src.main.cs.view.LobbyPage.xaml
+build_metadata.AdditionalFiles.TargetPath = src\main\cs\view\LobbyPage.xaml
+build_metadata.AdditionalFiles.RelativePath = src\main\cs\view\LobbyPage.xaml
 
 [C:/Users/adris/RiderProjects/ChirbitsLink/ChibitsLink/src/main/cs/view/LoginPage.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml

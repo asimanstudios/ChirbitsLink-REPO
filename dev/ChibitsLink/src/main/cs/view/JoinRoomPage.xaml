@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ChibitsLink.main.cs.view.JoinRoomPage"
+             Title="Unirse a Partida"
+             BackgroundColor="{StaticResource Background}">
+
+    <Grid Padding="30" RowDefinitions="Auto, *, Auto, Auto" RowSpacing="20">
+        
+        <VerticalStackLayout Grid.Row="0" Spacing="5" HorizontalOptions="Center">
+            <Label Text="ENTRAR AL REINO" 
+                   Style="{StaticResource ModernTitle}" 
+                   HorizontalOptions="Center"
+                   TextColor="{StaticResource Secondary}"/>
+            <Label Text="Introduce el código de 6 dígitos" 
+                   FontSize="13" 
+                   TextColor="{StaticResource TextLight}"
+                   HorizontalOptions="Center"
+                   CharacterSpacing="1"/>
+        </VerticalStackLayout>
+
+        <VerticalStackLayout Grid.Row="1" VerticalOptions="Center" Spacing="20">
+            <Frame Style="{StaticResource GlassFrame}" Padding="5" BorderColor="{StaticResource Primary}">
+                <Entry x:Name="RoomCodeEntry"
+                       Placeholder="0 0 0 0 0 0"
+                       FontSize="36"
+                       FontAttributes="Bold"
+                       HorizontalTextAlignment="Center"
+                       Keyboard="Numeric"
+                       MaxLength="6"
+                       TextColor="{StaticResource Secondary}"
+                       BackgroundColor="Transparent"
+                       HeightRequest="80"/>
+            </Frame>
+        </VerticalStackLayout>
+
+        <Button Grid.Row="2"
+                Text="¡CONECTAR!"
+                Style="{StaticResource ModernButton}"
+                Clicked="OnConnectClicked" />
+
+        <Button Grid.Row="3"
+                Text="VOLVER"
+                Style="{StaticResource SecondaryButton}"
+                Clicked="OnBackClicked" />
+
+        <ActivityIndicator x:Name="LoadingIndicator"
+                           Grid.Row="1"
+                           IsRunning="False"
+                           Color="{StaticResource Tertiary}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+    </Grid>
+</ContentPage>

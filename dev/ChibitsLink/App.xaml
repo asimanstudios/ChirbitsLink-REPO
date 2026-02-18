@@ -5,38 +5,51 @@
              x:Class="ChibitsLink.App">
     <Application.Resources>
         <ResourceDictionary>
-            <!-- Premium Vibrant Palette -->
-            <Color x:Key="Primary">#FFD700</Color> <!-- Vibrant Gold -->
-            <Color x:Key="Secondary">#FF8C00</Color> <!-- Dark Orange -->
-            <Color x:Key="Tertiary">#4B0082</Color> <!-- Indigo for contrast -->
-            <Color x:Key="Background">#87CEEB</Color> <!-- Sky Blue -->
-            <Color x:Key="Surface">#FFFFFF</Color>
-            <Color x:Key="TextMain">#333333</Color>
-            <Color x:Key="Highlight">#FF4500</Color> <!-- Orange-Red -->
+            <!-- ChirBits Visual Overhaul Palette -->
+            <Color x:Key="Primary">#633BC0</Color>      <!-- ChirBits Deep Purple -->
+            <Color x:Key="Secondary">#FF9200</Color>    <!-- ChirBits Vibrant Orange -->
+            <Color x:Key="Tertiary">#48DBFB</Color>     <!-- ChirBits Electric Cyan -->
+            <Color x:Key="Background">#1E1E2E</Color>   <!-- Dark Mode Deep Slate -->
+            <Color x:Key="Surface">#2D2D44</Color>      <!-- Dark Mode Surface -->
+            <Color x:Key="TextMain">#FFFFFF</Color>     <!-- Clean White -->
+            <Color x:Key="TextLight">#A29BFE</Color>    <!-- Soft Lavender -->
+            <Color x:Key="Success">#00D2D3</Color>      <!-- Jade Green -->
+            
+            <!-- Default Colors for Legacy Support -->
+            <Color x:Key="DefaultPrimaryColor">#633BC0</Color>
+            <Color x:Key="DefaultSecondaryColor">#FF9200</Color>
 
-            <Style x:Key="PremiumLabel" TargetType="Label">
+            <!-- Playful & Premium Styles -->
+            <Style x:Key="ModernLabel" TargetType="Label">
                 <Setter Property="TextColor" Value="{StaticResource TextMain}" />
-                <Setter Property="FontFamily" Value="OutfitBold" />
-                <Setter Property="FontSize" Value="18" />
+                <Setter Property="FontFamily" Value="OpenSansRegular" />
+                <Setter Property="FontSize" Value="16" />
             </Style>
 
-            <Style x:Key="BouncyButton" TargetType="Button">
-                <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
-                <Setter Property="TextColor" Value="{StaticResource TextMain}" />
-                <Setter Property="CornerRadius" Value="25" />
+            <Style x:Key="ModernTitle" TargetType="Label" BasedOn="{StaticResource ModernLabel}">
                 <Setter Property="FontAttributes" Value="Bold" />
-                <Setter Property="FontSize" Value="20" />
-                <Setter Property="HeightRequest" Value="60" />
-                <Setter Property="BorderColor" Value="{StaticResource Secondary}" />
-                <Setter Property="BorderWidth" Value="3" />
+                <Setter Property="FontSize" Value="28" />
+                <Setter Property="TextColor" Value="{StaticResource Secondary}" />
+                <Setter Property="HorizontalOptions" Value="Center" />
+            </Style>
+
+            <Style x:Key="ModernButton" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="CornerRadius" Value="16" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="HeightRequest" Value="54" />
+                <Setter Property="Padding" Value="24,0" />
                 <Setter Property="VisualStateManager.VisualStateGroups">
                     <VisualStateGroupList>
                         <VisualStateGroup x:Name="CommonStates">
                             <VisualState x:Name="Normal" />
                             <VisualState x:Name="Pressed">
                                 <VisualState.Setters>
-                                    <Setter Property="Scale" Value="0.9" />
-                                    <Setter Property="BackgroundColor" Value="{StaticResource Secondary}" />
+                                    <Setter Property="Scale" Value="0.96" />
+                                    <Setter Property="Opacity" Value="0.9" />
+                                    <Setter Property="BackgroundColor" Value="#734BD1" />
                                 </VisualState.Setters>
                             </VisualState>
                         </VisualStateGroup>
@@ -44,32 +57,45 @@
                 </Setter>
             </Style>
 
-            <Style x:Key="VibrantEntry" TargetType="Entry">
-                <Setter Property="BackgroundColor" Value="White" />
-                <Setter Property="TextColor" Value="{StaticResource TextMain}" />
-                <Setter Property="PlaceholderColor" Value="Gray" />
-                <Setter Property="HeightRequest" Value="55" />
-                <Setter Property="HorizontalTextAlignment" Value="Center" />
-                <Setter Property="FontSize" Value="18" />
-            </Style>
-
-            <!-- Neon Button Style for Selection Page -->
-            <Style x:Key="NeonButton" TargetType="Button">
-                <Setter Property="BackgroundColor" Value="#1E1E2E" />
-                <Setter Property="TextColor" Value="#00FFFF" />
-                <Setter Property="BorderColor" Value="#00FFFF" />
+            <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Setter Property="TextColor" Value="{StaticResource Tertiary}" />
+                <Setter Property="BorderColor" Value="{StaticResource Tertiary}" />
                 <Setter Property="BorderWidth" Value="2" />
-                <Setter Property="CornerRadius" Value="15" />
-                <Setter Property="FontAttributes" Value="Bold" />
-                <Setter Property="FontSize" Value="18" />
-                <Setter Property="HeightRequest" Value="60" />
-                <Setter Property="Margin" Value="10" />
-                <Setter Property="Padding" Value="20,10" />
             </Style>
 
-            <!-- Keep legacy styles for compatibility while upgrading -->
-            <Style x:Key="MedievalButton" TargetType="Button" BasedOn="{StaticResource BouncyButton}" />
-            <Style x:Key="ParchmentEntry" TargetType="Entry" BasedOn="{StaticResource VibrantEntry}" />
+            <Style x:Key="ModernEntry" TargetType="Entry">
+                <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
+                <Setter Property="TextColor" Value="{StaticResource TextMain}" />
+                <Setter Property="PlaceholderColor" Value="{StaticResource TextLight}" />
+                <Setter Property="HeightRequest" Value="52" />
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="Margin" Value="0,8" />
+            </Style>
+
+            <Style x:Key="GlassFrame" TargetType="Frame">
+                <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
+                <Setter Property="CornerRadius" Value="20" />
+                <Setter Property="HasShadow" Value="True" />
+                <Setter Property="BorderColor" Value="#3D3D5C" />
+                <Setter Property="Padding" Value="15" />
+            </Style>
+
+            <!-- Specialty Buttons -->
+            <Style x:Key="MedievalButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+                <Setter Property="BackgroundColor" Value="{StaticResource Secondary}" />
+            </Style>
+
+            <Style x:Key="NeonButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+                <Setter Property="BackgroundColor" Value="{StaticResource Tertiary}" />
+                <Setter Property="TextColor" Value="#1E1E2E" />
+            </Style>
+
+            <!-- Compatibility Aliases -->
+            <Style x:Key="PremiumLabel" TargetType="Label" BasedOn="{StaticResource ModernTitle}" />
+            <Style x:Key="BouncyButton" TargetType="Button" BasedOn="{StaticResource ModernButton}" />
+            <Style x:Key="VibrantEntry" TargetType="Entry" BasedOn="{StaticResource ModernEntry}" />
+            <Style x:Key="ParchmentEntry" TargetType="Entry" BasedOn="{StaticResource ModernEntry}" />
             
         </ResourceDictionary>
     </Application.Resources>

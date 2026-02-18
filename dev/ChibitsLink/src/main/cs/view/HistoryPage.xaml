@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:model="clr-namespace:ChibitsLink.main.cs.model"
+             xmlns:conv="clr-namespace:ChibitsLink.main.cs.converters"
+             x:Class="ChibitsLink.main.cs.view.HistoryPage"
+             Title="Relatos de Batalla"
+             BackgroundColor="{StaticResource Background}">
+
+    <ContentPage.Resources>
+        <conv:BooleanToTextConverter x:Key="BooleanToTextConverter" />
+        <conv:BooleanToColorConverter x:Key="BooleanToColorConverter" />
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto, *" Padding="20" RowSpacing="20">
+        
+        <!-- Header -->
+        <VerticalStackLayout Grid.Row="0" Spacing="5">
+            <Label Text="RELATOS DE BATALLA" 
+                   Style="{StaticResource ModernTitle}" 
+                   HorizontalOptions="Center"
+                   TextColor="{StaticResource Secondary}"/>
+            <Label Text="Tus hazañas pasadas en el reino" 
+                   FontSize="13" 
+                   TextColor="{StaticResource TextLight}"
+                   HorizontalOptions="Center"
+                   CharacterSpacing="1"/>
+        </VerticalStackLayout>
+
+        <!-- History List -->
+        <CollectionView Grid.Row="1" x:Name="HistoryCollection">
+            <CollectionView.EmptyView>
+                <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="10">
+                    <Label Text="📭" FontSize="48" HorizontalOptions="Center"/>
+                    <Label Text="Aún no has participado en ninguna batalla." 
+                           TextColor="{StaticResource TextLight}"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+            
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="model:LobbyHistory">
+                    <Frame Style="{StaticResource GlassFrame}" Margin="0,5" Padding="15" BorderColor="{StaticResource Primary}">
+                        <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="15">
+                            <Label Grid.Column="0" Text="⚔️" FontSize="26" VerticalOptions="Center"/>
+                            
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                <Label Text="{Binding RoomCode, StringFormat='SALA {0}'}" 
+                                       FontAttributes="Bold" 
+                                       FontSize="17"
+                                       TextColor="{StaticResource TextMain}"/>
+                                <Label Text="{Binding Date, StringFormat='{0:dd MMM yyyy}'}" 
+                                       FontSize="12" 
+                                       TextColor="{StaticResource TextLight}"/>
+                            </VerticalStackLayout>
+
+                            <Label Grid.Column="2" 
+                                   Text="{Binding Won, Converter={StaticResource BooleanToTextConverter}}" 
+                                   TextColor="{Binding Won, Converter={StaticResource BooleanToColorConverter}}"
+                                   FontAttributes="Bold"
+                                   FontSize="16"
+                                   VerticalOptions="Center"/>
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

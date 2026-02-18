@@ -32,10 +32,10 @@ public class AccountController
         }
     }
 
-    public async Task Register(RegisterPage view, string username, string email, string password)
+    public async Task Register(RegisterPage view, string realName, string username, string email, string password)
     {
         view.ShowLoading(true);
-        var (success, errorMessage) = await _service.Register(username, email, password);
+        var (success, errorMessage) = await _service.Register(realName, username, email, password);
         view.ShowLoading(false);
 
         if (success)

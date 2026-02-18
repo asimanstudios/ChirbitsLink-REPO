@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:model="clr-namespace:ChibitsLink.main.cs.model"
+             x:Class="ChibitsLink.main.cs.view.LobbyPage"
+             Title="Sala de Espera"
+             BackgroundColor="{StaticResource Background}">
+
+    <Grid Padding="20" RowDefinitions="Auto, *, Auto" RowSpacing="20">
+        
+        <!-- Header -->
+        <VerticalStackLayout Grid.Row="0" Spacing="5" HorizontalOptions="Center">
+            <Label x:Name="RoomTitleLabel" 
+                   Text="SALA #000000" 
+                   Style="{StaticResource ModernTitle}" 
+                   HorizontalOptions="Center"
+                   TextColor="{StaticResource Secondary}"/>
+            <Label Text="Esperando a que todos estén listos..." 
+                   FontSize="13" 
+                   TextColor="{StaticResource TextLight}" 
+                   HorizontalOptions="Center"
+                   CharacterSpacing="1"/>
+        </VerticalStackLayout>
+
+        <!-- Player Selection Area -->
+        <VerticalStackLayout Grid.Row="1" Spacing="30" VerticalOptions="Center">
+            
+            <!-- Character Circle -->
+            <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                <Frame WidthRequest="150" 
+                       HeightRequest="150" 
+                       CornerRadius="75" 
+                       Padding="0" 
+                       IsClippedToBounds="True" 
+                       BorderColor="{StaticResource Secondary}"
+                       BackgroundColor="{StaticResource Surface}"
+                       HasShadow="True">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnProfileTapped" />
+                    </Frame.GestureRecognizers>
+                    <Image x:Name="ProfileImage" 
+                           Source="dotnet_bot.png" 
+                           Aspect="AspectFill" />
+                </Frame>
+                <Label x:Name="CharacterNameLabel" 
+                       Text="VALIENTE" 
+                       FontAttributes="Bold" 
+                       FontSize="22" 
+                       HorizontalOptions="Center" 
+                       TextColor="{StaticResource TextMain}"
+                       CharacterSpacing="2"/>
+                <Label Text="toca para cambiar" 
+                       FontSize="11" 
+                       TextColor="{StaticResource Tertiary}" 
+                       HorizontalOptions="Center" 
+                       Opacity="0.9"
+                       FontAttributes="Bold"/>
+            </VerticalStackLayout>
+
+            <!-- Character Selection (Carousel) -->
+            <VerticalStackLayout x:Name="CharacterSelectionLayout" IsVisible="False" Spacing="10">
+                <CollectionView x:Name="CharactersCollection"
+                                SelectionMode="Single"
+                                SelectionChanged="OnCharacterSelected"
+                                HeightRequest="180">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Horizontal" ItemSpacing="15" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="model:Character">
+                                <Frame Padding="5" 
+                                       CornerRadius="16" 
+                                       BorderColor="{StaticResource Primary}" 
+                                       BackgroundColor="{StaticResource Surface}"
+                                       WidthRequest="110">
+                                    <VerticalStackLayout VerticalOptions="Center" Spacing="5">
+                                        <Image Source="{Binding ImageUrl}" 
+                                               HeightRequest="80" 
+                                               WidthRequest="80" 
+                                               Aspect="AspectFit" />
+                                        <Label Text="{Binding Name}" 
+                                               FontAttributes="Bold" 
+                                               HorizontalOptions="Center" 
+                                               FontSize="12" 
+                                               TextColor="{StaticResource TextMain}"/>
+                                    </VerticalStackLayout>
+                                </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+
+        <!-- Footer Actions -->
+        <VerticalStackLayout Grid.Row="2" Spacing="10">
+            <Button x:Name="ReadyButton"
+                    Text="MARCAR COMO LISTO"
+                    Style="{StaticResource ModernButton}"
+                    Clicked="OnReadyClicked" />
+            
+            <Button Text="ABANDONAR SALA"
+                    Style="{StaticResource SecondaryButton}"
+                    Clicked="OnLeaveClicked" />
+        </VerticalStackLayout>
+
+    </Grid>
+</ContentPage>

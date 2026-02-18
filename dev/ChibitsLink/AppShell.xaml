@@ -5,36 +5,92 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:ChibitsLink"
     xmlns:view="clr-namespace:ChibitsLink.main.cs.view"
-    Shell.FlyoutBehavior="Disabled">
+    Shell.FlyoutBehavior="Flyout"
+    FlyoutBackgroundColor="{StaticResource Surface}">
 
+    <!-- Flyout Header -->
+    <Shell.FlyoutHeader>
+        <Grid HeightRequest="180" BackgroundColor="{StaticResource Primary}" Padding="20">
+            <VerticalStackLayout VerticalOptions="End" Spacing="5">
+                <Frame WidthRequest="70" 
+                       HeightRequest="70" 
+                       CornerRadius="35" 
+                       Padding="0" 
+                       HorizontalOptions="Start"
+                       BorderColor="{StaticResource Secondary}"
+                       HasShadow="False">
+                    <Image Source="dotnet_bot.png" Aspect="AspectFill" />
+                </Frame>
+                <Label Text="MI CUENTA" 
+                       TextColor="White" 
+                       FontSize="12" 
+                       FontAttributes="Bold" 
+                       Opacity="0.8"
+                       CharacterSpacing="1"/>
+                <Label x:Name="FlyoutUsernameLabel" 
+                       Text="Aventurero" 
+                       TextColor="{StaticResource Tertiary}" 
+                       FontSize="20" 
+                       FontAttributes="Bold"/>
+            </VerticalStackLayout>
+        </Grid>
+    </Shell.FlyoutHeader>
+
+    <!-- Auth Flow (Hidden from Flyout) -->
     <ShellContent
         Title="Intro"
         ContentTemplate="{DataTemplate view:IntroPage}"
-        Route="IntroPage" />
+        Route="IntroPage"
+        FlyoutItemIsVisible="False" />
 
     <ShellContent
         Title="Login"
         ContentTemplate="{DataTemplate view:LoginPage}"
-        Route="LoginPage" />
+        Route="LoginPage"
+        FlyoutItemIsVisible="False" />
 
-    <ShellContent
-        Title="Main Menu"
-        ContentTemplate="{DataTemplate view:MainMenuPage}"
-        Route="MainMenuPage" />
+    <!-- Main App Navigation -->
+    <FlyoutItem Title="Inicio" Icon="dotnet_bot.png">
+        <ShellContent
+            ContentTemplate="{DataTemplate view:MainMenuPage}"
+            Route="MainMenuPage" />
+    </FlyoutItem>
 
+    <FlyoutItem Title="Mi Perfil" Icon="dotnet_bot.png">
+        <ShellContent
+            ContentTemplate="{DataTemplate view:SettingsPage}"
+            Route="SettingsPage" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Mando Móvil" Icon="dotnet_bot.png">
+        <ShellContent
+            ContentTemplate="{DataTemplate view:ControllerPage}"
+            Route="ControllerPage" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Historial" Icon="dotnet_bot.png">
+        <ShellContent
+            ContentTemplate="{DataTemplate view:HistoryPage}"
+            Route="HistoryPage" />
+    </FlyoutItem>
+
+    <!-- Hidden Pages -->
     <ShellContent
         Title="Selection"
         ContentTemplate="{DataTemplate view:SelectionPage}"
+        FlyoutItemIsVisible="False"
         Route="SelectionPage" />
+    
+    <ShellContent
+        Title="JoinRoom"
+        ContentTemplate="{DataTemplate view:JoinRoomPage}"
+        FlyoutItemIsVisible="False"
+        Route="JoinRoomPage" />
 
     <ShellContent
-        Title="Controller"
-        ContentTemplate="{DataTemplate view:ControllerPage}"
-        Route="ControllerPage" />
-
-    <ShellContent
-        Title="Settings"
-        ContentTemplate="{DataTemplate view:SettingsPage}"
-        Route="SettingsPage" />
+        Title="Lobby"
+        ContentTemplate="{DataTemplate view:LobbyPage}"
+        FlyoutItemIsVisible="False"
+        Route="LobbyPage" />
 
 </Shell>

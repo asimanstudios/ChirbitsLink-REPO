@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "knf8XDBEnKk=",
+  "dgSpecHash": "RQX/281xGB4=",
   "success": true,
   "projectFilePath": "C:\\Users\\adris\\RiderProjects\\ChirbitsLink\\ChibitsLink\\ChibitsLink.csproj",
   "expectedPackageFiles": [
@@ -23,7 +23,7 @@
     "C:\\Users\\adris\\.nuget\\packages\\microsoft.maui.essentials\\9.0.120\\microsoft.maui.essentials.9.0.120.nupkg.sha512",
     "C:\\Users\\adris\\.nuget\\packages\\microsoft.maui.graphics\\9.0.120\\microsoft.maui.graphics.9.0.120.nupkg.sha512",
     "C:\\Users\\adris\\.nuget\\packages\\microsoft.maui.resizetizer\\9.0.120\\microsoft.maui.resizetizer.9.0.120.nupkg.sha512",
-    "C:\\Users\\adris\\.nuget\\packages\\microsoft.net.illink.tasks\\9.0.12\\microsoft.net.illink.tasks.9.0.12.nupkg.sha512",
+    "C:\\Users\\adris\\.nuget\\packages\\microsoft.net.illink.tasks\\9.0.13\\microsoft.net.illink.tasks.9.0.13.nupkg.sha512",
     "C:\\Users\\adris\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
     "C:\\Users\\adris\\.nuget\\packages\\plugin.ble\\3.1.0\\plugin.ble.3.1.0.nupkg.sha512",
     "C:\\Users\\adris\\.nuget\\packages\\plugin.cloudfirestore\\4.1.0\\plugin.cloudfirestore.4.1.0.nupkg.sha512",
@@ -146,7 +146,9 @@
     "C:\\Users\\adris\\.nuget\\packages\\xamarin.kotlinx.serialization.core\\1.7.3.4\\xamarin.kotlinx.serialization.core.1.7.3.4.nupkg.sha512",
     "C:\\Users\\adris\\.nuget\\packages\\xamarin.kotlinx.serialization.core.jvm\\1.7.3.4\\xamarin.kotlinx.serialization.core.jvm.1.7.3.4.nupkg.sha512",
     "C:\\Users\\adris\\.nuget\\packages\\xamarin.protobuf.lite\\3.0.1\\xamarin.protobuf.lite.3.0.1.nupkg.sha512",
-    "C:\\Users\\adris\\.nuget\\packages\\microsoft.netcore.app.ref\\9.0.13\\microsoft.netcore.app.ref.9.0.13.nupkg.sha512"
+    "C:\\Users\\adris\\.nuget\\packages\\microsoft.netcore.app.ref\\9.0.13\\microsoft.netcore.app.ref.9.0.13.nupkg.sha512",
+    "C:\\Users\\adris\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\9.0.13\\microsoft.windowsdesktop.app.ref.9.0.13.nupkg.sha512",
+    "C:\\Users\\adris\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\9.0.13\\microsoft.aspnetcore.app.ref.9.0.13.nupkg.sha512"
   ],
   "logs": []
 }

@@ -11,9 +11,9 @@ namespace ChibitsLink.main.repository;
 /// </summary>
 public class Database
 {
-    private readonly Connection _connection;
+    private readonly FirebaseConnection _connection;
 
-    public Database(Connection connection)
+    public Database(FirebaseConnection connection)
     {
         _connection = connection;
     }
@@ -22,29 +22,52 @@ public class Database
 
     public async Task StoreAsync<T>(string collection, string documentId, T data) where T : class
     {
-        await _connection.Firestore
-            .Collection(collection)
-            .Document(documentId)
-            .SetAsync(data);
+        try
+        {
+            await _connection.Firestore
+                .Collection(collection)
+                .Document(documentId)
+                .SetAsync(data);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"StoreAsync Error ({collection}): {ex.Message}");
+        }
     }
 
     public async Task<T?> GetAsync<T>(string collection, string documentId) where T : class
     {
-        var snapshot = await _connection.Firestore
-            .Collection(collection)
-            .Document(documentId)
-            .GetAsync();
+        try
+        {
+            var snapshot = await _connection.Firestore
+                .Collection(collection)
+                .Document(documentId)
+                .GetAsync();
 
-        return snapshot.Exists ? snapshot.ToObject<T>() : null;
+            return snapshot.Exists ? snapshot.ToObject<T>() : null;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"GetAsync Error ({collection}/{documentId}): {ex.Message}");
+            return null;
+        }
     }
 
     public async Task<List<T>> ListAsync<T>(string collection) where T : class
     {
-        var querySnapshot = await _connection.Firestore
-            .Collection(collection)
-            .GetAsync();
+        try
+        {
+            var querySnapshot = await _connection.Firestore
+                .Collection(collection)
+                .GetAsync();
 
-        return querySnapshot.Documents.Select(d => d.ToObject<T>()).ToList();
+            return querySnapshot.Documents.Select(d => d.ToObject<T>()).ToList();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"ListAsync Error ({collection}): {ex.Message}");
+            return new List<T>();
+        }
     }
 
     public async Task DeleteAsync(string collection, string documentId)
@@ -58,6 +81,7 @@ public class Database
     // --- LÓGICA DE NEGOCIO ---
 
     public async Task SaveUser(User user) => await StoreAsync("users", user.Id, user);
+    public async Task UpdateUser(User user) => await SaveUser(user);
     public async Task<User?> GetUser(string id) => await GetAsync<User>("users", id);
     
     public async Task SaveGame(Game game) => await StoreAsync("games", game.Id.ToString(), game);
@@ -72,5 +96,21 @@ public class Database
             .Collection("parties")
             .Document(roomCode)
             .UpdateAsync(new { progress = progress });
+    }
+
+    // --- NUEVAS FUNCIONES FASE 3 ---
+
+    public async Task<List<Character>> GetCharacters() => await ListAsync<Character>("personajes");
+    
+
+
+    public async Task<List<LobbyHistory>> GetUserHistory(string userId)
+    {
+        var querySnapshot = await _connection.Firestore
+            .Collection("lobbys")
+            .WhereEqualsTo("UserId", userId)
+            .GetAsync();
+
+        return querySnapshot.Documents.Select(d => d.ToObject<LobbyHistory>()).ToList();
     }
 }
