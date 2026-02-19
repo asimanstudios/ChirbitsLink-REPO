@@ -18,7 +18,7 @@ public class Database
         _connection = connection;
     }
 
-    // --- MÉTODOS GENÉRICOS ---
+    // --- MÉTODOS CRUD ---
 
     public async Task StoreAsync<T>(string collection, string documentId, T data) where T : class
     {
@@ -78,8 +78,6 @@ public class Database
             .DeleteAsync();
     }
 
-    // --- LÓGICA DE NEGOCIO ---
-
     public async Task SaveUser(User user) => await StoreAsync("users", user.Id, user);
     public async Task UpdateUser(User user) => await SaveUser(user);
     public async Task<User?> GetUser(string id) => await GetAsync<User>("users", id);
@@ -98,10 +96,68 @@ public class Database
             .UpdateAsync(new { progress = progress });
     }
 
-    // --- NUEVAS FUNCIONES FASE 3 ---
-
     public async Task<List<Character>> GetCharacters() => await ListAsync<Character>("personajes");
-    
+
+    /// <summary>
+    /// Verifica si un lobby existe por su código de sala.
+    /// </summary>
+    public async Task<bool> CheckLobbyExistsAsync(string roomCode)
+    {
+        var snapshot = await _connection.Firestore
+            .Collection("parties")
+            .WhereEqualsTo("RoomCode", roomCode)
+            .LimitTo(1)
+            .GetAsync();
+        
+        return !snapshot.IsEmpty;
+    }
+
+    /// <summary>
+    /// Inicializa los personajes en la base de datos si no existen.
+    /// Esto permite al usuario meter las imágenes después.
+    /// </summary>
+    public async Task InitializeCharactersAsync()
+    {
+        var existing = await GetCharacters();
+        if (existing.Count > 0) return;
+
+        var characters = new List<Character>
+        {
+            new Character { Id = "VALIENTE", Name = "Valiente", Description = "Guerrero audaz", Attack = 15, Defense = 10, Speed = 8 },
+            new Character { Id = "MAGO", Name = "Mago", Description = "Maestro de las artes oscuras", Attack = 20, Defense = 5, Speed = 10 },
+            new Character { Id = "EXPLORADOR", Name = "Explorador", Description = "Rápido y letal", Attack = 12, Defense = 7, Speed = 18 }
+        };
+
+        foreach (var c in characters)
+        {
+            await StoreAsync("personajes", c.Id, c);
+        }
+    }
+
+    /// <summary>
+    /// Registra la participación de un usuario en un lobby.
+    /// </summary>
+    public async Task JoinLobbyAsync(string userId, string roomCode)
+    {
+        var history = new LobbyHistory
+        {
+            Id = Guid.NewGuid().ToString(),
+            UserId = userId,
+            RoomCode = roomCode,
+            Timestamp = DateTime.UtcNow
+        };
+
+        await StoreAsync("lobbys", history.Id, history);
+
+        // También actualizamos el historial directo del usuario por conveniencia
+        var user = await GetUser(userId);
+        if (user != null)
+        {
+            if (user.GameHistory == null) user.GameHistory = new List<string>();
+            user.GameHistory.Add(roomCode);
+            await UpdateUser(user);
+        }
+    }
 
 
     public async Task<List<LobbyHistory>> GetUserHistory(string userId)
@@ -109,6 +165,7 @@ public class Database
         var querySnapshot = await _connection.Firestore
             .Collection("lobbys")
             .WhereEqualsTo("UserId", userId)
+            .OrderBy("Timestamp", true)
             .GetAsync();
 
         return querySnapshot.Documents.Select(d => d.ToObject<LobbyHistory>()).ToList();

@@ -10,4 +10,5 @@ public class LobbyHistory
     public DateTime Date { get; set; } = DateTime.UtcNow;
     public string CharacterId { get; set; } = string.Empty;
     public bool Won { get; set; }
+    public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 }

@@ -14,6 +14,22 @@
             Gestiona las operaciones CRUD sobre Cloud Firestore.
             </summary>
         </member>
+        <member name="M:ChibitsLink.main.repository.Database.CheckLobbyExistsAsync(System.String)">
+            <summary>
+            Verifica si un lobby existe por su código de sala.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.repository.Database.InitializeCharactersAsync">
+            <summary>
+            Inicializa los personajes en la base de datos si no existen.
+            Esto permite al usuario meter las imágenes después.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.repository.Database.JoinLobbyAsync(System.String,System.String)">
+            <summary>
+            Registra la participación de un usuario en un lobby.
+            </summary>
+        </member>
         <member name="T:ChibitsLink.Resource">
             <summary>
             Android Resource Designer class.

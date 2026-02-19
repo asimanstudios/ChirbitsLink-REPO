@@ -35,6 +35,10 @@ public partial class SettingsPage : ContentPage
             UsernameEntry.Text = user.Username;
             EmailEntry.Text = user.Id; // Placeholder - ideally fetch actual email
         }
+
+        // Load Networking Settings
+        ServerIpEntry.Text = Preferences.Get("pref_server_ip", "127.0.0.1");
+        ServerPortEntry.Text = Preferences.Get("pref_server_port", "11000").ToString();
     }
 
     private async void OnSaveClicked(object sender, EventArgs e)
@@ -71,6 +75,13 @@ public partial class SettingsPage : ContentPage
                 {
                     await DisplayAlert("Error Contraseña", passResult.ErrorMessage, "OK");
                 }
+            }
+
+            // Save Networking Settings
+            Preferences.Set("pref_server_ip", ServerIpEntry.Text ?? "127.0.0.1");
+            if (int.TryParse(ServerPortEntry.Text, out int port))
+            {
+                Preferences.Set("pref_server_port", port);
             }
 
             await DisplayAlert("Éxito", "Tus ajustes han sido guardados en el pergamino real.", "OK");

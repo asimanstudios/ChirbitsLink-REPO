@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using ChibitsLink.main.cs.model;
 using ChibitsLink.main.cs.service;
 using ChibitsLink.main.repository;
+using ChibitsLink.main.cs.net;
 
 namespace ChibitsLink.main.cs.view;
 
@@ -9,13 +10,15 @@ public partial class MainMenuPage : ContentPage
 {
     private readonly AccountService _accountService;
     private readonly Database _db;
+    private readonly Connection _connection;
     public ObservableCollection<Character> Characters { get; set; } = new();
 
-    public MainMenuPage(AccountService accountService, Database db)
+    public MainMenuPage(AccountService accountService, Database db, Connection connection)
     {
         InitializeComponent();
         _accountService = accountService;
         _db = db;
+        _connection = connection;
         
         LoadCharacters();
         BindingContext = this;
@@ -108,6 +111,13 @@ public partial class MainMenuPage : ContentPage
             {
                 currentUser.SelectedCharacterId = character.Name; 
                 await _accountService.UpdateUser(currentUser);
+
+                // Real-time Sync via TCP
+                if (_connection.IsConnected)
+                {
+                    string syncMessage = $"SYNC_CHAR|{currentUser.Id}|{character.Name}";
+                    await _connection.SendMessageAsync(syncMessage);
+                }
             }
 
             // Visual feedback

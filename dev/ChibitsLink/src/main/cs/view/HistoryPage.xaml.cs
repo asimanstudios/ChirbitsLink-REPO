@@ -7,12 +7,14 @@ namespace ChibitsLink.main.cs.view;
 public partial class HistoryPage : ContentPage
 {
     private readonly AccountService _accountService;
+    private readonly ChibitsLink.main.repository.Database _db;
     public ObservableCollection<LobbyHistory> History { get; set; } = new();
 
-    public HistoryPage(AccountService accountService)
+    public HistoryPage(AccountService accountService, ChibitsLink.main.repository.Database db)
     {
         InitializeComponent();
         _accountService = accountService;
+        _db = db;
         BindingContext = this;
     }
 
@@ -35,15 +37,21 @@ public partial class HistoryPage : ContentPage
         var user = _accountService.GetCurrentUser();
         if (user == null) return;
 
-        // In a real app, fetch from Database repository
-        // var historyData = await _db.GetUserHistory(user.Id);
-        
-        // Demo data
-        History.Clear();
-        History.Add(new LobbyHistory { RoomCode = "123456", Date = DateTime.Now.AddDays(-1), Won = true });
-        History.Add(new LobbyHistory { RoomCode = "789012", Date = DateTime.Now.AddDays(-2), Won = false });
-        History.Add(new LobbyHistory { RoomCode = "456789", Date = DateTime.Now.AddDays(-5), Won = true });
+        try
+        {
+            var historyData = await _db.GetUserHistory(user.Id);
+            
+            History.Clear();
+            foreach (var item in historyData)
+            {
+                History.Add(item);
+            }
 
-        HistoryCollection.ItemsSource = History;
+            HistoryCollection.ItemsSource = History;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error loading history: {ex.Message}");
+        }
     }
 }

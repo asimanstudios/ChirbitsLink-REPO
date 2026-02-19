@@ -19,23 +19,20 @@ public class AccountService : BaseService
         _connection = connection;
     }
 
-    public async Task<bool> CheckSessionAsync()
+    public async Task<bool> IsSessionActiveAsync()
     {
         try
         {
-            var uid = await SecureStorage.GetAsync(SESSION_UID_KEY);
-            var expiryStr = Preferences.Get(SESSION_EXPIRY_KEY, string.Empty);
+            var userId = await SecureStorage.GetAsync(SESSION_UID_KEY);
+            var expiryString = Preferences.Get(SESSION_EXPIRY_KEY, string.Empty);
 
-            if (!string.IsNullOrEmpty(uid) && !string.IsNullOrEmpty(expiryStr))
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(expiryString))
+                return false;
+
+            if (DateTime.TryParse(expiryString, out var expiry) && DateTime.Now < expiry)
             {
-                if (DateTime.TryParse(expiryStr, out var expiry))
-                {
-                    if (DateTime.Now < expiry)
-                    {
-                        _currentUser = await _db.GetUser(uid);
-                        return _currentUser != null;
-                    }
-                }
+                _currentUser = await _db.GetUser(userId);
+                return _currentUser != null;
             }
         }
         catch (Exception ex)
@@ -73,31 +70,34 @@ public class AccountService : BaseService
         return (false, "Login failed");
     }
 
-    public async Task<(bool Success, string? ErrorMessage)> Register(string realName, string username, string email, string password)
+    public async Task<(bool Success, string? ErrorMessage)> RegisterAsync(string realName, string username, string email, string password)
     {
         try
         {
             var result = await _connection.Auth.CreateUserWithEmailAndPasswordAsync(email, password);
-            if (result.User != null)
-            {
-                var newUser = new User 
-                { 
-                    Id = result.User.Uid,
-                    RealName = realName,
-                    Username = username 
-                };
-                await _db.SaveUser(newUser);
-                _currentUser = newUser;
-                await SaveSession(result.User.Uid);
-                return (true, null);
-            }
+            if (result.User == null) return (false, "Registration response was null");
+
+            var newUser = new User 
+            { 
+                Id = result.User.Uid,
+                RealName = realName,
+                Username = username 
+            };
+            
+            await _db.SaveUser(newUser);
+            _currentUser = newUser;
+            await SaveSession(result.User.Uid);
+            
+            // Initialization of characters if first user
+            await _db.InitializeCharactersAsync();
+
+            return (true, null);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Registration Error: {ex.Message}");
             return (false, ex.Message);
         }
-        return (false, "Registration failed");
     }
 
     public async Task UpdateUser(User user)

@@ -28,7 +28,7 @@ public partial class IntroPage : ContentPage
         await Task.Delay(1000); // Pause to appreciate the logo
 
         // Session Check
-        bool hasValidSession = await _accountService.CheckSessionAsync();
+        bool hasValidSession = await _accountService.IsSessionActiveAsync();
 
         if (hasValidSession)
         {

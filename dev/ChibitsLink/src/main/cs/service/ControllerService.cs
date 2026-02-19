@@ -7,21 +7,25 @@ using System.Text.Json;
 public class ControllerService
 {
     private readonly Connection _connection;
+    private readonly AccountService _accountService;
 
-    public ControllerService(Connection connection)
+    public ControllerService(Connection connection, AccountService accountService)
     {
         _connection = connection;
+        _accountService = accountService;
     }
 
     public async Task SendJoystickMove(float x, float y)
     {
-        var data = new { type = "joystick", x = x, y = y };
+        var uid = _accountService.GetCurrentUser()?.Id ?? "anonymous";
+        var data = new { type = "joystick", x = x, y = y, userId = uid };
         await _connection.SendMessageAsync(JsonSerializer.Serialize(data));
     }
 
     public async Task SendButtonPress(string buttonId)
     {
-        var data = new { type = "button", id = buttonId, state = "pressed" };
+        var uid = _accountService.GetCurrentUser()?.Id ?? "anonymous";
+        var data = new { type = "button", id = buttonId, state = "pressed", userId = uid };
         await _connection.SendMessageAsync(JsonSerializer.Serialize(data));
     }
 
