@@ -88,6 +88,40 @@ public class Database
     public async Task CreateParty(Party party) => await StoreAsync("parties", party.RoomCode, party);
     public async Task<Party?> GetParty(string code) => await GetAsync<Party>("parties", code);
 
+    /// <summary>
+    /// Actualiza los datos de una sala existente.
+    /// </summary>
+    public async Task UpdateParty(Party party)
+    {
+        if (party == null || string.IsNullOrEmpty(party.RoomCode))
+            return;
+            
+        try
+        {
+            var updates = new Dictionary<string, object>();
+            
+            if (party.Name != null)
+                updates["Name"] = party.Name;
+                
+            updates["CurrentPlayers"] = party.CurrentPlayers;
+            updates["PlayerIds"] = party.PlayerIds ?? new List<string>();
+            
+            if (updates.Count > 0)
+            {
+                await _connection.Firestore
+                    .Collection("parties")
+                    .Document(party.RoomCode)
+                    .UpdateAsync(updates);
+                    
+                System.Diagnostics.Debug.WriteLine($"[Database] Sala {party.RoomCode} actualizada: {party.CurrentPlayers} jugadores");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Database] Error actualizando sala: {ex.Message}");
+        }
+    }
+
     public async Task UpdatePartyProgress(string roomCode, PartyProgress progress)
     {
         await _connection.Firestore

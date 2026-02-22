@@ -6,7 +6,7 @@
              Title="Sala de Espera"
              BackgroundColor="{StaticResource Background}">
 
-    <Grid Padding="20" RowDefinitions="Auto, *, Auto" RowSpacing="20">
+    <Grid Padding="20" RowDefinitions="Auto, *, Auto, Auto" RowSpacing="20">
         
         <!-- Header -->
         <VerticalStackLayout Grid.Row="0" Spacing="5" HorizontalOptions="Center">
@@ -92,8 +92,52 @@
 
         </VerticalStackLayout>
 
-        <!-- Footer Actions -->
+        <!-- Players List -->
         <VerticalStackLayout Grid.Row="2" Spacing="10">
+            <Label x:Name="PlayerCountLabel" 
+                   Text="0/4 JUGADORES" 
+                   FontAttributes="Bold" 
+                   FontSize="14" 
+                   HorizontalOptions="Center" 
+                   TextColor="{StaticResource TextLight}"
+                   CharacterSpacing="1"/>
+            
+            <CollectionView x:Name="PlayersList" HeightRequest="120">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Horizontal" ItemSpacing="10" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Padding="10" 
+                               CornerRadius="12" 
+                               BorderColor="{StaticResource Primary}" 
+                               BackgroundColor="{StaticResource Surface}"
+                               WidthRequest="80">
+                            <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="5">
+                                <Label Text="{Binding Slot, StringFormat='P{0}'}" 
+                                       FontAttributes="Bold" 
+                                       FontSize="16" 
+                                       HorizontalOptions="Center" 
+                                       TextColor="{StaticResource Secondary}"/>
+                                <Label Text="{Binding Character}" 
+                                       FontSize="9" 
+                                       HorizontalOptions="Center" 
+                                       TextColor="{StaticResource TextLight}"
+                                       MaxLines="1"/>
+                                <Label Text="{Binding IsReady, StringFormat='{}(Listo)'}" 
+                                       FontSize="8" 
+                                       HorizontalOptions="Center" 
+                                       TextColor="{StaticResource Tertiary}"
+                                       IsVisible="{Binding IsReady}"/>
+                            </VerticalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+
+        <!-- Footer Actions -->
+        <VerticalStackLayout Grid.Row="3" Spacing="10">
             <Button x:Name="ReadyButton"
                     Text="MARCAR COMO LISTO"
                     Style="{StaticResource ModernButton}"
