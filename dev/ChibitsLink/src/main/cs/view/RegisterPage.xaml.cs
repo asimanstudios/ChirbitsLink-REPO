@@ -1,10 +1,14 @@
-namespace ChibitsLink.main.cs.view;
-
 using System;
+using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using ChibitsLink.main.cs.controller;
-using System.Threading.Tasks;
 
+namespace ChibitsLink.main.cs.view;
+
+/// <summary>
+/// Página de registro de nuevos usuarios.
+/// Recoge nombre completo, alias, email y contraseña (sin confirmación — XAML no tiene ese campo).
+/// </summary>
 public partial class RegisterPage : ContentPage
 {
     private readonly AccountController _controller;
@@ -20,6 +24,12 @@ public partial class RegisterPage : ContentPage
         LoadingIndicator.IsRunning = isLoading;
     }
 
+    /// <summary>Navega a la pantalla de login tras un registro exitoso.</summary>
+    public async Task NavigateToLogin()
+    {
+        await Shell.Current.GoToAsync("//LoginPage");
+    }
+
     private async void OnRegisterClicked(object sender, EventArgs e)
     {
         string realName = RealNameEntry.Text;
@@ -27,9 +37,10 @@ public partial class RegisterPage : ContentPage
         string email = EmailEntry.Text;
         string password = PasswordEntry.Text;
 
-        if (string.IsNullOrEmpty(realName) || string.IsNullOrEmpty(username) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+        if (string.IsNullOrWhiteSpace(realName) || string.IsNullOrWhiteSpace(username)
+            || string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
         {
-            await DisplayAlert("Error", "Por favor, completa todos los campos", "Vale");
+            await DisplayAlert("Campos vacíos", "Por favor rellena todos los campos.", "OK");
             return;
         }
 
@@ -38,12 +49,6 @@ public partial class RegisterPage : ContentPage
 
     private async void OnBackClicked(object sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync("..");
-    }
-
-    public async Task NavigateToLogin()
-    {
-        await DisplayAlert("Success", "Account created! Please login.", "OK");
         await Shell.Current.GoToAsync("//LoginPage");
     }
 }

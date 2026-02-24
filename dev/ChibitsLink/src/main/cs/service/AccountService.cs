@@ -1,15 +1,21 @@
-﻿namespace ChibitsLink.main.cs.service;
-
+﻿using System;
 using System.Threading.Tasks;
-using ChibitsLink.main.cs.model;
 using Microsoft.Maui.Storage;
+using ChibitsLink.main.cs.exception;
+using ChibitsLink.main.cs.model;
 
+namespace ChibitsLink.main.cs.service;
+
+/// <summary>
+/// Gestiona la autenticación de usuarios (inicio de sesión, registro, cierre de sesión)
+/// y la persistencia de la sesión activa del usuario.
+/// </summary>
 public class AccountService : BaseService
 {
     private readonly ChibitsLink.main.repository.Database _db;
     private readonly ChibitsLink.main.repository.FirebaseConnection _connection;
     private User? _currentUser;
-    
+
     private const string SESSION_UID_KEY = "session_uid";
     private const string SESSION_EXPIRY_KEY = "session_expiry";
 
@@ -19,6 +25,9 @@ public class AccountService : BaseService
         _connection = connection;
     }
 
+    /// <summary>
+    /// Comprueba si existe una sesión activa y válida para el usuario.
+    /// </summary>
     public async Task<bool> IsSessionActiveAsync()
     {
         try
@@ -48,8 +57,9 @@ public class AccountService : BaseService
         Preferences.Set(SESSION_EXPIRY_KEY, DateTime.Now.AddDays(30).ToString());
     }
 
-
-
+    /// <summary>
+    /// Inicia sesión con email y contraseña mediante Firebase Auth.
+    /// </summary>
     public async Task<(bool Success, string? ErrorMessage)> Login(string email, string password)
     {
         try
@@ -58,54 +68,68 @@ public class AccountService : BaseService
             if (result.User != null)
             {
                 _currentUser = await _db.GetUser(result.User.Uid);
+                if (_currentUser != null) _currentUser.Email = result.User.Email ?? email;
                 await SaveSession(result.User.Uid);
                 return (true, null);
             }
         }
+        catch (DatabaseException ex)
+        {
+            return (false, $"Error al recuperar datos de usuario: {ex.Message}");
+        }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Login Error: {ex.Message}");
-            return (false, ex.Message);
+            return (false, "Error de autenticación. Comprueba tus credenciales.");
         }
-        return (false, "Login failed");
+        return (false, "La autenticación no devolvió un usuario.");
     }
 
+    /// <summary>
+    /// Registra un nuevo usuario en Firebase Auth y crea su perfil en Firestore.
+    /// </summary>
     public async Task<(bool Success, string? ErrorMessage)> RegisterAsync(string realName, string username, string email, string password)
     {
         try
         {
             var result = await _connection.Auth.CreateUserWithEmailAndPasswordAsync(email, password);
-            if (result.User == null) return (false, "Registration response was null");
+            if (result.User == null) return (false, "El registro no devolvió un usuario.");
 
-            var newUser = new User 
-            { 
+            var newUser = new User
+            {
                 Id = result.User.Uid,
+                Email = email,
                 RealName = realName,
-                Username = username 
+                Username = username
             };
-            
+
             await _db.SaveUser(newUser);
             _currentUser = newUser;
             await SaveSession(result.User.Uid);
-            
-            // Initialization of characters if first user
+
             await _db.InitializeCharactersAsync();
 
             return (true, null);
         }
+        catch (DatabaseException ex)
+        {
+            return (false, $"Error al guardar perfil de usuario: {ex.Message}");
+        }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Registration Error: {ex.Message}");
-            return (false, ex.Message);
+            return (false, "Error al crear la cuenta. Inténtalo de nuevo más tarde.");
         }
     }
 
+    /// <summary>Actualiza los datos del usuario tanto en Firestore como en memoria.</summary>
     public async Task UpdateUser(User user)
     {
         await _db.UpdateUser(user);
         _currentUser = user;
     }
 
+    /// <summary>Actualiza el email del usuario autenticado en Firebase Auth.</summary>
     public async Task<(bool Success, string? ErrorMessage)> UpdateEmail(string newEmail)
     {
         try
@@ -113,12 +137,13 @@ public class AccountService : BaseService
             await _connection.Auth.CurrentUser.UpdateEmailAsync(newEmail);
             return (true, null);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            return (false, e.Message);
+            return (false, ex.Message);
         }
     }
 
+    /// <summary>Cambia la contraseña del usuario autenticado en Firebase Auth.</summary>
     public async Task<(bool Success, string? ErrorMessage)> ChangePassword(string newPassword)
     {
         try
@@ -126,12 +151,13 @@ public class AccountService : BaseService
             await _connection.Auth.CurrentUser.UpdatePasswordAsync(newPassword);
             return (true, null);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            return (false, e.Message);
+            return (false, ex.Message);
         }
     }
 
+    /// <summary>Cierra la sesión del usuario y borra los datos de sesión persistidos.</summary>
     public async Task Logout()
     {
         _connection.Auth.SignOut();
@@ -141,5 +167,6 @@ public class AccountService : BaseService
         await Task.CompletedTask;
     }
 
+    /// <summary>Devuelve el usuario actualmente autenticado en memoria, o null si no hay sesión.</summary>
     public User? GetCurrentUser() => _currentUser;
 }

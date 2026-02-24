@@ -89,9 +89,9 @@ public partial class MainMenuPage : ContentPage
 
     private void AddMockCharacters()
     {
-        Characters.Add(new Character { Id = "1", Name = "VALIENTE", ImageUrl = "dotnet_bot.png", Level = 5 });
-        Characters.Add(new Character { Id = "2", Name = "MAGA", ImageUrl = "dotnet_bot.png", Level = 3 });
-        Characters.Add(new Character { Id = "3", Name = "PICARO", ImageUrl = "dotnet_bot.png", Level = 10 });
+        Characters.Add(new Character { Id = "1", Name = "VALIENTE", ImageUrl = "dotnet_bot.png" });
+        Characters.Add(new Character { Id = "2", Name = "MAGA", ImageUrl = "dotnet_bot.png" });
+        Characters.Add(new Character { Id = "3", Name = "PICARO", ImageUrl = "dotnet_bot.png" });
     }
 
     private async void OnCharacterSelected(object sender, SelectionChangedEventArgs e)
@@ -103,7 +103,7 @@ public partial class MainMenuPage : ContentPage
             
             // Update UI
             ProfileImage.Source = character.ImageUrl;
-            LevelLabel.Text = $"Nivel {character.Level}";
+            CharacterNameLabel.Text = character.Name;
             
             // Update User Service & DB
             var currentUser = _accountService.GetCurrentUser();
@@ -127,6 +127,7 @@ public partial class MainMenuPage : ContentPage
             CharactersCollection.SelectedItem = null;
         }
     }
+
 
     private async void OnControllerClicked(object sender, EventArgs e)
     {

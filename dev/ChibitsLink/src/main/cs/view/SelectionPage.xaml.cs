@@ -1,14 +1,17 @@
-namespace ChibitsLink.main.cs.view;
-
 using System;
 using System.Linq;
-using Microsoft.Maui.Controls;
-using ChibitsLink.main.cs.service;
-using ChibitsLink.main.cs.model;
-using ChibitsLink.main.cs.controller;
-using ChibitsLink.main.cs.net;
 using System.Threading.Tasks;
+using Microsoft.Maui.Controls;
+using ChibitsLink.main.cs.controller;
+using ChibitsLink.main.cs.model;
+using ChibitsLink.main.cs.net;
+using ChibitsLink.main.cs.service;
 
+namespace ChibitsLink.main.cs.view;
+
+/// <summary>
+/// Página de selección de juego y método de conexión (Wi-Fi, Bluetooth, QR).
+/// </summary>
 public partial class SelectionPage : ContentPage
 {
     private readonly GameService _gameService;
@@ -34,7 +37,6 @@ public partial class SelectionPage : ContentPage
         if (user == null)
         {
             await Shell.Current.GoToAsync("//LoginPage");
-            return;
         }
     }
 
@@ -49,8 +51,9 @@ public partial class SelectionPage : ContentPage
         StartButton.IsEnabled = _selectedGame != null;
     }
 
-    private async void OnQRClicked(object sender, EventArgs e) => await DisplayAlert("QR", "Opening Camera Scan...", "OK");
-    
+    private async void OnQRClicked(object sender, EventArgs e) =>
+        await DisplayAlert("QR", "Abriendo escáner de cámara...", "OK");
+
     private async void OnBluetoothClicked(object sender, EventArgs e)
     {
         try
@@ -69,52 +72,58 @@ public partial class SelectionPage : ContentPage
 
             if (deviceNames.Length == 0)
             {
-                await DisplayAlert("Bluetooth", "No items found. Make sure Unity Game is in Pairing Mode.", "OK");
+                await DisplayAlert("Bluetooth", "No se encontraron dispositivos. Asegúrate de que el juego Unity esté en modo emparejamiento.", "OK");
                 return;
             }
 
-            string[] buttons = deviceNames;
-            var selectedName = await DisplayActionSheet("Select Chibits Host", "Cancel", null, buttons);
+            var selectedName = await DisplayActionSheet("Seleccionar Host ChirBits", "Cancelar", null, deviceNames);
 
-            if (selectedName != "Cancel" && selectedName != null)
+            if (selectedName != "Cancelar" && selectedName != null)
             {
-                var selectedDevice = _bluetoothService.DiscoveredDevices.FirstOrDefault(d => (d.Name ?? d.Id.ToString()) == selectedName);
+                var selectedDevice = _bluetoothService.DiscoveredDevices
+                    .FirstOrDefault(d => (d.Name ?? d.Id.ToString()) == selectedName);
+
                 if (selectedDevice != null)
                 {
                     bool connected = await _bluetoothService.ConnectToDeviceAsync(selectedDevice);
                     if (connected)
                     {
                         _connection.SetBluetoothDevice(selectedDevice);
-                        await DisplayAlert("Success", "Connected via Bluetooth!", "OK");
+                        await DisplayAlert("Éxito", "¡Conectado vía Bluetooth!", "OK");
                         await Shell.Current.GoToAsync("//ControllerPage");
                     }
                     else
                     {
-                        await DisplayAlert("Error", "Could not connect to device", "OK");
+                        await DisplayAlert("Error", "No se pudo conectar al dispositivo.", "OK");
                     }
                 }
             }
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Bluetooth Error", ex.Message, "OK");
+            await DisplayAlert("Error Bluetooth", ex.Message, "OK");
         }
     }
 
     private async void OnWebSocketClicked(object sender, EventArgs e)
     {
-        string url = await DisplayPromptAsync("WebSocket Connect", "Enter Game Server URL", "Connect", "Cancel", "ws://192.168.1.100:8080");
+        string url = await DisplayPromptAsync(
+            "Conectar WebSocket",
+            "Introduce la URL del servidor de juego",
+            "Conectar", "Cancelar",
+            "ws://192.168.1.100:8080");
+
         if (!string.IsNullOrEmpty(url))
         {
-            try 
+            try
             {
                 await _connection.ConnectWebSocketAsync(url);
-                await DisplayAlert("Connected", "WebSocket link established.", "OK");
+                await DisplayAlert("Conectado", "Enlace WebSocket establecido.", "OK");
                 await Shell.Current.GoToAsync("//ControllerPage");
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Connection Failed", ex.Message, "OK");
+                await DisplayAlert("Conexión Fallida", ex.Message, "OK");
             }
         }
     }
@@ -122,17 +131,28 @@ public partial class SelectionPage : ContentPage
     private async void OnJoinLobbyClicked(object sender, EventArgs e)
     {
         string code = RoomCodeEntry.Text;
-        if (string.IsNullOrEmpty(code) || code.Length < 6)
+        if (string.IsNullOrEmpty(code) || code.Length != 6)
         {
-            await DisplayAlert("Error", "Enter a valid 6-digit code", "OK");
+            await DisplayAlert("Error", "Introduce un código válido de 6 dígitos.", "OK");
             return;
         }
 
-        // R02F02T01 - Verificar conexión al lobby
-        await DisplayAlert("Lobby", $"Joining {code}...", "OK");
-        
-        // Navigation directly to controller for that lobby
-        await Shell.Current.GoToAsync("//ControllerPage");
+        try
+        {
+            bool isValid = await _gameService.ValidateLobbyAsync(code);
+            if (isValid)
+            {
+                await Shell.Current.GoToAsync($"LobbyPage?code={code}");
+            }
+            else
+            {
+                await DisplayAlert("Error", "La sala no existe o el código es incorrecto.", "Vale");
+            }
+        }
+        catch (Exception)
+        {
+            await DisplayAlert("Error de Conexión", "No hemos podido verificar la sala. Comprueba tu conexión.", "Vale");
+        }
     }
 
     private async void OnStartClicked(object sender, EventArgs e)

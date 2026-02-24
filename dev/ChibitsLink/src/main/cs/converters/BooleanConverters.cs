@@ -1,6 +1,6 @@
 using System.Globalization;
 using Microsoft.Maui.Controls;
-
+// TODO- VALORAR SI ES 100% NECESARIO
 namespace ChibitsLink.main.cs.converters;
 
 public class BooleanToTextConverter : IValueConverter

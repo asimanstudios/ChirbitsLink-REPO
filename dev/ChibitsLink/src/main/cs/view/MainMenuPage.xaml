@@ -30,23 +30,28 @@
             </Frame>
             
             <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
-                <Label Text="HOLA de nuevo," 
-                       FontSize="12" 
-                       TextColor="{StaticResource TextLight}" 
-                       HorizontalOptions="Center" 
-                       CharacterSpacing="2"/>
-                <Label x:Name="UsernameLabel" 
-                       Text="AVENTURERO" 
-                       Style="{StaticResource ModernTitle}"
-                       HorizontalOptions="Center"/>
-                <Label x:Name="LevelLabel" 
-                       Text="Nivel 1" 
-                       FontSize="14" 
-                       TextColor="{StaticResource Primary}" 
+                <Label x:Name="UsernameLabel"
+                       Text=""
                        FontAttributes="Bold"
-                       HorizontalOptions="Center"/>
+                       FontSize="22"
+                       HorizontalOptions="Center"
+                       TextColor="{StaticResource TextMain}"
+                       CharacterSpacing="2"/>
+                <Label x:Name="CharacterNameLabel"
+                       Text="VALIENTE"
+                       FontSize="14"
+                       TextColor="{StaticResource Secondary}"
+                       HorizontalOptions="Center"
+                       Opacity="0.8"/>
+                <Label Text="TOCA PARA CAMBIAR"
+                       FontSize="11"
+                       TextColor="{StaticResource Tertiary}"
+                       HorizontalOptions="Center"
+                       Opacity="0.8"
+                       FontAttributes="Bold"/>
             </VerticalStackLayout>
         </VerticalStackLayout>
+
 
         <!-- Main Content -->
         <ScrollView Grid.Row="1">

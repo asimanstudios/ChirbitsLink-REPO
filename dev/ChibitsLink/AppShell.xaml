@@ -56,11 +56,11 @@
             Route="MainMenuPage" />
     </FlyoutItem>
 
-    <FlyoutItem Title="Mi Perfil" Icon="dotnet_bot.png">
-        <ShellContent
-            ContentTemplate="{DataTemplate view:SettingsPage}"
-            Route="SettingsPage" />
-    </FlyoutItem>
+    <ShellContent
+        Title="Mi Perfil"
+        ContentTemplate="{DataTemplate view:SettingsPage}"
+        Route="SettingsPage"
+        FlyoutItemIsVisible="False" />
 
     <FlyoutItem Title="Mando Móvil" Icon="dotnet_bot.png">
         <ShellContent

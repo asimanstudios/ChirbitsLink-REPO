@@ -1,8 +1,10 @@
-﻿using Plugin.CloudFirestore;
-using ChibitsLink.main.cs.model;
-using System.Linq;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Plugin.CloudFirestore;
+using ChibitsLink.main.cs.exception;
+using ChibitsLink.main.cs.model;
 
 namespace ChibitsLink.main.repository;
 
@@ -29,9 +31,14 @@ public class Database
                 .Document(documentId)
                 .SetAsync(data);
         }
+        catch (ArgumentException ex)
+        {
+            throw new DatabaseException($"Invalid argument while storing to {collection}", ex);
+        }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"StoreAsync Error ({collection}): {ex.Message}");
+            throw new DatabaseException($"Failed to store document in {collection}", ex);
         }
     }
 
@@ -44,12 +51,17 @@ public class Database
                 .Document(documentId)
                 .GetAsync();
 
-            return snapshot.Exists ? snapshot.ToObject<T>() : null;
+            if (!snapshot.Exists)
+            {
+                return null;
+            }
+
+            return snapshot.ToObject<T>();
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"GetAsync Error ({collection}/{documentId}): {ex.Message}");
-            return null;
+            throw new DatabaseException($"Failed to retrieve document {documentId} from {collection}", ex);
         }
     }
 
@@ -66,16 +78,24 @@ public class Database
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"ListAsync Error ({collection}): {ex.Message}");
-            return new List<T>();
+            throw new DatabaseException($"Failed to list documents in {collection}", ex);
         }
     }
 
     public async Task DeleteAsync(string collection, string documentId)
     {
-        await _connection.Firestore
-            .Collection(collection)
-            .Document(documentId)
-            .DeleteAsync();
+        try
+        {
+            await _connection.Firestore
+                .Collection(collection)
+                .Document(documentId)
+                .DeleteAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"DeleteAsync Error ({collection}/{documentId}): {ex.Message}");
+            throw new DatabaseException($"Failed to delete document {documentId} from {collection}", ex);
+        }
     }
 
     public async Task SaveUser(User user) => await StoreAsync("users", user.Id, user);
@@ -123,9 +143,9 @@ public class Database
 
         var characters = new List<Character>
         {
-            new Character { Id = "VALIENTE", Name = "Valiente", Description = "Guerrero audaz", Attack = 15, Defense = 10, Speed = 8 },
-            new Character { Id = "MAGO", Name = "Mago", Description = "Maestro de las artes oscuras", Attack = 20, Defense = 5, Speed = 10 },
-            new Character { Id = "EXPLORADOR", Name = "Explorador", Description = "Rápido y letal", Attack = 12, Defense = 7, Speed = 18 }
+            new Character { Id = "VALIENTE",    Name = "Valiente",    Description = "Guerrero audaz, fuerte en combate cuerpo a cuerpo.",   ImageUrl = "char_valiente.png" },
+            new Character { Id = "MAGO",        Name = "Mago",        Description = "Maestro de las artes arcanas, poder mágico superior.", ImageUrl = "char_mago.png"     },
+            new Character { Id = "EXPLORADOR",  Name = "Explorador",  Description = "Rápido y sigiloso, experto en movimiento y evasión.",  ImageUrl = "char_explorador.png" }
         };
 
         foreach (var c in characters)

@@ -1,10 +1,11 @@
-﻿namespace ChibitsLink.main.cs.model;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
-/*
- * progreso de las partis como ganadores, puntajes , juegos etc - esto se alamcenara y se debe hacer una vista de historial
- */
+
+namespace ChibitsLink.main.cs.model;
+
+/// <summary>
+/// Registra el progreso de una partida concreta: puntuaciones, ganador y momento de finalización.
+/// </summary>
 public class PartyProgress
 {
     public string Id { get; set; } = string.Empty;

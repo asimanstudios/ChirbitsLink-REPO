@@ -33,13 +33,14 @@ public partial class SettingsPage : ContentPage
         {
             RealNameEntry.Text = user.RealName;
             UsernameEntry.Text = user.Username;
-            EmailEntry.Text = user.Id; // Placeholder - ideally fetch actual email
+            EmailEntry.Text = user.Email;
         }
 
         // Load Networking Settings
         ServerIpEntry.Text = Preferences.Get("pref_server_ip", "127.0.0.1");
-        ServerPortEntry.Text = Preferences.Get("pref_server_port", "11000").ToString();
+        ServerPortEntry.Text = Preferences.Get("pref_server_port", 11000).ToString();
     }
+
 
     private async void OnSaveClicked(object sender, EventArgs e)
     {
@@ -58,10 +59,14 @@ public partial class SettingsPage : ContentPage
             }
 
             // Handle email update
-            if (!string.IsNullOrEmpty(EmailEntry.Text) && EmailEntry.Text != user.Id)
+            if (!string.IsNullOrEmpty(EmailEntry.Text) && EmailEntry.Text != user.Email)
             {
                 var emailResult = await _accountService.UpdateEmail(EmailEntry.Text);
-                if (!emailResult.Success)
+                if (emailResult.Success)
+                {
+                    user.Email = EmailEntry.Text;
+                }
+                else
                 {
                     await DisplayAlert("Error Email", emailResult.ErrorMessage, "OK");
                 }

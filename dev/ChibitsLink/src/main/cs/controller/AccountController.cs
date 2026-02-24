@@ -1,12 +1,14 @@
-﻿namespace ChibitsLink.main.cs.controller;
-/*
-    Controla al sistema de usuarios
-*/
-using System;
-using ChibitsLink.main.cs.view;
-using ChibitsLink.main.cs.service;
+﻿using System;
 using System.Threading.Tasks;
+using ChibitsLink.main.cs.service;
+using ChibitsLink.main.cs.view;
 
+namespace ChibitsLink.main.cs.controller;
+
+/// <summary>
+/// Controla el sistema de autenticación de usuarios.
+/// Intermediario entre las páginas de login/registro y <see cref="AccountService"/>.
+/// </summary>
 public class AccountController
 {
     private readonly AccountService _service;
@@ -16,6 +18,9 @@ public class AccountController
         _service = service;
     }
 
+    /// <summary>
+    /// Gestiona el intento de inicio de sesión. Actualiza la UI de la vista con el resultado.
+    /// </summary>
     public async Task Login(LoginPage view, string username, string password)
     {
         view.ShowLoading(true);
@@ -24,14 +29,17 @@ public class AccountController
 
         if (success)
         {
-            await view.NavigateToSelection(); // This should be renamed or redirected
+            await view.NavigateToSelection();
         }
         else
         {
-            await view.DisplayAlert("Error", errorMessage ?? "Invalid credentials", "OK");
+            await view.DisplayAlert("Error", errorMessage ?? "Credenciales no válidas.", "OK");
         }
     }
 
+    /// <summary>
+    /// Gestiona el intento de registro. Actualiza la UI de la vista con el resultado.
+    /// </summary>
     public async Task Register(RegisterPage view, string realName, string username, string email, string password)
     {
         view.ShowLoading(true);
@@ -44,7 +52,7 @@ public class AccountController
         }
         else
         {
-            await view.DisplayAlert("Error", errorMessage ?? "Registration failed", "OK");
+            await view.DisplayAlert("Error", errorMessage ?? "Error al registrar la cuenta.", "OK");
         }
     }
 }

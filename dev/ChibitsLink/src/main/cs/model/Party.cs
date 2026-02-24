@@ -1,9 +1,11 @@
-﻿namespace ChibitsLink.main.cs.model;
+﻿using System.Collections.Generic;
 
-using System.Collections.Generic;
-/*
- * entidad de party estas son las lobbys
- */
+namespace ChibitsLink.main.cs.model;
+
+/// <summary>
+/// Representa una sala de juego (lobby) activa o pasada en ChirBits.
+/// Contiene el código de sala y los jugadores que participaron.
+/// </summary>
 public class Party
 {
     public string Id { get; set; } = string.Empty;
