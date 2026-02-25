@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\adris\\RiderProjects\\ChirbitsLink\\ChibitsLink\\ChibitsLink.csproj": {}
+    "C:\\Users\\adris\\RiderProjects\\ChirbitsLink\\ChirbitsLink-REPO\\dev\\ChibitsLink\\ChibitsLink.csproj": {}
   },
   "projects": {
-    "C:\\Users\\adris\\RiderProjects\\ChirbitsLink\\ChibitsLink\\ChibitsLink.csproj": {
+    "C:\\Users\\adris\\RiderProjects\\ChirbitsLink\\ChirbitsLink-REPO\\dev\\ChibitsLink\\ChibitsLink.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\adris\\RiderProjects\\ChirbitsLink\\ChibitsLink\\ChibitsLink.csproj",
+        "projectUniqueName": "C:\\Users\\adris\\RiderProjects\\ChirbitsLink\\ChirbitsLink-REPO\\dev\\ChibitsLink\\ChibitsLink.csproj",
         "projectName": "ChibitsLink",
-        "projectPath": "C:\\Users\\adris\\RiderProjects\\ChirbitsLink\\ChibitsLink\\ChibitsLink.csproj",
+        "projectPath": "C:\\Users\\adris\\RiderProjects\\ChirbitsLink\\ChirbitsLink-REPO\\dev\\ChibitsLink\\ChibitsLink.csproj",
         "packagesPath": "C:\\Users\\adris\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\adris\\RiderProjects\\ChirbitsLink\\ChibitsLink\\obj\\",
+        "outputPath": "C:\\Users\\adris\\RiderProjects\\ChirbitsLink\\ChirbitsLink-REPO\\dev\\ChibitsLink\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\adris\\AppData\\Roaming\\NuGet\\NuGet.Config",

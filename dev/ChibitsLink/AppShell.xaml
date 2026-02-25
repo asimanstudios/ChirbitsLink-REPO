@@ -88,7 +88,7 @@
         Route="JoinRoomPage" />
 
     <ShellContent
-        Title="Lobby"
+        Title="LobbyHistory"
         ContentTemplate="{DataTemplate view:LobbyPage}"
         FlyoutItemIsVisible="False"
         Route="LobbyPage" />

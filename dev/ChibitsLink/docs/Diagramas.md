@@ -67,11 +67,12 @@ classDiagram
         Kitchen
     }
 
-    User --> Character : selectedCharacter
-    User --> LobbyHistory : historial
-    Party --> PartyProgress : progreso
-    Party --> User : jugadores
-    Game --> GameType : tipo
+    User "1" --> "1" Character : selectedCharacter
+    User "1" --> "*" LobbyHistory : historial
+    Party "1" --> "1" PartyProgress : progreso
+    Party "*" --> "*" User : jugadores
+    Game "1" --> "1" GameType : tipo
+    Game "1" --> "*" Party : hosted_in
 ```
 
 ---
@@ -129,11 +130,12 @@ erDiagram
         datetime timestamp
     }
 
-    USERS ||--o{ LOBBYS : "participa en"
-    USERS }o--|| PERSONAJES : "selecciona"
-    PARTIES ||--|| PARTY_PROGRESS : "tiene progreso"
-    PARTIES }o--o{ USERS : "contiene jugadores"
-    LOBBYS }o--|| PARTIES : "pertenece a"
+    USERS ||--o{ LOBBYS : "1:N participa en"
+    USERS }o--|| PERSONAJES : "N:1 selecciona"
+    PARTIES ||--|| PARTY_PROGRESS : "1:1 tiene progreso"
+    PARTIES }o--o{ USERS : "N:M contiene jugadores"
+    LOBBYS }o--|| PARTIES : "N:1 pertenece a"
+    GAMES ||--o{ PARTIES : "1:N aloja"
 ```
 
 ---
@@ -524,6 +526,8 @@ graph LR
 | | [Database.cs](file:///c:/Users/adris/RiderProjects/ChirbitsLink/ChibitsLink/src/main/cs/repository/Database.cs) |
 | | [BooleanToTextConverter.cs](file:///c:/Users/adris/RiderProjects/ChirbitsLink/ChibitsLink/src/main/cs/converters/BooleanConverters.cs) |
 
+
+
 ---
 
 ## UC-07: Configurar Perfil
@@ -574,3 +578,33 @@ graph LR
 | USERS | [SettingsPage.xaml.cs](file:///c:/Users/adris/RiderProjects/ChirbitsLink/ChibitsLink/src/main/cs/view/SettingsPage.xaml.cs) |
 | | [AccountService.cs](file:///c:/Users/adris/RiderProjects/ChirbitsLink/ChibitsLink/src/main/cs/service/AccountService.cs) |
 | | [Database.cs](file:///c:/Users/adris/RiderProjects/ChirbitsLink/ChibitsLink/src/main/cs/repository/Database.cs) |
+
+---
+
+## 8. Diagrama de Red
+
+Muestra la arquitectura de conectividad entre los diferentes componentes del sistema.
+
+```mermaid
+graph TD
+    subgraph "Red Local"
+        AppMod["Movil App ChibitsLink"]
+        UnityServer["Unity Game Server"]
+    end
+
+    subgraph "Nube Firebase"
+        FBAuth["Firebase Auth"]
+        Firestore["Cloud Firestore"]
+    end
+
+    AppMod --- UnityServer
+    AppMod --- FBAuth
+    AppMod --- Firestore
+    UnityServer --- Firestore
+```
+
+| Componente | Conexión |
+|---|---|
+| **App-Unity** | TCP o WebSocket Puerto 7777 para control en tiempo real. |
+| **App-Firebase** | HTTPS para autenticación y perfiles de usuario. |
+| **Unity-Firebase** | HTTPS para validación de salas y datos de partida. |

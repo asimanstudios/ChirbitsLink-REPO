@@ -147,7 +147,7 @@
         <member name="T:ChibitsLink.main.cs.view.JoinRoomPage">
             <summary>
             Página de unión a sala mediante código de 6 dígitos.
-            Valida el código contra Firestore antes de navegar al Lobby.
+            Valida el código contra Firestore antes de navegar al LobbyHistory.
             </summary>
         </member>
         <member name="T:ChibitsLink.main.cs.view.LoginPage">
@@ -201,6 +201,26 @@
         <member name="M:ChibitsLink.main.repository.Database.JoinLobbyAsync(System.String,System.String)">
             <summary>
             Registra la participación de un usuario en un lobby.
+            </summary>
+        </member>
+        <member name="T:ChibitsLink.main.repository.DatabaseSeeder">
+            <summary>
+            Clase encargada de poblar la base de datos con datos iniciales.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.repository.DatabaseSeeder.SeedAllAsync">
+            <summary>
+            Ejecuta el sembrado completo de la base de datos.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.repository.DatabaseSeeder.SeedCharactersAsync">
+            <summary>
+            Puebla la colección de personajes.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.repository.DatabaseSeeder.SeedGamesAsync">
+            <summary>
+            Puebla la colección de juegos disponibles.
             </summary>
         </member>
         <member name="T:ChibitsLink.main.test.GameServiceTests">

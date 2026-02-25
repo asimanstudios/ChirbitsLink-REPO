@@ -11,6 +11,7 @@ public class LobbyHistory
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
     
     public string CharacterId { get; set; } = string.Empty;
+    // Todo reemplazar si se gano la lobby por la id del jugdor q la ganó
     public bool Won { get; set; }
    
 }

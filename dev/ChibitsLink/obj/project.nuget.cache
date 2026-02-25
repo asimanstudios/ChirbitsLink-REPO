@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "RQX/281xGB4=",
+  "dgSpecHash": "C1ntbEKgSFA=",
   "success": true,
-  "projectFilePath": "C:\\Users\\adris\\RiderProjects\\ChirbitsLink\\ChibitsLink\\ChibitsLink.csproj",
+  "projectFilePath": "C:\\Users\\adris\\RiderProjects\\ChirbitsLink\\ChirbitsLink-REPO\\dev\\ChibitsLink\\ChibitsLink.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\adris\\.nuget\\packages\\googlegson\\2.13.0.1\\googlegson.2.13.0.1.nupkg.sha512",
     "C:\\Users\\adris\\.nuget\\packages\\microsoft.extensions.configuration\\9.0.9\\microsoft.extensions.configuration.9.0.9.nupkg.sha512",
