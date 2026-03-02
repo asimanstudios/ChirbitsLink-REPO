@@ -6,21 +6,25 @@
     xmlns:local="clr-namespace:ChibitsLink"
     xmlns:view="clr-namespace:ChibitsLink.main.cs.view"
     Shell.FlyoutBehavior="Flyout"
-    FlyoutBackgroundColor="{StaticResource Surface}">
+    FlyoutBackgroundColor="{StaticResource Surface}"
+    Shell.ForegroundColor="{StaticResource TextMain}"
+    Shell.TitleColor="{StaticResource TextMain}">
 
     <!-- Flyout Header -->
     <Shell.FlyoutHeader>
         <Grid HeightRequest="180" BackgroundColor="{StaticResource Primary}" Padding="20">
             <VerticalStackLayout VerticalOptions="End" Spacing="5">
-                <Frame WidthRequest="70" 
-                       HeightRequest="70" 
-                       CornerRadius="35" 
-                       Padding="0" 
-                       HorizontalOptions="Start"
-                       BorderColor="{StaticResource Secondary}"
-                       HasShadow="False">
+                <Border WidthRequest="70" 
+                        HeightRequest="70" 
+                        Stroke="{StaticResource Secondary}"
+                        StrokeThickness="3"
+                        HorizontalOptions="Start"
+                        BackgroundColor="{StaticResource Surface}">
+                    <Border.StrokeShape>
+                        <Ellipse />
+                    </Border.StrokeShape>
                     <Image Source="dotnet_bot.png" Aspect="AspectFill" />
-                </Frame>
+                </Border>
                 <Label Text="MI CUENTA" 
                        TextColor="White" 
                        FontSize="12" 

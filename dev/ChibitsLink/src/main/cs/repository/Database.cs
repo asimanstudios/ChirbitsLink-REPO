@@ -20,6 +20,33 @@ public class Database
         _connection = connection;
     }
 
+    /// <summary>
+    /// Escucha cambios en tiempo real de un documento de Firestore.
+    /// </summary>
+    public IDisposable ListenAsync<T>(string collection, string documentId, Action<T?> onChanged) where T : class
+    {
+        return _connection.Firestore
+            .Collection(collection)
+            .Document(documentId)
+            .AddSnapshotListener((snapshot, error) =>
+            {
+                if (error != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"ListenAsync Error ({collection}/{documentId}): {error.Message}");
+                    return;
+                }
+
+                if (snapshot != null && snapshot.Exists)
+                {
+                    onChanged(snapshot.ToObject<T>());
+                }
+                else
+                {
+                    onChanged(null);
+                }
+            });
+    }
+
     // --- MÉTODOS CRUD ---
 
     public async Task StoreAsync<T>(string collection, string documentId, T data) where T : class
@@ -116,7 +143,7 @@ public class Database
             .UpdateAsync(new { progress = progress });
     }
 
-    public async Task<List<Character>> GetCharacters() => await ListAsync<Character>("personajes");
+    public async Task<List<Character>> GetCharacters() => await ListAsync<Character>("characters");
 
     /// <summary>
     /// Verifica si un lobby existe por su código de sala.
@@ -133,8 +160,8 @@ public class Database
     }
 
     /// <summary>
-    /// Inicializa los personajes en la base de datos si no existen.
-    /// Esto permite al usuario meter las imágenes después.
+    /// Initializes characters in the database if they don't exist.
+    /// This allows the user to add images later.
     /// </summary>
     public async Task InitializeCharactersAsync()
     {
@@ -150,12 +177,12 @@ public class Database
 
         foreach (var c in characters)
         {
-            await StoreAsync("personajes", c.Id, c);
+            await StoreAsync("characters", c.Id, c);
         }
     }
 
     /// <summary>
-    /// Registra la participación de un usuario en un lobby.
+    /// Registers a user's participation in a lobby.
     /// </summary>
     public async Task JoinLobbyAsync(string userId, string roomCode)
     {
@@ -167,7 +194,7 @@ public class Database
             Timestamp = DateTime.UtcNow
         };
 
-        await StoreAsync("lobbys", history.Id, history);
+        await StoreAsync("lobbies", history.Id, history);
 
         // También actualizamos el historial directo del usuario por conveniencia
         var user = await GetUser(userId);
@@ -183,7 +210,7 @@ public class Database
     public async Task<List<LobbyHistory>> GetUserHistory(string userId)
     {
         var querySnapshot = await _connection.Firestore
-            .Collection("lobbys")
+            .Collection("lobbies")
             .WhereEqualsTo("UserId", userId)
             .OrderBy("Timestamp", true)
             .GetAsync();

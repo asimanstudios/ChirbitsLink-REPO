@@ -52,4 +52,27 @@ public class GameService
             throw;
         }
     }
+
+    /// <summary>
+    /// Recupera la lista de personajes configurados en Firestore.
+    /// </summary>
+    public async Task<List<Character>> GetCharacters()
+    {
+        try
+        {
+            return await _db.GetCharacters();
+        }
+        catch (DatabaseException)
+        {
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Escucha cambios en el lobby en tiempo real.
+    /// </summary>
+    public IDisposable ListenToLobby(string roomCode, Action<Party?> onChanged)
+    {
+        return _db.ListenAsync<Party>("parties", roomCode, onChanged);
+    }
 }

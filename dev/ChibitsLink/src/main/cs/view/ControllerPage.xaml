@@ -9,37 +9,58 @@
     <Grid RowDefinitions="Auto, *" Padding="20">
         
         <!-- Header Overlay (Tilt & Latency) -->
-        <HorizontalStackLayout Grid.Row="0" Spacing="20" HorizontalOptions="Center" VerticalOptions="Start" Padding="10">
-            <Button Text="VOLVER" 
+        <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto" Padding="15" BackgroundColor="{StaticResource Surface}">
+            <Button Grid.Column="0" 
+                    Text="VOLVER" 
                     Clicked="OnBackClicked" 
                     Style="{StaticResource SecondaryButton}"
-                    HeightRequest="40"
-                    FontSize="12"/>
-            <Label Text="MODO TILT" VerticalOptions="Center" TextColor="{StaticResource Secondary}" FontAttributes="Bold"/>
-            <Switch x:Name="TiltSwitch" Toggled="OnTiltToggled" OnColor="{StaticResource Secondary}" ThumbColor="{StaticResource Background}"/>
-            <Label x:Name="LatencyLabel" Text="Ping: 0ms" VerticalOptions="Center" TextColor="{StaticResource Tertiary}" FontAttributes="Bold"/>
-        </HorizontalStackLayout>
+                    HeightRequest="44"
+                    FontSize="12"
+                    CornerRadius="22"/>
+            
+            <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center">
+                <Label x:Name="UsernameLabel" 
+                       Text="USUARIO" 
+                       TextColor="{StaticResource TextMain}" 
+                       FontAttributes="Bold" 
+                       CharacterSpacing="1"
+                       FontSize="16"
+                       HorizontalOptions="Center"/>
+                <Label x:Name="UserLevelLabel" 
+                       Text="LVL. 1" 
+                       TextColor="{StaticResource Accent}" 
+                       FontAttributes="Bold" 
+                       FontSize="12"
+                       HorizontalOptions="Center"/>
+            </VerticalStackLayout>
+            
+            <HorizontalStackLayout Grid.Column="2" Spacing="15" VerticalOptions="Center">
+                <Label Text="TILT" VerticalOptions="Center" TextColor="{StaticResource Primary}" FontAttributes="Bold" FontSize="12"/>
+                <Switch x:Name="TiltSwitch" Toggled="OnTiltToggled" OnColor="{StaticResource Primary}" ThumbColor="{StaticResource Background}" Scale="0.8"/>
+                <Label x:Name="LatencyLabel" Text="0ms" VerticalOptions="Center" TextColor="{StaticResource Secondary}" FontAttributes="Bold" FontSize="12"/>
+            </HorizontalStackLayout>
+        </Grid>
 
         <Grid Grid.Row="1" ColumnDefinitions="*, *">
             
             <!-- Joystick Area (Left) -->
             <ContentView Grid.Column="0" VerticalOptions="Center" HorizontalOptions="Center">
                 <AbsoluteLayout x:Name="JoystickBoundary" 
-                                WidthRequest="200" 
-                                HeightRequest="200">
-                    <Ellipse Fill="#20000000" 
-                             Stroke="{StaticResource Tertiary}" 
-                             StrokeThickness="3" 
-                             WidthRequest="200" 
-                             HeightRequest="200"/>
+                                WidthRequest="220" 
+                                HeightRequest="220">
+                    <Ellipse Fill="#10000000" 
+                             Stroke="{StaticResource BorderColor}" 
+                             StrokeThickness="4" 
+                             WidthRequest="220" 
+                             HeightRequest="220"/>
                     
                     <Ellipse x:Name="JoystickKnob"
                              Fill="{StaticResource Primary}" 
-                             WidthRequest="80" 
-                             HeightRequest="80"
-                             Stroke="{StaticResource Secondary}"
+                             WidthRequest="90" 
+                             HeightRequest="90"
+                             Stroke="{StaticResource BorderColor}"
                              StrokeThickness="3"
-                             AbsoluteLayout.LayoutBounds="60, 60, 80, 80">
+                             AbsoluteLayout.LayoutBounds="65, 65, 90, 90">
                         <Ellipse.GestureRecognizers>
                             <PanGestureRecognizer PanUpdated="OnJoystickPanUpdated" />
                         </Ellipse.GestureRecognizers>
@@ -56,10 +77,10 @@
                    WidthRequest="240"
                    HeightRequest="240">
                 
-                <Button Grid.Row="0" Grid.Column="1" Text="Y" Style="{StaticResource ModernButton}" Clicked="OnButtonClicked" CommandParameter="Y" BackgroundColor="#FDCB6E" />
-                <Button Grid.Row="1" Grid.Column="0" Text="X" Style="{StaticResource ModernButton}" Clicked="OnButtonClicked" CommandParameter="X" BackgroundColor="{StaticResource Tertiary}" />
-                <Button Grid.Row="1" Grid.Column="2" Text="B" Style="{StaticResource ModernButton}" Clicked="OnButtonClicked" CommandParameter="B" BackgroundColor="{StaticResource Secondary}" />
-                <Button Grid.Row="2" Grid.Column="1" Text="A" Style="{StaticResource ModernButton}" Clicked="OnButtonClicked" CommandParameter="A" BackgroundColor="{StaticResource Success}" />
+                <Button Grid.Row="0" Grid.Column="1" Text="Y" Style="{StaticResource ModernButton}" Clicked="OnButtonClicked" CommandParameter="Y" BackgroundColor="#FFCE5C" TextColor="{StaticResource TextMain}" CornerRadius="35" WidthRequest="70" HeightRequest="70" Padding="0"/>
+                <Button Grid.Row="1" Grid.Column="0" Text="X" Style="{StaticResource ModernButton}" Clicked="OnButtonClicked" CommandParameter="X" BackgroundColor="{StaticResource Secondary}" TextColor="{StaticResource TextMain}" CornerRadius="35" WidthRequest="70" HeightRequest="70" Padding="0"/>
+                <Button Grid.Row="1" Grid.Column="2" Text="B" Style="{StaticResource ModernButton}" Clicked="OnButtonClicked" CommandParameter="B" BackgroundColor="{StaticResource Primary}" TextColor="White" CornerRadius="35" WidthRequest="70" HeightRequest="70" Padding="0"/>
+                <Button Grid.Row="2" Grid.Column="1" Text="A" Style="{StaticResource ModernButton}" Clicked="OnButtonClicked" CommandParameter="A" BackgroundColor="#00D2D3" TextColor="White" CornerRadius="35" WidthRequest="70" HeightRequest="70" Padding="0"/>
             </Grid>
         </Grid>
 

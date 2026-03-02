@@ -6,7 +6,7 @@ using ChibitsLink.main.cs.model;
 namespace ChibitsLink.main.repository;
 
 /// <summary>
-/// Clase encargada de poblar la base de datos con datos iniciales.
+/// Class responsible for seeding the database with initial data.
 /// </summary>
 public class DatabaseSeeder
 {
@@ -18,7 +18,7 @@ public class DatabaseSeeder
     }
 
     /// <summary>
-    /// Ejecuta el sembrado completo de la base de datos.
+    /// Executes the full database seeding.
     /// </summary>
     public async Task SeedAllAsync()
     {
@@ -27,22 +27,22 @@ public class DatabaseSeeder
     }
 
     /// <summary>
-    /// Puebla la colección de personajes.
+    /// Seeds the characters collection.
     /// </summary>
     public async Task SeedCharactersAsync()
     {
         var characters = new List<Character>
         {
-            new Character { Id = "VALIENTE",    Name = "Valiente",    Description = "Guerrero audaz, fuerte en combate cuerpo a cuerpo.",   ImageUrl = "char_valiente.png" },
-            new Character { Id = "MAGO",        Name = "Mago",        Description = "Maestro de las artes arcanas, poder mágico superior.", ImageUrl = "char_mago.png"     },
-            new Character { Id = "EXPLORADOR",  Name = "Explorador",  Description = "Rápido y sigiloso, experto en movimiento y evasión.",  ImageUrl = "char_explorador.png" },
-            new Character { Id = "CURADORA",    Name = "Curadora",    Description = "Especialista en sanación y apoyo al equipo.",          ImageUrl = "char_curadora.png"   },
-            new Character { Id = "TANQUE",      Name = "Tanque",      Description = "Defensa impenetrable, capaz de absorber mucho daño.",    ImageUrl = "char_tanque.png"     }
+            new Character { Id = "VALIENTE",    Name = "Valiente",    Description = "Guerrero audaz, fuerte en combate cuerpo a cuerpo.",   ImageUrl = "char_placeholder.png" },
+            new Character { Id = "MAGO",        Name = "Mago",        Description = "Maestro de las artes arcanas, poder mágico superior.", ImageUrl = "char_placeholder.png" },
+            new Character { Id = "EXPLORADOR",  Name = "Explorador",  Description = "Rápido y sigiloso, experto en movimiento y evasión.",  ImageUrl = "char_placeholder.png" },
+            new Character { Id = "CURADORA",    Name = "Curadora",    Description = "Especialista en sanación y apoyo al equipo.",          ImageUrl = "char_placeholder.png" },
+            new Character { Id = "TANQUE",      Name = "Tanque",      Description = "Defensa impenetrable, capaz de absorber mucho daño.",    ImageUrl = "char_placeholder.png" }
         };
 
         foreach (var c in characters)
         {
-            await _database.StoreAsync("personajes", c.Id, c);
+            await _database.StoreAsync("characters", c.Id, c);
         }
     }
 
@@ -53,10 +53,10 @@ public class DatabaseSeeder
     {
         var games = new List<Game>
         {
-            new Game { Id = 1, Name = "Fútbol Chibit",     Type = GameType.Soccer,        Description = "Partido de fútbol rápido con físicas locas." },
-            new Game { Id = 2, Name = "Salto Infinito",    Type = GameType.Jump,          Description = "Llega lo más alto posible esquivando obstáculos." },
-            new Game { Id = 3, Name = "Equilibrio G",      Type = GameType.Accelerometer, Description = "Controla la plataforma con el acelerómetro." },
-            new Game { Id = 4, Name = "Cocina Caótica",    Type = GameType.Kitchen,       Description = "Prepara platos antes de que se acabe el tiempo." }
+            new Game { Id = "Minigame_Runner", Name = "Carrera de Obstáculos", Type = GameType.Jump,          Description = "¡Sé el más rápido!", ImageUrl = "char_placeholder.png" },
+            new Game { Id = "Minigame_Combat", Name = "Arena de Combate",    Type = GameType.Soccer,        Description = "Sobrevive al caos.",  ImageUrl = "char_placeholder.png" },
+            new Game { Id = "Minigame_Soccer", Name = "Fútbol Chibit",     Type = GameType.Soccer,        Description = "Partido de fútbol rápido con físicas locas.", ImageUrl = "char_placeholder.png" },
+            new Game { Id = "Minigame_Kitchen",Name = "Cocina Caótica",    Type = GameType.Kitchen,       Description = "Prepara platos antes de que se acabe el tiempo.", ImageUrl = "char_placeholder.png" }
         };
 
         foreach (var g in games)

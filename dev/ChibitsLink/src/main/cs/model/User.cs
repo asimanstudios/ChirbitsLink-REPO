@@ -10,7 +10,7 @@ public class User
     public string Email { get; set; } = string.Empty;
     public string RealName { get; set; } = string.Empty;
     public string Username { get; set; } = string.Empty;
-    public string SelectedCharacterId { get; set; } = "VALIENTE"; // Default starting character
+    public string SelectedCharacterId { get; set; } = "barbarian"; // Default matching new IDs
     public int Level { get; set; } = 1;
     public List<string> GameHistory { get; set; } = new List<string>();
 }

@@ -18,6 +18,7 @@ public class Connection
     private Plugin.BLE.Abstractions.Contracts.IDevice? _bluetoothDevice;
     private CancellationTokenSource? _cts;
     private System.Diagnostics.Stopwatch _pingStopwatch = new();
+    private System.Timers.Timer? _heartbeatTimer;
 
     public bool IsConnected => 
         (_webSocket?.State == WebSocketState.Open) || 
@@ -27,6 +28,7 @@ public class Connection
     public long Latency { get; private set; }
     public event Action<long>? LatencyUpdated;
     public event Action<string>? MessageReceived;
+    public event Action? Disconnected;
 
     public void SetBluetoothDevice(Plugin.BLE.Abstractions.Contracts.IDevice device)
     {
@@ -46,6 +48,7 @@ public class Connection
             await _tcpClient.ConnectAsync(finalHost, finalPort);
             _tcpStream = _tcpClient.GetStream();
             _ = ReceiveTcpLoop(); // Start receiving messages in background
+            StartHeartbeat();
             System.Diagnostics.Debug.WriteLine($"Connected to Game Server at {finalHost}:{finalPort}");
         }
         catch (Exception ex)
@@ -62,6 +65,7 @@ public class Connection
         _cts = new CancellationTokenSource();
         await _webSocket.ConnectAsync(new Uri(url), _cts.Token);
         _ = ReceiveWebSocketLoop(); // Start receiving messages in background
+        StartHeartbeat();
     }
 
     public async Task SendMessageAsync(string message)
@@ -140,10 +144,18 @@ public class Connection
                 var message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
                 ProcessReceivedMessage(message);
             }
-            catch
+            catch (Exception ex)
             {
+                Debug.WriteLine($"TCP Receive Exception: {ex.Message}");
                 break;
             }
+        }
+        
+        StopHeartbeat();
+        
+        if (_tcpClient != null) // If still not null but loop ended, it's an unexpected drop
+        {
+            Disconnected?.Invoke();
         }
     }
 
@@ -160,10 +172,16 @@ public class Connection
                 var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
                 ProcessReceivedMessage(message);
             }
-            catch 
+            catch (Exception ex)
             {
+                Debug.WriteLine($"WebSocket Receive Exception: {ex.Message}");
                 break;
             }
+        }
+
+        if (_webSocket != null && _webSocket.State != WebSocketState.Closed)
+        {
+            Disconnected?.Invoke();
         }
     }
 
@@ -174,5 +192,40 @@ public class Connection
         LatencyUpdated?.Invoke(Latency);
         MessageReceived?.Invoke(message);
         System.Diagnostics.Debug.WriteLine($"Message Received: {message}");
+    }
+
+    private void StartHeartbeat()
+    {
+        _heartbeatTimer?.Dispose();
+        _heartbeatTimer = new System.Timers.Timer(5000); // 5 seconds
+        _heartbeatTimer.Elapsed += async (s, e) => 
+        {
+            if (!IsConnected)
+            {
+                StopHeartbeat();
+                Disconnected?.Invoke();
+                return;
+            }
+
+            try 
+            {
+                // Send a lightweight ping to keep connection alive and detect failures
+                await SendMessageAsync("PING");
+            }
+            catch 
+            {
+                StopHeartbeat();
+                Disconnected?.Invoke();
+            }
+        };
+        _heartbeatTimer.AutoReset = true;
+        _heartbeatTimer.Enabled = true;
+    }
+
+    private void StopHeartbeat()
+    {
+        _heartbeatTimer?.Stop();
+        _heartbeatTimer?.Dispose();
+        _heartbeatTimer = null;
     }
 }

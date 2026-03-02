@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Collections.ObjectModel;
 using ChibitsLink.main.cs.model;
 using ChibitsLink.main.cs.service;
@@ -31,7 +32,7 @@ public partial class MainMenuPage : ContentPage
         if (user != null)
         {
             UsernameLabel.Text = user.Username.ToUpper();
-            UpdateProfileImage(user.SelectedCharacterId);
+            UpdateProfileDisplay(user.SelectedCharacterId);
 
             // Sync Shell UI
             if (Shell.Current is AppShell shell)
@@ -46,14 +47,32 @@ public partial class MainMenuPage : ContentPage
         }
     }
 
-    private void UpdateProfileImage(string characterId)
+    private void UpdateProfileDisplay(string characterId)
     {
-        var character = Characters.FirstOrDefault(c => c.Name == characterId) 
-                        ?? Characters.FirstOrDefault(); // Default to first if not found
+        Debug.WriteLine($"[MainMenu] Buscando personaje con ID: {characterId}");
+        var character = Characters.FirstOrDefault(c => c.Id == characterId) 
+                        ?? Characters.FirstOrDefault();
         
         if (character != null)
         {
-            ProfileImage.Source = character.ImageUrl;
+            // Fallback for missing/null ImageUrl
+            var imageUrl = string.IsNullOrEmpty(character.ImageUrl) ? "char_placeholder.png" : character.ImageUrl;
+            
+            // Critical fix: Ensure we don't try to load known missing default assets
+            if (imageUrl == "dotnet_bot.png" || imageUrl.Contains("char_knight.png") || imageUrl.Contains("char_valiente.png"))
+            {
+                imageUrl = "char_placeholder.png";
+            }
+
+            ProfileImage.Source = imageUrl;
+            CharacterNameLabel.Text = character.Name;
+            Debug.WriteLine($"[MainMenu] UI Actualizada: {character.Name} con imagen {imageUrl}");
+        }
+
+        var user = _accountService.GetCurrentUser();
+        if (user != null)
+        {
+            UserLevelLabel.Text = $"LVL. {user.Level}";
         }
     }
 
@@ -66,11 +85,26 @@ public partial class MainMenuPage : ContentPage
             Characters.Clear();
             if (dbCharacters != null && dbCharacters.Any())
             {
-                foreach (var c in dbCharacters) Characters.Add(c);
+                foreach (var c in dbCharacters) 
+                {
+                    // Sanitize ImageUrl
+                    if (string.IsNullOrEmpty(c.ImageUrl) || c.ImageUrl == "dotnet_bot.png" || (c.ImageUrl.Contains("char_") && !c.ImageUrl.Contains("placeholder")))
+                    {
+                        c.ImageUrl = "char_placeholder.png";
+                    }
+                    Characters.Add(c);
+                }
             }
             else
             {
                 AddMockCharacters();
+            }
+
+            // Refresh profile display now that we have character data
+            var user = _accountService.GetCurrentUser();
+            if (user != null)
+            {
+                UpdateProfileDisplay(user.SelectedCharacterId);
             }
         }
         catch (Exception ex)
@@ -82,6 +116,9 @@ public partial class MainMenuPage : ContentPage
             
             Characters.Clear();
             AddMockCharacters();
+
+            var user = _accountService.GetCurrentUser();
+            if (user != null) UpdateProfileDisplay(user.SelectedCharacterId);
         }
         
         CharactersCollection.ItemsSource = Characters;
@@ -89,15 +126,17 @@ public partial class MainMenuPage : ContentPage
 
     private void AddMockCharacters()
     {
-        Characters.Add(new Character { Id = "1", Name = "VALIENTE", ImageUrl = "dotnet_bot.png" });
-        Characters.Add(new Character { Id = "2", Name = "MAGA", ImageUrl = "dotnet_bot.png" });
-        Characters.Add(new Character { Id = "3", Name = "PICARO", ImageUrl = "dotnet_bot.png" });
+        Characters.Add(new Character { Id = "barbarian", Name = "Barbarian", ImageUrl = "char_placeholder.png" });
+        Characters.Add(new Character { Id = "rogue", Name = "Rogue", ImageUrl = "char_placeholder.png" });
+        Characters.Add(new Character { Id = "knight", Name = "Knight", ImageUrl = "char_placeholder.png" });
     }
 
-    private async void OnCharacterSelected(object sender, SelectionChangedEventArgs e)
+    private async void OnCharacterSelected(object sender, TappedEventArgs e)
     {
-        if (e.CurrentSelection.FirstOrDefault() is Character character)
+        if (e.Parameter is Character character)
         {
+            Debug.WriteLine($"[MainMenu] Personaje seleccionado mediante Tap: {character.Id}");
+            
             // Close the carousel
             CharacterSelectionLayout.IsVisible = false;
             
@@ -109,22 +148,20 @@ public partial class MainMenuPage : ContentPage
             var currentUser = _accountService.GetCurrentUser();
             if (currentUser != null)
             {
-                currentUser.SelectedCharacterId = character.Name; 
+                currentUser.SelectedCharacterId = character.Id; 
                 await _accountService.UpdateUser(currentUser);
 
                 // Real-time Sync via TCP
                 if (_connection.IsConnected)
                 {
-                    string syncMessage = $"SYNC_CHAR|{currentUser.Id}|{character.Name}";
+                    string syncMessage = $"SYNC_CHAR|{currentUser.Id}|{character.Id}|{currentUser.Username}";
                     await _connection.SendMessageAsync(syncMessage);
+                    Debug.WriteLine($"[MainMenu] Sync enviado: {syncMessage}");
                 }
             }
 
             // Visual feedback
             await DisplayAlert("¡Héroe Elegido!", $"Tu destino ahora está unido a {character.Name}", "Vale");
-            
-            // Deselect to allow re-selection
-            CharactersCollection.SelectedItem = null;
         }
     }
 
@@ -141,6 +178,7 @@ public partial class MainMenuPage : ContentPage
 
     private void OnProfileTapped(object sender, EventArgs e)
     {
+        Debug.WriteLine("[MainMenu] Perfil tocado. Alternando selector...");
         CharacterSelectionLayout.IsVisible = !CharacterSelectionLayout.IsVisible;
     }
 
@@ -159,6 +197,7 @@ public partial class MainMenuPage : ContentPage
         bool confirm = await DisplayAlert("Cerrar Sesión", "¿Seguro que quieres abandonar el reino?", "Sí, salir", "Me quedo");
         if (confirm)
         {
+            if (_connection.IsConnected) await _connection.DisconnectAsync();
             await _accountService.Logout();
             await Shell.Current.GoToAsync("//LoginPage");
         }

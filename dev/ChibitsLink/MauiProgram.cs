@@ -17,6 +17,9 @@ public static class MauiProgram
 			.UseMauiApp<App>()
 			.ConfigureFonts(fonts =>
 			{
+				fonts.AddFont("Fredoka-Regular.ttf", "FredokaRegular");
+				fonts.AddFont("Fredoka-Bold.ttf", "FredokaBold");
+				fonts.AddFont("Fredoka-SemiBold.ttf", "FredokaSemiBold");
 			});
 
 #if DEBUG
@@ -26,6 +29,7 @@ public static class MauiProgram
         // Repositories
         builder.Services.AddSingleton<ChibitsLink.main.repository.FirebaseConnection>();
         builder.Services.AddSingleton<ChibitsLink.main.repository.Database>();
+        builder.Services.AddSingleton<ChibitsLink.main.repository.DatabaseSeeder>();
 
         // Services
         builder.Services.AddSingleton<ChibitsLink.main.cs.net.Connection>();
@@ -54,6 +58,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<ControllerController>();
         builder.Services.AddSingleton<ConexionController>();
 
-		return builder.Build();
+        var app = builder.Build();
+		return app;
 	}
 }

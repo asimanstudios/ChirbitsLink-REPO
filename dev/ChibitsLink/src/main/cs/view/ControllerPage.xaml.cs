@@ -30,8 +30,9 @@ public partial class ControllerPage : ContentPage
 
         _connection.LatencyUpdated += (ms) => 
         {
-            MainThread.BeginInvokeOnMainThread(() => LatencyLabel.Text = $"Ping: {ms}ms");
+            MainThread.BeginInvokeOnMainThread(() => LatencyLabel.Text = $"{ms}ms");
         };
+        _connection.Disconnected += OnUnexpectedDisconnect;
     }
 
     protected override async void OnAppearing()
@@ -46,6 +47,9 @@ public partial class ControllerPage : ContentPage
             return;
         }
 
+        UsernameLabel.Text = user.Username.ToUpper();
+        UserLevelLabel.Text = $"LVL. {user.Level}";
+
         _orientationService?.SetLandscape();
     }
 
@@ -53,6 +57,16 @@ public partial class ControllerPage : ContentPage
     {
         base.OnDisappearing();
         _orientationService?.SetPortrait();
+        _connection.Disconnected -= OnUnexpectedDisconnect;
+    }
+
+    private async void OnUnexpectedDisconnect()
+    {
+        MainThread.BeginInvokeOnMainThread(async () => 
+        {
+            await DisplayAlert("Conexión Perdida", "Se ha perdido la conexión con el reino de ChirBits.", "OK");
+            await Shell.Current.GoToAsync("//MainMenuPage");
+        });
     }
 
     private async void OnBackClicked(object sender, EventArgs e)

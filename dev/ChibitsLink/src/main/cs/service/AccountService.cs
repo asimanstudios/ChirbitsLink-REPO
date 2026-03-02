@@ -134,6 +134,7 @@ public class AccountService : BaseService
     {
         try
         {
+            if (_connection.Auth.CurrentUser == null) return (false, "No hay sesión activa.");
             await _connection.Auth.CurrentUser.UpdateEmailAsync(newEmail);
             return (true, null);
         }
@@ -148,6 +149,7 @@ public class AccountService : BaseService
     {
         try
         {
+            if (_connection.Auth.CurrentUser == null) return (false, "No hay sesión activa.");
             await _connection.Auth.CurrentUser.UpdatePasswordAsync(newPassword);
             return (true, null);
         }

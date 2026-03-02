@@ -17,22 +17,24 @@
                        HorizontalOptions="Center"/>
             </VerticalStackLayout>
     
-            <VerticalStackLayout Grid.Row="1" Spacing="12">
-                <Entry x:Name="RealNameEntry" 
-                       Placeholder="Nombre Completo" 
-                       Style="{StaticResource ModernEntry}"/>
-                <Entry x:Name="UsernameEntry" 
-                       Placeholder="Nombre de Usuario (@hero)" 
-                       Style="{StaticResource ModernEntry}"/>
-                <Entry x:Name="EmailEntry" 
-                       Placeholder="Correo Mágico" 
-                       Keyboard="Email"
-                       Style="{StaticResource ModernEntry}"/>
-                <Entry x:Name="PasswordEntry" 
-                       Placeholder="Contraseña Secreta" 
-                       IsPassword="True" 
-                       Style="{StaticResource ModernEntry}"/>
-            </VerticalStackLayout>
+            <Border Style="{StaticResource GlassFrame}" Grid.Row="1" Padding="20">
+                <VerticalStackLayout Spacing="12">
+                    <Entry x:Name="RealNameEntry" 
+                           Placeholder="Nombre Completo" 
+                           Style="{StaticResource ModernEntry}"/>
+                    <Entry x:Name="UsernameEntry" 
+                           Placeholder="Nombre de Usuario (@hero)" 
+                           Style="{StaticResource ModernEntry}"/>
+                    <Entry x:Name="EmailEntry" 
+                           Placeholder="Correo Mágico" 
+                           Keyboard="Email"
+                           Style="{StaticResource ModernEntry}"/>
+                    <Entry x:Name="PasswordEntry" 
+                           Placeholder="Contraseña Secreta" 
+                           IsPassword="True" 
+                           Style="{StaticResource ModernEntry}"/>
+                </VerticalStackLayout>
+            </Border>
     
             <Button Grid.Row="2" 
                     Text="UNIRSE AL REINO" 

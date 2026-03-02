@@ -38,12 +38,12 @@
             <CollectionView x:Name="GamesCollection" SelectionMode="Single" SelectionChanged="OnGameSelected">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Frame Margin="0,5" Padding="15" Style="{StaticResource GlassFrame}" BorderColor="{StaticResource Tertiary}">
+                        <Border Margin="0,5" Style="{StaticResource GlassFrame}" Stroke="{StaticResource Tertiary}">
                             <VerticalStackLayout>
                                 <Label Text="{Binding Name}" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource TextMain}"/>
                                 <Label Text="{Binding Description}" FontSize="12" TextColor="{StaticResource TextLight}"/>
                             </VerticalStackLayout>
-                        </Frame>
+                        </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>

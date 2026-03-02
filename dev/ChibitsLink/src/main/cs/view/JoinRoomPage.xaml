@@ -20,7 +20,7 @@
         </VerticalStackLayout>
 
         <VerticalStackLayout Grid.Row="1" VerticalOptions="Center" Spacing="20">
-            <Frame Style="{StaticResource GlassFrame}" Padding="5" BorderColor="{StaticResource Primary}">
+            <Border Style="{StaticResource GlassFrame}" Stroke="{StaticResource Primary}">
                 <Entry x:Name="RoomCodeEntry"
                        Placeholder="0 0 0 0 0 0"
                        FontSize="36"
@@ -31,7 +31,7 @@
                        TextColor="{StaticResource Secondary}"
                        BackgroundColor="Transparent"
                        HeightRequest="80"/>
-            </Frame>
+            </Border>
         </VerticalStackLayout>
 
         <Button Grid.Row="2"

@@ -144,6 +144,16 @@
             <param name="roomCode">Código de sala de 6 caracteres.</param>
             <returns>True si la sala existe; false en caso contrario.</returns>
         </member>
+        <member name="M:ChibitsLink.main.cs.service.GameService.GetCharacters">
+            <summary>
+            Recupera la lista de personajes configurados en Firestore.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.cs.service.GameService.ListenToLobby(System.String,System.Action{ChibitsLink.main.cs.model.Party})">
+            <summary>
+            Escucha cambios en el lobby en tiempo real.
+            </summary>
+        </member>
         <member name="T:ChibitsLink.main.cs.view.JoinRoomPage">
             <summary>
             Página de unión a sala mediante código de 6 dígitos.
@@ -187,6 +197,11 @@
             Gestiona las operaciones CRUD sobre Cloud Firestore.
             </summary>
         </member>
+        <member name="M:ChibitsLink.main.repository.Database.ListenAsync``1(System.String,System.String,System.Action{``0})">
+            <summary>
+            Escucha cambios en tiempo real de un documento de Firestore.
+            </summary>
+        </member>
         <member name="M:ChibitsLink.main.repository.Database.CheckLobbyExistsAsync(System.String)">
             <summary>
             Verifica si un lobby existe por su código de sala.
@@ -194,28 +209,28 @@
         </member>
         <member name="M:ChibitsLink.main.repository.Database.InitializeCharactersAsync">
             <summary>
-            Inicializa los personajes en la base de datos si no existen.
-            Esto permite al usuario meter las imágenes después.
+            Initializes characters in the database if they don't exist.
+            This allows the user to add images later.
             </summary>
         </member>
         <member name="M:ChibitsLink.main.repository.Database.JoinLobbyAsync(System.String,System.String)">
             <summary>
-            Registra la participación de un usuario en un lobby.
+            Registers a user's participation in a lobby.
             </summary>
         </member>
         <member name="T:ChibitsLink.main.repository.DatabaseSeeder">
             <summary>
-            Clase encargada de poblar la base de datos con datos iniciales.
+            Class responsible for seeding the database with initial data.
             </summary>
         </member>
         <member name="M:ChibitsLink.main.repository.DatabaseSeeder.SeedAllAsync">
             <summary>
-            Ejecuta el sembrado completo de la base de datos.
+            Executes the full database seeding.
             </summary>
         </member>
         <member name="M:ChibitsLink.main.repository.DatabaseSeeder.SeedCharactersAsync">
             <summary>
-            Puebla la colección de personajes.
+            Seeds the characters collection.
             </summary>
         </member>
         <member name="M:ChibitsLink.main.repository.DatabaseSeeder.SeedGamesAsync">

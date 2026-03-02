@@ -27,25 +27,27 @@
             </VerticalStackLayout>
     
             <!-- Login Form -->
-            <VerticalStackLayout Grid.Row="1" Spacing="12">
-                <Entry x:Name="UsernameEntry" 
-                       Placeholder="Correo del Aventurero" 
-                       Style="{StaticResource ModernEntry}"/>
-                <Entry x:Name="PasswordEntry" 
-                       Placeholder="Palabra Secreta" 
-                       IsPassword="True" 
-                       Style="{StaticResource ModernEntry}"/>
-                
-                <Label Text="¿Olvidaste tu contraseña?" 
-                       TextColor="{StaticResource Primary}" 
-                       FontSize="12" 
-                       HorizontalOptions="End"
-                       Margin="0,0,5,0">
-                    <Label.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnForgotPasswordTapped" />
-                    </Label.GestureRecognizers>
-                </Label>
-            </VerticalStackLayout>
+            <Border Style="{StaticResource GlassFrame}" Grid.Row="1" Padding="20">
+                <VerticalStackLayout Spacing="12">
+                    <Entry x:Name="UsernameEntry" 
+                           Placeholder="Correo del Aventurero" 
+                           Style="{StaticResource ModernEntry}"/>
+                    <Entry x:Name="PasswordEntry" 
+                           Placeholder="Palabra Secreta" 
+                           IsPassword="True" 
+                           Style="{StaticResource ModernEntry}"/>
+                    
+                    <Label Text="¿Olvidaste tu contraseña?" 
+                           TextColor="{StaticResource Primary}" 
+                           FontSize="12" 
+                           FontAttributes="Bold"
+                           HorizontalOptions="End">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnForgotPasswordTapped" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </VerticalStackLayout>
+            </Border>
     
             <!-- Actions -->
             <VerticalStackLayout Grid.Row="2" Spacing="10">

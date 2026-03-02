@@ -9,46 +9,60 @@
     <Grid RowDefinitions="Auto, *, Auto" Padding="25" RowSpacing="20">
         
         <!-- Header & Profile -->
-        <VerticalStackLayout Grid.Row="0" Spacing="15" HorizontalOptions="Center">
-            
-            <!-- Circular Profile Image -->
-            <Frame WidthRequest="110" 
-                   HeightRequest="110" 
-                   CornerRadius="55" 
-                   Padding="0" 
-                   IsClippedToBounds="True" 
-                   HorizontalOptions="Center"
-                   BorderColor="{StaticResource Primary}"
-                   HasShadow="True">
-                <Frame.GestureRecognizers>
+            <VerticalStackLayout Grid.Row="0" Spacing="15" HorizontalOptions="Center">
+                <VerticalStackLayout.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnProfileTapped" />
-                </Frame.GestureRecognizers>
-                <Image x:Name="ProfileImage" 
-                       Source="dotnet_bot.png" 
-                       Aspect="AspectFill" 
-                       BackgroundColor="{StaticResource Background}"/>
-            </Frame>
+                </VerticalStackLayout.GestureRecognizers>
+                
+                <!-- Circular Profile Image (Sticker Style) -->
+                <Border WidthRequest="120" 
+                        HeightRequest="120" 
+                        Padding="0" 
+                        HorizontalOptions="Center"
+                        Stroke="{StaticResource BorderColor}"
+                        StrokeThickness="4">
+                    <Border.StrokeShape>
+                        <Ellipse />
+                    </Border.StrokeShape>
+                    <Image x:Name="ProfileImage" 
+                           Source="char_placeholder.png" 
+                           Aspect="AspectFill" 
+                           BackgroundColor="{StaticResource Surface}"/>
+                </Border>
             
-            <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+            <VerticalStackLayout Spacing="2" HorizontalOptions="Center" InputTransparent="True">
                 <Label x:Name="UsernameLabel"
                        Text=""
                        FontAttributes="Bold"
                        FontSize="22"
                        HorizontalOptions="Center"
                        TextColor="{StaticResource TextMain}"
-                       CharacterSpacing="2"/>
-                <Label x:Name="CharacterNameLabel"
-                       Text="VALIENTE"
-                       FontSize="14"
-                       TextColor="{StaticResource Secondary}"
-                       HorizontalOptions="Center"
-                       Opacity="0.8"/>
+                       CharacterSpacing="2"
+                       InputTransparent="True"/>
+                
+                <HorizontalStackLayout HorizontalOptions="Center" Spacing="10" InputTransparent="True">
+                    <Label x:Name="UserLevelLabel" 
+                           Text="LVL. 1" 
+                           FontSize="14" 
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource Tertiary}"
+                           InputTransparent="True"/>
+                    <Label x:Name="CharacterNameLabel"
+                           Text="VALIENTE"
+                           FontSize="14"
+                           TextColor="{StaticResource Secondary}"
+                           HorizontalOptions="Center"
+                           Opacity="0.8"
+                           InputTransparent="True"/>
+                </HorizontalStackLayout>
+                
                 <Label Text="TOCA PARA CAMBIAR"
                        FontSize="11"
                        TextColor="{StaticResource Tertiary}"
                        HorizontalOptions="Center"
                        Opacity="0.8"
-                       FontAttributes="Bold"/>
+                       FontAttributes="Bold"
+                       InputTransparent="True"/>
             </VerticalStackLayout>
         </VerticalStackLayout>
 
@@ -66,33 +80,39 @@
                            HorizontalOptions="Center" />
                     
                     <CollectionView x:Name="CharactersCollection"
-                                    SelectionMode="Single"
-                                    SelectionChanged="OnCharacterSelected"
+                                    SelectionMode="None"
                                     HeightRequest="200">
                         <CollectionView.ItemsLayout>
                             <LinearItemsLayout Orientation="Horizontal" ItemSpacing="15" />
                         </CollectionView.ItemsLayout>
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="model:Character">
-                                <Frame Padding="5" 
-                                       CornerRadius="16" 
-                                       HasShadow="False" 
-                                       BorderColor="{StaticResource Primary}" 
-                                       BackgroundColor="{StaticResource Surface}"
-                                       WidthRequest="120"
-                                       HeightRequest="180">
-                                    <VerticalStackLayout VerticalOptions="Center" Spacing="5">
+                                <Border Padding="5" 
+                                        Stroke="{StaticResource BorderColor}" 
+                                        StrokeThickness="3"
+                                        BackgroundColor="{StaticResource Surface}"
+                                        WidthRequest="130"
+                                        HeightRequest="190">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="24" />
+                                    </Border.StrokeShape>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnCharacterSelected" CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                    <VerticalStackLayout VerticalOptions="Center" Spacing="5" InputTransparent="True">
                                         <Image Source="{Binding ImageUrl}" 
                                                HeightRequest="100" 
                                                WidthRequest="100" 
-                                               Aspect="AspectFit" />
+                                               Aspect="AspectFit"
+                                               InputTransparent="True" />
                                         <Label Text="{Binding Name}" 
                                                FontAttributes="Bold" 
                                                HorizontalOptions="Center" 
                                                FontSize="14" 
-                                               TextColor="{StaticResource TextMain}" />
+                                               TextColor="{StaticResource TextMain}"
+                                               InputTransparent="True" />
                                     </VerticalStackLayout>
-                                </Frame>
+                                </Border>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
@@ -100,42 +120,42 @@
 
                 <!-- Action Cards -->
                 <Grid ColumnDefinitions="*, *" ColumnSpacing="15">
-                    <Frame x:Name="MandoPreviewCard" Grid.Column="0" Style="{StaticResource GlassFrame}" Padding="15">
-                        <Frame.GestureRecognizers>
+                    <Border x:Name="MandoPreviewCard" Grid.Column="0" Style="{StaticResource GlassFrame}">
+                        <Border.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnControllerClicked" />
-                        </Frame.GestureRecognizers>
-                        <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
-                            <Label Text="🎮" FontSize="32" HorizontalOptions="Center"/>
-                            <Label Text="MANDO" FontAttributes="Bold" HorizontalOptions="Center" TextColor="{StaticResource TextMain}"/>
-                            <Label Text="Ver diseño" FontSize="10" TextColor="{StaticResource TextLight}" HorizontalOptions="Center"/>
+                        </Border.GestureRecognizers>
+                        <VerticalStackLayout Spacing="5" HorizontalOptions="Center" InputTransparent="True">
+                            <Label Text="🎮" FontSize="32" HorizontalOptions="Center" InputTransparent="True"/>
+                            <Label Text="MANDO" FontAttributes="Bold" HorizontalOptions="Center" TextColor="{StaticResource TextMain}" InputTransparent="True"/>
+                            <Label Text="Ver diseño" FontSize="10" TextColor="{StaticResource TextLight}" HorizontalOptions="Center" InputTransparent="True"/>
                         </VerticalStackLayout>
-                    </Frame>
+                    </Border>
 
-                    <Frame x:Name="HistoryCard" Grid.Column="1" Style="{StaticResource GlassFrame}" Padding="15">
-                        <Frame.GestureRecognizers>
+                    <Border x:Name="HistoryCard" Grid.Column="1" Style="{StaticResource GlassFrame}">
+                        <Border.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnHistoryClicked" />
-                        </Frame.GestureRecognizers>
-                        <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
-                            <Label Text="📜" FontSize="32" HorizontalOptions="Center"/>
-                            <Label Text="HISTORIAL" FontAttributes="Bold" HorizontalOptions="Center" TextColor="{StaticResource TextMain}"/>
-                            <Label Text="Tus aventuras" FontSize="10" TextColor="{StaticResource TextLight}" HorizontalOptions="Center"/>
+                        </Border.GestureRecognizers>
+                        <VerticalStackLayout Spacing="5" HorizontalOptions="Center" InputTransparent="True">
+                            <Label Text="📜" FontSize="32" HorizontalOptions="Center" InputTransparent="True"/>
+                            <Label Text="HISTORIAL" FontAttributes="Bold" HorizontalOptions="Center" TextColor="{StaticResource TextMain}" InputTransparent="True"/>
+                            <Label Text="Tus aventuras" FontSize="10" TextColor="{StaticResource TextLight}" HorizontalOptions="Center" InputTransparent="True"/>
                         </VerticalStackLayout>
-                    </Frame>
+                    </Border>
                 </Grid>
 
                 <!-- Description Card -->
-                <Frame Style="{StaticResource GlassFrame}" Padding="20">
+                <Border Style="{StaticResource GlassFrame}" Padding="20" BackgroundColor="{StaticResource Surface}">
                     <VerticalStackLayout Spacing="10">
                         <Label Text="Sobre ChirBits Link" 
                                FontAttributes="Bold" 
-                               FontSize="18" 
-                               TextColor="{StaticResource Tertiary}"/>
+                               FontSize="20" 
+                               TextColor="{StaticResource Primary}"/>
                         <Label Text="Esta aplicación convierte tu dispositivo móvil en un mando mágico para interactuar con el mundo de ChirBits. Únete a partidas en Unity, elige tu héroe y prepárate para la aventura." 
                                FontSize="14" 
                                TextColor="{StaticResource TextLight}" 
-                               LineHeight="1.4"/>
+                               LineHeight="1.5"/>
                     </VerticalStackLayout>
-                </Frame>
+                </Border>
                 
             </VerticalStackLayout>
         </ScrollView>
@@ -150,15 +170,15 @@
                     Style="{StaticResource SecondaryButton}" 
                     Clicked="OnProfileClicked" />
             
-            <Label Text="Cerrar Sesión" 
-                   TextColor="{StaticResource Secondary}" 
-                   FontSize="14" 
-                   HorizontalOptions="Center"
-                   Margin="0,10,0,0">
-                <Label.GestureRecognizers>
+            <VerticalStackLayout HorizontalOptions="Center" Padding="20,10">
+                <VerticalStackLayout.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnLogoutClicked" />
-                </Label.GestureRecognizers>
-            </Label>
+                </VerticalStackLayout.GestureRecognizers>
+                <Label Text="Cerrar Sesión" 
+                       TextColor="{StaticResource Secondary}" 
+                       FontSize="14" 
+                       HorizontalOptions="Center"/>
+            </VerticalStackLayout>
         </VerticalStackLayout>
 
     </Grid>

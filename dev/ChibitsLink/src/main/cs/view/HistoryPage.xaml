@@ -40,7 +40,7 @@
             
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="model:LobbyHistory">
-                    <Frame Style="{StaticResource GlassFrame}" Margin="0,5" Padding="15" BorderColor="{StaticResource Primary}">
+                    <Border Style="{StaticResource GlassFrame}" Margin="0,5" Stroke="{StaticResource Primary}">
                         <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="15">
                             <Label Grid.Column="0" Text="⚔️" FontSize="26" VerticalOptions="Center"/>
                             
@@ -61,7 +61,7 @@
                                    FontSize="16"
                                    VerticalOptions="Center"/>
                         </Grid>
-                    </Frame>
+                    </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>

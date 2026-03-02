@@ -2804,3 +2804,10 @@ C:\Users\adris\RiderProjects\ChirbitsLink\ChirbitsLink-REPO\dev\ChibitsLink\obj\
 C:\Users\adris\RiderProjects\ChirbitsLink\ChirbitsLink-REPO\dev\ChibitsLink\obj\Debug\net9.0-android\stamp\_GenerateJavaStubs.stamp
 C:\Users\adris\RiderProjects\ChirbitsLink\ChirbitsLink-REPO\dev\ChibitsLink\obj\Debug\net9.0-android\stamp\_GeneratePackageManagerJava.stamp
 C:\Users\adris\RiderProjects\ChirbitsLink\ChirbitsLink-REPO\dev\ChibitsLink\obj\Debug\net9.0-android\stamp\_ResolveLibraryProjectImports.stamp
+C:\Users\adris\RiderProjects\ChirbitsLink\ChirbitsLink-REPO\dev\ChibitsLink\obj\Debug\net9.0-android\resizetizer\f\Fredoka-Bold.ttf
+C:\Users\adris\RiderProjects\ChirbitsLink\ChirbitsLink-REPO\dev\ChibitsLink\obj\Debug\net9.0-android\resizetizer\f\Fredoka-Regular.ttf
+C:\Users\adris\RiderProjects\ChirbitsLink\ChirbitsLink-REPO\dev\ChibitsLink\obj\Debug\net9.0-android\resizetizer\f\Fredoka-SemiBold.ttf
+C:\Users\adris\RiderProjects\ChirbitsLink\ChirbitsLink-REPO\dev\ChibitsLink\obj\Debug\net9.0-android\resizetizer\r\drawable\char_placeholder.png
+C:\Users\adris\RiderProjects\ChirbitsLink\ChirbitsLink-REPO\dev\ChibitsLink\obj\Debug\net9.0-android\assets\Fredoka-Bold.ttf
+C:\Users\adris\RiderProjects\ChirbitsLink\ChirbitsLink-REPO\dev\ChibitsLink\obj\Debug\net9.0-android\assets\Fredoka-Regular.ttf
+C:\Users\adris\RiderProjects\ChirbitsLink\ChirbitsLink-REPO\dev\ChibitsLink\obj\Debug\net9.0-android\assets\Fredoka-SemiBold.ttf

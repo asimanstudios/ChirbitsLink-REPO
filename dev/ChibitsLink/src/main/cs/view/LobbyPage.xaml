@@ -7,6 +7,7 @@
              BackgroundColor="{StaticResource Background}">
 
     <Grid Padding="20" RowDefinitions="Auto, *, Auto" RowSpacing="20">
+        <!-- Contenido actual del lobby -->
         
         <!-- Header -->
         <VerticalStackLayout Grid.Row="0" Spacing="5" HorizontalOptions="Center">
@@ -26,22 +27,23 @@
         <VerticalStackLayout Grid.Row="1" Spacing="30" VerticalOptions="Center">
             
             <!-- Character Circle -->
-            <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
-                <Frame WidthRequest="150" 
-                       HeightRequest="150" 
-                       CornerRadius="75" 
-                       Padding="0" 
-                       IsClippedToBounds="True" 
-                       BorderColor="{StaticResource Secondary}"
-                       BackgroundColor="{StaticResource Surface}"
-                       HasShadow="True">
-                    <Frame.GestureRecognizers>
+                <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                    <VerticalStackLayout.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnProfileTapped" />
-                    </Frame.GestureRecognizers>
-                    <Image x:Name="ProfileImage" 
-                           Source="dotnet_bot.png" 
-                           Aspect="AspectFill" />
-                </Frame>
+                    </VerticalStackLayout.GestureRecognizers>
+                    <Border WidthRequest="160" 
+                            HeightRequest="160" 
+                            Padding="0" 
+                            Stroke="{StaticResource BorderColor}"
+                            StrokeThickness="4"
+                            BackgroundColor="{StaticResource Surface}">
+                        <Border.StrokeShape>
+                            <Ellipse />
+                        </Border.StrokeShape>
+                        <Image x:Name="ProfileImage" 
+                               Source="char_placeholder.png" 
+                               Aspect="AspectFill" />
+                    </Border>
                 <Label x:Name="CharacterNameLabel" 
                        Text="VALIENTE" 
                        FontAttributes="Bold" 
@@ -49,6 +51,20 @@
                        HorizontalOptions="Center" 
                        TextColor="{StaticResource TextMain}"
                        CharacterSpacing="2"/>
+                
+                <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
+                    <Label x:Name="UserLevelLabel" 
+                           Text="LVL. 1" 
+                           FontSize="14" 
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource Tertiary}"/>
+                    <Label x:Name="UsernameLabel" 
+                           Text="USUARIO" 
+                           FontSize="14" 
+                           TextColor="{StaticResource TextMain}"
+                           Opacity="0.8"/>
+                </HorizontalStackLayout>
+
                 <Label Text="toca para cambiar" 
                        FontSize="11" 
                        TextColor="{StaticResource Tertiary}" 
@@ -60,31 +76,38 @@
             <!-- Character Selection (Carousel) -->
             <VerticalStackLayout x:Name="CharacterSelectionLayout" IsVisible="False" Spacing="10">
                 <CollectionView x:Name="CharactersCollection"
-                                SelectionMode="Single"
-                                SelectionChanged="OnCharacterSelected"
+                                SelectionMode="None"
                                 HeightRequest="180">
                     <CollectionView.ItemsLayout>
                         <LinearItemsLayout Orientation="Horizontal" ItemSpacing="15" />
                     </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="model:Character">
-                                <Frame Padding="5" 
-                                       CornerRadius="16" 
-                                       BorderColor="{StaticResource Primary}" 
-                                       BackgroundColor="{StaticResource Surface}"
-                                       WidthRequest="110">
-                                    <VerticalStackLayout VerticalOptions="Center" Spacing="5">
+                                <Border Padding="5" 
+                                        Stroke="{StaticResource BorderColor}" 
+                                        StrokeThickness="3"
+                                        BackgroundColor="{StaticResource Surface}"
+                                        WidthRequest="120">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="24" />
+                                    </Border.StrokeShape>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnCharacterSelected" CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                    <VerticalStackLayout VerticalOptions="Center" Spacing="5" InputTransparent="True">
                                         <Image Source="{Binding ImageUrl}" 
                                                HeightRequest="80" 
                                                WidthRequest="80" 
-                                               Aspect="AspectFit" />
+                                               Aspect="AspectFit"
+                                               InputTransparent="True" />
                                         <Label Text="{Binding Name}" 
                                                FontAttributes="Bold" 
                                                HorizontalOptions="Center" 
                                                FontSize="12" 
-                                               TextColor="{StaticResource TextMain}"/>
+                                               TextColor="{StaticResource TextMain}"
+                                               InputTransparent="True" />
                                     </VerticalStackLayout>
-                                </Frame>
+                                </Border>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
@@ -103,6 +126,43 @@
                     Style="{StaticResource SecondaryButton}"
                     Clicked="OnLeaveClicked" />
         </VerticalStackLayout>
+
+        <!-- Voting Overlay -->
+        <Grid x:Name="VotingOverlay" 
+              Grid.RowSpan="3" 
+              BackgroundColor="#CC000000" 
+              IsVisible="False"
+              Padding="30">
+            <VerticalStackLayout VerticalOptions="Center" Spacing="20">
+                <Label Text="VOTA UN MINIJUEGO" 
+                       TextColor="White" 
+                       FontSize="24" 
+                       FontAttributes="Bold" 
+                       HorizontalOptions="Center"/>
+                
+                <CollectionView x:Name="GamesCollection"
+                                SelectionMode="Single"
+                                SelectionChanged="OnGameVoted"
+                                HeightRequest="400">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="model:Game">
+                            <Border Margin="0,8" Padding="15" BackgroundColor="{StaticResource Surface}" Stroke="{StaticResource BorderColor}" StrokeThickness="2">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="18" />
+                                </Border.StrokeShape>
+                                <HorizontalStackLayout Spacing="15">
+                                    <Image Source="{Binding ImageUrl}" WidthRequest="60" HeightRequest="60" IsVisible="True"/>
+                                    <VerticalStackLayout VerticalOptions="Center">
+                                        <Label Text="{Binding Name}" FontAttributes="Bold" TextColor="{StaticResource TextMain}" FontSize="18"/>
+                                        <Label Text="{Binding Description}" FontSize="12" TextColor="{StaticResource TextLight}"/>
+                                    </VerticalStackLayout>
+                                </HorizontalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </Grid>
 
     </Grid>
 </ContentPage>
