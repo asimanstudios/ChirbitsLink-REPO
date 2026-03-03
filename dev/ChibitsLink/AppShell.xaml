@@ -23,7 +23,7 @@
                     <Border.StrokeShape>
                         <Ellipse />
                     </Border.StrokeShape>
-                    <Image Source="dotnet_bot.png" Aspect="AspectFill" />
+                    <Image Source="dotnet_bot" Aspect="AspectFill" />
                 </Border>
                 <Label Text="MI CUENTA" 
                        TextColor="White" 
@@ -54,7 +54,7 @@
         FlyoutItemIsVisible="False" />
 
     <!-- Main App Navigation -->
-    <FlyoutItem Title="Inicio" Icon="dotnet_bot.png">
+    <FlyoutItem Title="Inicio" Icon="dotnet_bot">
         <ShellContent
             ContentTemplate="{DataTemplate view:MainMenuPage}"
             Route="MainMenuPage" />
@@ -66,13 +66,13 @@
         Route="SettingsPage"
         FlyoutItemIsVisible="False" />
 
-    <FlyoutItem Title="Mando Móvil" Icon="dotnet_bot.png">
+    <FlyoutItem Title="Mando Móvil" Icon="dotnet_bot">
         <ShellContent
             ContentTemplate="{DataTemplate view:ControllerPage}"
             Route="ControllerPage" />
     </FlyoutItem>
 
-    <FlyoutItem Title="Historial" Icon="dotnet_bot.png">
+    <FlyoutItem Title="Historial" Icon="dotnet_bot">
         <ShellContent
             ContentTemplate="{DataTemplate view:HistoryPage}"
             Route="HistoryPage" />

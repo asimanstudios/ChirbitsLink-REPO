@@ -41,7 +41,7 @@
                             <Ellipse />
                         </Border.StrokeShape>
                         <Image x:Name="ProfileImage" 
-                               Source="char_placeholder.png" 
+                               Source="dotnet_bot.png" 
                                Aspect="AspectFill" />
                     </Border>
                 <Label x:Name="CharacterNameLabel" 
@@ -151,7 +151,7 @@
                                     <RoundRectangle CornerRadius="18" />
                                 </Border.StrokeShape>
                                 <HorizontalStackLayout Spacing="15">
-                                    <Image Source="{Binding ImageUrl}" WidthRequest="60" HeightRequest="60" IsVisible="True"/>
+                                    <Image Source="{Binding IconUrl}" WidthRequest="60" HeightRequest="60" IsVisible="True"/>
                                     <VerticalStackLayout VerticalOptions="Center">
                                         <Label Text="{Binding Name}" FontAttributes="Bold" TextColor="{StaticResource TextMain}" FontSize="18"/>
                                         <Label Text="{Binding Description}" FontSize="12" TextColor="{StaticResource TextLight}"/>

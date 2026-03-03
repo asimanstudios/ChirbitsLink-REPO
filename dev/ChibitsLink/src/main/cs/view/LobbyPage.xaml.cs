@@ -153,16 +153,7 @@ public partial class LobbyPage : ContentPage
         
         if (character != null)
         {
-            var imageUrl = string.IsNullOrEmpty(character.ImageUrl) ? "char_placeholder.png" : character.ImageUrl;
-            
-            // Temporary fix for legacy database entries or missing assets
-            if (imageUrl == "dotnet_bot.png" || imageUrl.Contains("char_") && !imageUrl.Contains("placeholder"))
-            {
-                // If it's a specific character image but we know we only have the placeholder
-                imageUrl = "char_placeholder.png";
-            }
-
-            ProfileImage.Source = imageUrl;
+            ProfileImage.Source = character.ImageUrl;
             CharacterNameLabel.Text = character.Name;
         }
 
@@ -190,17 +181,9 @@ public partial class LobbyPage : ContentPage
             Debug.WriteLine("[LobbyPage] Cargando personajes...");
             var list = await _gameService.GetCharacters();
             Characters.Clear();
-            foreach(var c in list) 
-            {
-                // Sanitize ImageUrl for placeholders/missing assets
-                if (string.IsNullOrEmpty(c.ImageUrl) || c.ImageUrl == "dotnet_bot.png" || (c.ImageUrl.Contains("char_") && !c.ImageUrl.Contains("placeholder")))
-                {
-                    c.ImageUrl = "char_placeholder.png";
-                }
-                Characters.Add(c);
-            }
+            foreach(var c in list) Characters.Add(c);
             
-            CharactersCollection.ItemsSource = Characters;
+            CharactersCollection.ItemsSource = Characters; // FIX: Asignar la fuente de datos
             Debug.WriteLine($"[LobbyPage] {Characters.Count} personajes cargados.");
 
             var user = _accountService.GetCurrentUser();

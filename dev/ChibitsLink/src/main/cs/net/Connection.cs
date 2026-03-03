@@ -19,6 +19,7 @@ public class Connection
     private CancellationTokenSource? _cts;
     private System.Diagnostics.Stopwatch _pingStopwatch = new();
     private System.Timers.Timer? _heartbeatTimer;
+    private bool _isConnecting;
 
     public bool IsConnected => 
         (_webSocket?.State == WebSocketState.Open) || 
@@ -38,6 +39,9 @@ public class Connection
     // TCP Connection (App as Client)
     public async Task ConnectTcpAsync(string? host = null, int? port = null)
     {
+        if (_isConnecting || (_tcpClient?.Connected ?? false)) return;
+        _isConnecting = true;
+
         try
         {
             string finalHost = host ?? Microsoft.Maui.Storage.Preferences.Get("pref_server_ip", "127.0.0.1");
@@ -54,7 +58,12 @@ public class Connection
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"TCP Connection Error: {ex.Message}");
+            _isConnecting = false;
             throw;
+        }
+        finally
+        {
+            _isConnecting = false;
         }
     }
 

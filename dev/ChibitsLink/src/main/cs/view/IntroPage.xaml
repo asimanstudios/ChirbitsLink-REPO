@@ -7,7 +7,7 @@
     
     <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="20">
         <Image x:Name="LogoImage"
-               Source="dotnet_bot.png"
+               Source="dotnet_bot"
                HeightRequest="150"
                WidthRequest="150"
                Opacity="0"

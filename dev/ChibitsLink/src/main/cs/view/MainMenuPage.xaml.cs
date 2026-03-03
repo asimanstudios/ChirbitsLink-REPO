@@ -56,12 +56,12 @@ public partial class MainMenuPage : ContentPage
         if (character != null)
         {
             // Fallback for missing/null ImageUrl
-            var imageUrl = string.IsNullOrEmpty(character.ImageUrl) ? "char_placeholder.png" : character.ImageUrl;
+            var imageUrl = string.IsNullOrEmpty(character.ImageUrl) ? "char_placeholder" : character.ImageUrl;
             
             // Critical fix: Ensure we don't try to load known missing default assets
-            if (imageUrl == "dotnet_bot.png" || imageUrl.Contains("char_knight.png") || imageUrl.Contains("char_valiente.png"))
+            if (imageUrl == "dotnet_bot" || imageUrl.Contains("char_knight") || imageUrl.Contains("char_valiente"))
             {
-                imageUrl = "char_placeholder.png";
+                imageUrl = "char_placeholder";
             }
 
             ProfileImage.Source = imageUrl;
@@ -88,9 +88,9 @@ public partial class MainMenuPage : ContentPage
                 foreach (var c in dbCharacters) 
                 {
                     // Sanitize ImageUrl
-                    if (string.IsNullOrEmpty(c.ImageUrl) || c.ImageUrl == "dotnet_bot.png" || (c.ImageUrl.Contains("char_") && !c.ImageUrl.Contains("placeholder")))
+                    if (string.IsNullOrEmpty(c.ImageUrl) || c.ImageUrl == "dotnet_bot" || (c.ImageUrl.Contains("char_") && !c.ImageUrl.Contains("placeholder")))
                     {
-                        c.ImageUrl = "char_placeholder.png";
+                        c.ImageUrl = "char_placeholder";
                     }
                     Characters.Add(c);
                 }
@@ -126,9 +126,9 @@ public partial class MainMenuPage : ContentPage
 
     private void AddMockCharacters()
     {
-        Characters.Add(new Character { Id = "barbarian", Name = "Barbarian", ImageUrl = "char_placeholder.png" });
-        Characters.Add(new Character { Id = "rogue", Name = "Rogue", ImageUrl = "char_placeholder.png" });
-        Characters.Add(new Character { Id = "knight", Name = "Knight", ImageUrl = "char_placeholder.png" });
+        Characters.Add(new Character { Id = "barbarian", Name = "Barbarian", ImageUrl = "char_placeholder" });
+        Characters.Add(new Character { Id = "rogue", Name = "Rogue", ImageUrl = "char_placeholder" });
+        Characters.Add(new Character { Id = "knight", Name = "Knight", ImageUrl = "char_placeholder" });
     }
 
     private async void OnCharacterSelected(object sender, TappedEventArgs e)

@@ -33,11 +33,11 @@ public class DatabaseSeeder
     {
         var characters = new List<Character>
         {
-            new Character { Id = "VALIENTE",    Name = "Valiente",    Description = "Guerrero audaz, fuerte en combate cuerpo a cuerpo.",   ImageUrl = "char_placeholder.png" },
-            new Character { Id = "MAGO",        Name = "Mago",        Description = "Maestro de las artes arcanas, poder mágico superior.", ImageUrl = "char_placeholder.png" },
-            new Character { Id = "EXPLORADOR",  Name = "Explorador",  Description = "Rápido y sigiloso, experto en movimiento y evasión.",  ImageUrl = "char_placeholder.png" },
-            new Character { Id = "CURADORA",    Name = "Curadora",    Description = "Especialista en sanación y apoyo al equipo.",          ImageUrl = "char_placeholder.png" },
-            new Character { Id = "TANQUE",      Name = "Tanque",      Description = "Defensa impenetrable, capaz de absorber mucho daño.",    ImageUrl = "char_placeholder.png" }
+            new Character { Id = "VALIENTE",    Name = "Valiente",    Description = "Guerrero audaz, fuerte en combate cuerpo a cuerpo.",   ImageUrl = "char_placeholder" },
+            new Character { Id = "MAGO",        Name = "Mago",        Description = "Maestro de las artes arcanas, poder mágico superior.", ImageUrl = "char_placeholder" },
+            new Character { Id = "EXPLORADOR",  Name = "Explorador",  Description = "Rápido y sigiloso, experto en movimiento y evasión.",  ImageUrl = "char_placeholder" },
+            new Character { Id = "CURADORA",    Name = "Curadora",    Description = "Especialista en sanación y apoyo al equipo.",          ImageUrl = "char_placeholder" },
+            new Character { Id = "TANQUE",      Name = "Tanque",      Description = "Defensa impenetrable, capaz de absorber mucho daño.",    ImageUrl = "char_placeholder" }
         };
 
         foreach (var c in characters)
@@ -53,10 +53,10 @@ public class DatabaseSeeder
     {
         var games = new List<Game>
         {
-            new Game { Id = "Minigame_Runner", Name = "Carrera de Obstáculos", Type = GameType.Jump,          Description = "¡Sé el más rápido!", ImageUrl = "char_placeholder.png" },
-            new Game { Id = "Minigame_Combat", Name = "Arena de Combate",    Type = GameType.Soccer,        Description = "Sobrevive al caos.",  ImageUrl = "char_placeholder.png" },
-            new Game { Id = "Minigame_Soccer", Name = "Fútbol Chibit",     Type = GameType.Soccer,        Description = "Partido de fútbol rápido con físicas locas.", ImageUrl = "char_placeholder.png" },
-            new Game { Id = "Minigame_Kitchen",Name = "Cocina Caótica",    Type = GameType.Kitchen,       Description = "Prepara platos antes de que se acabe el tiempo.", ImageUrl = "char_placeholder.png" }
+            new Game { Id = "Minigame_Runner", Name = "Carrera de Obstáculos", Type = GameType.Jump,          Description = "¡Sé el más rápido!", ImageUrl = "char_placeholder" },
+            new Game { Id = "Minigame_Combat", Name = "Arena de Combate",    Type = GameType.Soccer,        Description = "Sobrevive al caos.",  ImageUrl = "char_placeholder" },
+            new Game { Id = "Minigame_Soccer", Name = "Fútbol Chibit",     Type = GameType.Soccer,        Description = "Partido de fútbol rápido con físicas locas.", ImageUrl = "char_placeholder" },
+            new Game { Id = "Minigame_Kitchen",Name = "Cocina Caótica",    Type = GameType.Kitchen,       Description = "Prepara platos antes de que se acabe el tiempo.", ImageUrl = "char_placeholder" }
         };
 
         foreach (var g in games)

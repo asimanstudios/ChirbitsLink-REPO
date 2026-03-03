@@ -25,7 +25,7 @@
                         <Ellipse />
                     </Border.StrokeShape>
                     <Image x:Name="ProfileImage" 
-                           Source="char_placeholder.png" 
+                           Source="char_placeholder" 
                            Aspect="AspectFill" 
                            BackgroundColor="{StaticResource Surface}"/>
                 </Border>
