@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ChibitsLink")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+7590f26f88888658d839693b4c909a2733adf710")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+a14facf2c1e93db947fd4e8e8803f501f68e9915")]
 [assembly: System.Reflection.AssemblyProductAttribute("ChibitsLink")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ChibitsLink")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
