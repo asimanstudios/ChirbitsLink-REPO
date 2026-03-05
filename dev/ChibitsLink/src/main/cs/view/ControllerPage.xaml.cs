@@ -101,7 +101,7 @@ public partial class ControllerPage : ContentPage
         _ = _controller.HandleJoystickMoved(e.Reading.Acceleration.X, e.Reading.Acceleration.Y);
     }
 
-    private async void OnJoystickPanUpdated(object sender, PanUpdatedEventArgs e)
+    private void OnJoystickPanUpdated(object sender, PanUpdatedEventArgs e)
     {
         switch (e.StatusType)
         {
@@ -126,18 +126,19 @@ public partial class ControllerPage : ContentPage
                 JoystickKnob.TranslationX = totalX;
                 JoystickKnob.TranslationY = totalY;
 
-                // Fire event for the controller
-                await _controller.HandleJoystickMoved((float)(totalX / maxRadius), (float)(-totalY / maxRadius));
+                // Fire event for the controller WITHOUT await to avoid UI flicker
+                _ = _controller.HandleJoystickMoved((float)(totalX / maxRadius), (float)(-totalY / maxRadius));
                 break;
 
             case GestureStatus.Completed:
             case GestureStatus.Canceled:
                 // Snap back to center
-                await JoystickKnob.TranslateTo(0, 0, 100, Easing.SpringOut);
-                await _controller.HandleJoystickMoved(0, 0);
+                _ = JoystickKnob.TranslateTo(0, 0, 100, Easing.SpringOut);
+                _ = _controller.HandleJoystickMoved(0, 0);
                 break;
         }
     }
+
 
     private async void OnButtonClicked(object sender, EventArgs e)
     {
