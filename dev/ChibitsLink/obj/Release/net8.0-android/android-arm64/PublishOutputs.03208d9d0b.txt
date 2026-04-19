@@ -1,0 +1,4 @@
+C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\bin\Release\net8.0-android\android-arm64\publish\com.companyname.chibitslink-Signed.aab
+C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\bin\Release\net8.0-android\android-arm64\publish\com.companyname.chibitslink.aab
+C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\bin\Release\net8.0-android\android-arm64\publish\com.companyname.chibitslink-Signed.apk
+C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\bin\Release\net8.0-android\android-arm64\publish\_Microsoft.Android.Resource.Designer.dll

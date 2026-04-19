@@ -1,0 +1,9 @@
+<linker>
+  <!-- Preserve Firebase Auth plugin from IL linker trimming -->
+  <assembly fullname="Plugin.FirebaseAuth" preserve="all" />
+  <!-- Preserve Firebase Firestore plugin from IL linker trimming -->
+  <assembly fullname="Plugin.CloudFirestore" preserve="all" />
+  <!-- Preserve Firebase core libraries -->
+  <assembly fullname="Firebase.Auth" preserve="all" />
+  <assembly fullname="Firebase.Firestore" preserve="all" />
+</linker>

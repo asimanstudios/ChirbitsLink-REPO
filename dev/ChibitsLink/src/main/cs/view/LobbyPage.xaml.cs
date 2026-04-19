@@ -44,6 +44,15 @@ public partial class LobbyPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        
+        // Reset local ready state when re-entering the lobby
+        _isReady = false;
+        ReadyButton.Text = "MARCAR COMO LISTO";
+        if (Application.Current?.Resources.TryGetValue("Primary", out var primaryColor) == true)
+        {
+            ReadyButton.BackgroundColor = (Color)primaryColor;
+        }
+
         var user = _accountService.GetCurrentUser();
         if (user != null)
         {
@@ -108,12 +117,20 @@ public partial class LobbyPage : ContentPage
                 {
                     VotingOverlay.IsVisible = false;
                 }
+                // Si el estado cambia a IN_GAME, pasamos a la pantalla de control conservando el código
                 else if (party.GameState == "IN_GAME")
                 {
-                    await Shell.Current.GoToAsync("//ControllerPage");
+                    await Shell.Current.GoToAsync($"//ControllerPage?code={_roomCode}");
                 }
             });
         });
+
+        // REGISTRO DE HISTORIAL: Al empezar a escuchar el lobby, registramos que el usuario ha participado
+        var user = _accountService.GetCurrentUser();
+        if (user != null)
+        {
+            _ = _gameService.RegisterParticipationAsync(user.Id, _roomCode);
+        }
     }
 
     private async Task LoadAvailableGames()
@@ -165,7 +182,7 @@ public partial class LobbyPage : ContentPage
         }
     }
 
-    private async void OnUnexpectedDisconnect()
+    private void OnUnexpectedDisconnect()
     {
         MainThread.BeginInvokeOnMainThread(async () => 
         {
@@ -253,8 +270,10 @@ public partial class LobbyPage : ContentPage
 
     private async void OnLeaveClicked(object sender, EventArgs e)
     {
-        if (_connection.IsConnected)
+        var user = _accountService.GetCurrentUser();
+        if (user != null && _connection.IsConnected)
         {
+            await _connection.SendMessageAsync($"LEAVE|{user.Id}");
             await _connection.DisconnectAsync();
         }
         await Shell.Current.GoToAsync("..");

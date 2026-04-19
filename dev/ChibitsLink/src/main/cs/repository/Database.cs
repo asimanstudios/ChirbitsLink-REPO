@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -156,7 +156,10 @@ public class Database
             .LimitTo(1)
             .GetAsync();
         
-        return !snapshot.IsEmpty;
+        if (snapshot.IsEmpty) return false;
+
+        var party = snapshot.Documents.FirstOrDefault()?.ToObject<Party>();
+        return party != null && party.GameState != "CLOSED";
     }
 
     /// <summary>
@@ -186,7 +189,7 @@ public class Database
     /// </summary>
     public async Task JoinLobbyAsync(string userId, string roomCode)
     {
-        var history = new LobbyHistory
+        var history = new PartyHistory
         {
             Id = Guid.NewGuid().ToString(),
             UserId = userId,
@@ -207,7 +210,7 @@ public class Database
     }
 
 
-    public async Task<List<LobbyHistory>> GetUserHistory(string userId)
+    public async Task<List<PartyHistory>> GetUserHistory(string userId)
     {
         var querySnapshot = await _connection.Firestore
             .Collection("lobbies")
@@ -215,6 +218,6 @@ public class Database
             .OrderBy("Timestamp", true)
             .GetAsync();
 
-        return querySnapshot.Documents.Select(d => d.ToObject<LobbyHistory>()).ToList();
+        return querySnapshot.Documents.Select(d => d.ToObject<PartyHistory>()).ToList();
     }
 }

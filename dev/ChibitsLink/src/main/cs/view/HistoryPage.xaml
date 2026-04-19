@@ -27,6 +27,13 @@
                    CharacterSpacing="1"/>
         </VerticalStackLayout>
 
+        <!-- Loader -->
+        <ActivityIndicator Grid.Row="1" x:Name="LoadingIndicator" 
+                           IsRunning="False" IsVisible="False"
+                           Color="{StaticResource Secondary}"
+                           HorizontalOptions="Center" VerticalOptions="Center"
+                           WidthRequest="50" HeightRequest="50"/>
+
         <!-- History List -->
         <CollectionView Grid.Row="1" x:Name="HistoryCollection">
             <CollectionView.EmptyView>
@@ -39,7 +46,7 @@
             </CollectionView.EmptyView>
             
             <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="model:LobbyHistory">
+                <DataTemplate x:DataType="model:PartyHistory">
                     <Border Style="{StaticResource GlassFrame}" Margin="0,5" Stroke="{StaticResource Primary}">
                         <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="15">
                             <Label Grid.Column="0" Text="⚔️" FontSize="26" VerticalOptions="Center"/>

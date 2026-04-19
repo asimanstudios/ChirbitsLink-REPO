@@ -8,7 +8,7 @@ public partial class HistoryPage : ContentPage
 {
     private readonly AccountService _accountService;
     private readonly ChibitsLink.main.repository.Database _db;
-    public ObservableCollection<LobbyHistory> History { get; set; } = new();
+    public ObservableCollection<PartyHistory> History { get; set; } = new();
 
     public HistoryPage(AccountService accountService, ChibitsLink.main.repository.Database db)
     {
@@ -39,11 +39,14 @@ public partial class HistoryPage : ContentPage
 
         try
         {
+            SetLoading(true);
             var historyData = await _db.GetUserHistory(user.Id);
             
             History.Clear();
             foreach (var item in historyData)
             {
+                // Asegurar que si Date es el valor por defecto, usamos el Timestamp
+                if (item.Date == default) item.Date = item.Timestamp;
                 History.Add(item);
             }
 
@@ -52,6 +55,18 @@ public partial class HistoryPage : ContentPage
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Error loading history: {ex.Message}");
+            await DisplayAlert("Error", "No se pudo cargar el historial de batallas.", "OK");
         }
+        finally
+        {
+            SetLoading(false);
+        }
+    }
+
+    private void SetLoading(bool isLoading)
+    {
+        LoadingIndicator.IsRunning = isLoading;
+        LoadingIndicator.IsVisible = isLoading;
+        HistoryCollection.IsVisible = !isLoading;
     }
 }

@@ -1,24 +1,28 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\adris\\RiderProjects\\ChirbitsLink\\ChirbitsLink-REPO\\dev\\ChibitsLink\\ChibitsLink.csproj": {}
+    "C:\\Users\\adris\\Desktop\\asimanHUD - menucustom\\ChirbitsLink-REPO\\dev\\ChibitsLink\\ChibitsLink.csproj": {}
   },
   "projects": {
-    "C:\\Users\\adris\\RiderProjects\\ChirbitsLink\\ChirbitsLink-REPO\\dev\\ChibitsLink\\ChibitsLink.csproj": {
+    "C:\\Users\\adris\\Desktop\\asimanHUD - menucustom\\ChirbitsLink-REPO\\dev\\ChibitsLink\\ChibitsLink.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\adris\\RiderProjects\\ChirbitsLink\\ChirbitsLink-REPO\\dev\\ChibitsLink\\ChibitsLink.csproj",
+        "projectUniqueName": "C:\\Users\\adris\\Desktop\\asimanHUD - menucustom\\ChirbitsLink-REPO\\dev\\ChibitsLink\\ChibitsLink.csproj",
         "projectName": "ChibitsLink",
-        "projectPath": "C:\\Users\\adris\\RiderProjects\\ChirbitsLink\\ChirbitsLink-REPO\\dev\\ChibitsLink\\ChibitsLink.csproj",
+        "projectPath": "C:\\Users\\adris\\Desktop\\asimanHUD - menucustom\\ChirbitsLink-REPO\\dev\\ChibitsLink\\ChibitsLink.csproj",
         "packagesPath": "C:\\Users\\adris\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\adris\\RiderProjects\\ChirbitsLink\\ChirbitsLink-REPO\\dev\\ChibitsLink\\obj\\",
+        "outputPath": "C:\\Users\\adris\\Desktop\\asimanHUD - menucustom\\ChirbitsLink-REPO\\dev\\ChibitsLink\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
           "C:\\Users\\adris\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
-          "net9.0-android"
+          "net8.0-android"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
@@ -26,8 +30,8 @@
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net9.0-android35.0": {
-            "targetAlias": "net9.0-android",
+          "net8.0-android34.0": {
+            "targetAlias": "net8.0-android",
             "projectReferences": {}
           }
         },
@@ -35,34 +39,28 @@
           "warnAsError": [
             "NU1605"
           ]
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "10.0.100"
+        }
       },
       "frameworks": {
-        "net9.0-android35.0": {
-          "targetAlias": "net9.0-android",
+        "net8.0-android34.0": {
+          "targetAlias": "net8.0-android",
           "dependencies": {
             "Microsoft.Extensions.Logging.Debug": {
               "target": "Package",
-              "version": "[9.0.0, )"
+              "version": "[8.0.0, )"
             },
             "Microsoft.Maui.Controls": {
               "target": "Package",
-              "version": "[9.0.120, )"
+              "version": "[8.0.100, )"
             },
             "Microsoft.Maui.Controls.Compatibility": {
               "target": "Package",
-              "version": "[9.0.120, )"
+              "version": "[8.0.100, )"
             },
             "Microsoft.NET.ILLink.Tasks": {
               "suppressParent": "All",
               "target": "Package",
-              "version": "[9.0.13, )",
+              "version": "[8.0.1, )",
               "autoReferenced": true
             },
             "Newtonsoft.Json": {
@@ -80,6 +78,26 @@
             "Plugin.FirebaseAuth": {
               "target": "Package",
               "version": "[4.1.0, )"
+            },
+            "Xamarin.AndroidX.Collection": {
+              "target": "Package",
+              "version": "[1.4.0.5, )"
+            },
+            "Xamarin.AndroidX.Collection.Ktx": {
+              "target": "Package",
+              "version": "[1.4.0.5, )"
+            },
+            "Xamarin.AndroidX.Fragment.Ktx": {
+              "target": "Package",
+              "version": "[1.6.2.3, )"
+            },
+            "Xamarin.Google.Guava": {
+              "target": "Package",
+              "version": "[31.1.0.10, )"
+            },
+            "Xamarin.Google.Guava.ListenableFuture": {
+              "target": "Package",
+              "version": "[9999.0.0, )"
             }
           },
           "imports": [
@@ -93,20 +111,6 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[9.0.13, 9.0.13]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[9.0.13, 9.0.13]"
-            },
-            {
-              "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[9.0.13, 9.0.13]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.Android": {
               "privateAssets": "all"
@@ -115,14 +119,11 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101/PortableRuntimeIdentifierGraph.json"
         }
       },
       "runtimes": {
         "android-arm64": {
-          "#import": []
-        },
-        "android-x64": {
           "#import": []
         }
       }

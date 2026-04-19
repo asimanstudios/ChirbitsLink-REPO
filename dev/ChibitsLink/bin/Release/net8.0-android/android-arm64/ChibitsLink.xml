@@ -1,0 +1,263 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ChibitsLink</name>
+    </assembly>
+    <members>
+        <member name="T:ChibitsLink.main.cs.controller.AccountController">
+            <summary>
+            Controla el sistema de autenticación de usuarios.
+            Intermediario entre las páginas de login/registro y <see cref="T:ChibitsLink.main.cs.service.AccountService"/>.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.cs.controller.AccountController.Login(ChibitsLink.main.cs.view.LoginPage,System.String,System.String)">
+            <summary>
+            Gestiona el intento de inicio de sesión. Actualiza la UI de la vista con el resultado.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.cs.controller.AccountController.Register(ChibitsLink.main.cs.view.RegisterPage,System.String,System.String,System.String,System.String)">
+            <summary>
+            Gestiona el intento de registro. Actualiza la UI de la vista con el resultado.
+            </summary>
+        </member>
+        <member name="T:ChibitsLink.main.cs.exception.ChibitsLinkException">
+            <summary>
+            Excepción base de la aplicación ChibitsLink.
+            Todas las excepciones del dominio heredan de esta clase.
+            </summary>
+        </member>
+        <member name="T:ChibitsLink.main.cs.exception.DatabaseException">
+            <summary>
+            Excepción lanzada cuando ocurre un error en las operaciones de base de datos (Firestore).
+            </summary>
+        </member>
+        <member name="T:ChibitsLink.main.cs.exception.RecordNotFoundException">
+            <summary>
+            Excepción lanzada cuando un documento no se encuentra en la colección de Firestore indicada.
+            </summary>
+        </member>
+        <member name="T:ChibitsLink.main.cs.model.Game">
+            <summary>
+            Representa un minijuego disponible en la plataforma ChirBits.
+            </summary>
+        </member>
+        <member name="T:ChibitsLink.main.cs.model.GameType">
+            <summary>
+            Tipos de minijuego disponibles en la plataforma ChirBits.
+            </summary>
+        </member>
+        <member name="F:ChibitsLink.main.cs.model.GameType.Soccer">
+            <summary>Juego de fútbol simple.</summary>
+        </member>
+        <member name="F:ChibitsLink.main.cs.model.GameType.Jump">
+            <summary>Juego de saltos usando el micrófono como sensor de soplido.</summary>
+        </member>
+        <member name="F:ChibitsLink.main.cs.model.GameType.Accelerometer">
+            <summary>Juego controlado mediante el acelerómetro del dispositivo.</summary>
+        </member>
+        <member name="F:ChibitsLink.main.cs.model.GameType.Kitchen">
+            <summary>Juego de cocina con controles de movimiento estándar.</summary>
+        </member>
+        <member name="T:ChibitsLink.main.cs.model.Party">
+            <summary>
+            Representa una sala de juego (lobby) activa o pasada en ChirBits.
+            Contiene el código de sala y los jugadores que participaron.
+            </summary>
+        </member>
+        <member name="T:ChibitsLink.main.cs.model.PartyProgress">
+            <summary>
+            Registra el progreso de una partida concreta: puntuaciones, ganador y momento de finalización.
+            </summary>
+        </member>
+        <member name="T:ChibitsLink.main.cs.service.AccountService">
+            <summary>
+            Gestiona la autenticación de usuarios (inicio de sesión, registro, cierre de sesión)
+            y la persistencia de la sesión activa del usuario.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.cs.service.AccountService.IsSessionActiveAsync">
+            <summary>
+            Comprueba si existe una sesión activa y válida para el usuario.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.cs.service.AccountService.Login(System.String,System.String)">
+            <summary>
+            Inicia sesión con email y contraseña mediante Firebase Auth.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.cs.service.AccountService.RegisterAsync(System.String,System.String,System.String,System.String)">
+            <summary>
+            Registra un nuevo usuario en Firebase Auth y crea su perfil en Firestore.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.cs.service.AccountService.UpdateUser(ChibitsLink.main.cs.model.User)">
+            <summary>Actualiza los datos del usuario tanto en Firestore como en memoria.</summary>
+        </member>
+        <member name="M:ChibitsLink.main.cs.service.AccountService.UpdateEmail(System.String)">
+            <summary>Actualiza el email del usuario autenticado en Firebase Auth.</summary>
+        </member>
+        <member name="M:ChibitsLink.main.cs.service.AccountService.ChangePassword(System.String)">
+            <summary>Cambia la contraseña del usuario autenticado en Firebase Auth.</summary>
+        </member>
+        <member name="M:ChibitsLink.main.cs.service.AccountService.Logout">
+            <summary>Cierra la sesión del usuario y borra los datos de sesión persistidos.</summary>
+        </member>
+        <member name="M:ChibitsLink.main.cs.service.AccountService.GetCurrentUser">
+            <summary>Devuelve el usuario actualmente autenticado en memoria, o null si no hay sesión.</summary>
+        </member>
+        <member name="T:ChibitsLink.main.cs.service.ControllerService">
+            <summary>
+            Serializa y envía los estados del mando (joystick, botones, sensores) al servidor de juego
+            a través de la conexión TCP/WebSocket activa.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.cs.service.ControllerService.SendJoystickMove(System.Single,System.Single)">
+            <summary>
+            Envía la posición del joystick al servidor. Los valores x e y están normalizados en el rango [-1, 1].
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.cs.service.ControllerService.SendButtonPress(System.String)">
+            <summary>
+            Envía el evento de pulsación de un botón del mando al servidor.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.cs.service.ControllerService.SendSensorData(System.String,System.Single)">
+            <summary>
+            Envía datos de un sensor del dispositivo (ej. acelerómetro) al servidor.
+            </summary>
+        </member>
+        <member name="T:ChibitsLink.main.cs.service.GameService">
+            <summary>
+            Gestiona la lógica relacionada con las salas de juego (lobbies) y los juegos disponibles.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.cs.service.GameService.GetAvailableGames">
+            <summary>
+            Recupera la lista de juegos disponibles desde Firestore.
+            Lanza <see cref="T:ChibitsLink.main.cs.exception.DatabaseException"/> si hay un error de comunicación.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.cs.service.GameService.ValidateLobbyAsync(System.String)">
+            <summary>
+            Valida si una sala de juego con el código indicado existe en Firestore.
+            </summary>
+            <param name="roomCode">Código de sala de 6 caracteres.</param>
+            <returns>True si la sala existe; false en caso contrario.</returns>
+        </member>
+        <member name="M:ChibitsLink.main.cs.service.GameService.GetCharacters">
+            <summary>
+            Recupera la lista de personajes configurados en Firestore.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.cs.service.GameService.ListenToLobby(System.String,System.Action{ChibitsLink.main.cs.model.Party})">
+            <summary>
+            Escucha cambios en el lobby en tiempo real.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.cs.service.GameService.RegisterParticipationAsync(System.String,System.String)">
+            <summary>
+            Registra la participación de un usuario en una sala para que aparezca en su historial.
+            </summary>
+        </member>
+        <member name="T:ChibitsLink.main.cs.view.JoinRoomPage">
+            <summary>
+            Página de unión a sala mediante código de 6 dígitos.
+            Valida el código contra Firestore antes de navegar al LobbyPage.
+            </summary>
+        </member>
+        <member name="T:ChibitsLink.main.cs.view.LoginPage">
+            <summary>
+            Página de inicio de sesión. Autentica al usuario con email y contraseña.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.cs.view.LoginPage.NavigateToSelection">
+            <summary>Navega al menú principal tras un login exitoso.</summary>
+        </member>
+        <member name="T:ChibitsLink.main.cs.view.RegisterPage">
+            <summary>
+            Página de registro de nuevos usuarios.
+            Recoge nombre completo, alias, email y contraseña (sin confirmación — XAML no tiene ese campo).
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.cs.view.RegisterPage.NavigateToLogin">
+            <summary>Navega a la pantalla de login tras un registro exitoso.</summary>
+        </member>
+        <member name="T:ChibitsLink.main.cs.view.SelectionPage">
+            <summary>
+            Página de selección de juego y método de conexión (Wi-Fi, Bluetooth, QR).
+            </summary>
+        </member>
+        <member name="T:ChibitsLink.main.controller.GameController">
+            <summary>
+            Controla los servicios de conexión entre minijuegos y su funcionamiento
+            </summary>
+        </member>
+        <member name="T:ChibitsLink.main.repository.FirebaseConnection">
+            <summary>
+            Provee el acceso a la instancia de Cloud Firestore.
+            </summary>
+        </member>
+        <member name="T:ChibitsLink.main.repository.Database">
+            <summary>
+            Gestiona las operaciones CRUD sobre Cloud Firestore.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.repository.Database.ListenAsync``1(System.String,System.String,System.Action{``0})">
+            <summary>
+            Escucha cambios en tiempo real de un documento de Firestore.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.repository.Database.CheckLobbyExistsAsync(System.String)">
+            <summary>
+            Verifica si un lobby existe por su código de sala.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.repository.Database.InitializeCharactersAsync">
+            <summary>
+            Initializes characters in the database if they don't exist.
+            This allows the user to add images later.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.repository.Database.JoinLobbyAsync(System.String,System.String)">
+            <summary>
+            Registers a user's participation in a lobby.
+            </summary>
+        </member>
+        <member name="T:ChibitsLink.main.repository.DatabaseSeeder">
+            <summary>
+            Class responsible for seeding the database with initial data.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.repository.DatabaseSeeder.SeedAllAsync">
+            <summary>
+            Executes the full database seeding.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.repository.DatabaseSeeder.SeedCharactersAsync">
+            <summary>
+            Seeds the characters collection.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.repository.DatabaseSeeder.SeedGamesAsync">
+            <summary>
+            Puebla la colección de juegos disponibles.
+            </summary>
+        </member>
+        <member name="T:ChibitsLink.main.test.GameServiceTests">
+            <summary>
+            Pruebas unitarias manuales de los servicios principales.
+            Para ejecutarlas en un entorno de test completo, mueve esta clase a un proyecto xUnit/MSTest independiente.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.test.GameServiceTests.ValidateLobbyAsync_ShouldReturnFalse_WhenRoomCodeIsEmpty">
+            <summary>
+            Verifica que ValidateLobbyAsync devuelve false cuando se pasa una cadena vacía.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.test.GameServiceTests.ValidateLobbyAsync_ShouldReturnFalse_WhenCodeTooShort">
+            <summary>
+            Verifica que ValidateLobbyAsync devuelve false cuando el código no tiene 6 dígitos.
+            </summary>
+        </member>
+    </members>
+</doc>

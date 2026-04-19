@@ -1,0 +1,18 @@
+<Project>
+  <!-- Este archivo soluciona el error "Type androidx.collection.X is defined multiple times" en .NET 8 -->
+  <Target Name="FixCollectionConflict" AfterTargets="ResolvePackageAssets">
+    <ItemGroup>
+      <!-- Eliminamos la referencia a la versión vieja de KTX que causa el choque de clases -->
+      <RuntimeCopyLocalItems Remove="@(RuntimeCopyLocalItems)" Condition="'%(NuGetPackageId)' == 'Xamarin.AndroidX.Collection.Ktx' and '%(NuGetPackageVersion)' == '1.2.0.9'" />
+      <ResolvedCompileFileDefinitions Remove="@(ResolvedCompileFileDefinitions)" Condition="'%(NuGetPackageId)' == 'Xamarin.AndroidX.Collection.Ktx' and '%(NuGetPackageVersion)' == '1.2.0.9'" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="RemoveConflictingJars" AfterTargets="_ResolveLibraryProjectImports">
+    <ItemGroup>
+      <!-- Forzamos el borrado de los JARs duplicados en el proceso de empaquetado de Android -->
+      <_AndroidLibraryImport Remove="@(_AndroidLibraryImport)" Condition="'%(FileName)' == 'androidx.collection.collection-ktx' and '%(Version)' == '1.2.0.9'" />
+      <AndroidExternalJavaLibrary Remove="@(AndroidExternalJavaLibrary)" Condition="'%(FileName)' == 'androidx.collection.collection-ktx'" />
+    </ItemGroup>
+  </Target>
+</Project>

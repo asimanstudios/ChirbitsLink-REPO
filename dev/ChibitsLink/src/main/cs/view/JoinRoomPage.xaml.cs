@@ -6,7 +6,7 @@ namespace ChibitsLink.main.cs.view;
 
 /// <summary>
 /// Página de unión a sala mediante código de 6 dígitos.
-/// Valida el código contra Firestore antes de navegar al LobbyHistory.
+/// Valida el código contra Firestore antes de navegar al LobbyPage.
 /// </summary>
 public partial class JoinRoomPage : ContentPage
 {

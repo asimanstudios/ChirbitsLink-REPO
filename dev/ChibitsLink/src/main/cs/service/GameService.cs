@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using ChibitsLink.main.cs.exception;
 using ChibitsLink.main.cs.model;
@@ -74,5 +74,20 @@ public class GameService
     public IDisposable ListenToLobby(string roomCode, Action<Party?> onChanged)
     {
         return _db.ListenAsync<Party>("parties", roomCode, onChanged);
+    }
+
+    /// <summary>
+    /// Registra la participación de un usuario en una sala para que aparezca en su historial.
+    /// </summary>
+    public async Task RegisterParticipationAsync(string userId, string roomCode)
+    {
+        try
+        {
+            await _db.JoinLobbyAsync(userId, roomCode);
+        }
+        catch (DatabaseException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error al registrar participación: {ex.Message}");
+        }
     }
 }

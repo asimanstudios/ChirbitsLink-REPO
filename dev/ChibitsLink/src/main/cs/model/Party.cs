@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace ChibitsLink.main.cs.model;
 
@@ -17,4 +17,5 @@ public class Party
     public string GameState { get; set; } = "LOBBY"; // LOBBY, VOTING, IN_GAME
     public List<string> ReadyPlayerIds { get; set; } = new List<string>();
     public Dictionary<string, int> Votes { get; set; } = new Dictionary<string, int>();
+    public Dictionary<string, int> PlayerScores { get; set; } = new Dictionary<string, int>();
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Microsoft.Maui.Storage;
 using ChibitsLink.main.cs.exception;
@@ -67,8 +67,18 @@ public class AccountService : BaseService
             var result = await _connection.Auth.SignInWithEmailAndPasswordAsync(email, password);
             if (result.User != null)
             {
+                // FIX: Mayor pausa para asegurar propagación
+                await Task.Delay(1500);
+
                 _currentUser = await _db.GetUser(result.User.Uid);
-                if (_currentUser != null) _currentUser.Email = result.User.Email ?? email;
+                
+                if (_currentUser == null)
+                {
+                    _connection.Auth.SignOut();
+                    return (false, $"CRÍTICO: El perfil Firestore no existe para el UID Auth actual ({result.User.Uid}). Elimina tu cuenta desde la consola de Firebase Auth y regístrate de nuevo.");
+                }
+
+                _currentUser.Email = result.User.Email ?? email;
                 await SaveSession(result.User.Uid);
                 return (true, null);
             }
@@ -95,6 +105,9 @@ public class AccountService : BaseService
             var result = await _connection.Auth.CreateUserWithEmailAndPasswordAsync(email, password);
             if (result.User == null) return (false, "El registro no devolvió un usuario.");
 
+            // FIX: Mayor pausa para asegurar la propagación del Token de Auth a Firestore (Race Condition pesado)
+            await Task.Delay(1500);
+
             var newUser = new User
             {
                 Id = result.User.Uid,
@@ -103,7 +116,16 @@ public class AccountService : BaseService
                 Username = username
             };
 
-            await _db.SaveUser(newUser);
+            try 
+            {
+                await _db.SaveUser(newUser);
+            }
+            catch (DatabaseException ex)
+            {
+                // ROLLBACK: Borrar la cuenta vacía de Auth si falla la escritura en BBDD para no dejarla "huérfana"
+                await result.User.DeleteAsync();
+                return (false, $"Error bloqueando en BBDD (probablemente Reglas/Tiempo). Cuenta de Auth cancelada para evitar bucles. Detalle: {ex.Message}");
+            }
             _currentUser = newUser;
             await SaveSession(result.User.Uid);
 

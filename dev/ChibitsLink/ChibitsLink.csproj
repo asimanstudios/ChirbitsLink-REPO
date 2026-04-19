@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net9.0-android</TargetFramework>
+		<TargetFramework>net8.0-android</TargetFramework>
 		<OutputType>Exe</OutputType>
 		<UseMaui>true</UseMaui>
 		<SingleProject>true</SingleProject>
@@ -19,11 +19,24 @@
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
 		
-		<!-- Android Build Optimizations -->
-		<JavaMaxHeapSize>1G</JavaMaxHeapSize>
+		<!-- Global Java Heap -->
+		<JavaMaxHeapSize>4G</JavaMaxHeapSize>
 		<AndroidEnableMultiDex>true</AndroidEnableMultiDex>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)' == 'Debug|net8.0-android'">
+		<RunAOTCompilation>false</RunAOTCompilation>
+		<AndroidLinkMode>None</AndroidLinkMode>
+		<AndroidEnableR8>false</AndroidEnableR8>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)' == 'Release|net8.0-android'">
+		<RunAOTCompilation>true</RunAOTCompilation>
+		<AndroidLinkMode>SdkOnly</AndroidLinkMode>
+		<AndroidEnableR8>true</AndroidEnableR8>
+		<AndroidEnableShrinkResources>false</AndroidEnableShrinkResources>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -46,15 +59,21 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
 		<PackageReference Include="Plugin.BLE" Version="3.1.0" />
 		<PackageReference Include="Plugin.CloudFirestore" Version="4.1.0" />
 		<PackageReference Include="Plugin.FirebaseAuth" Version="4.1.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="Xamarin.Google.Guava" Version="31.1.0.10" />
+		<PackageReference Include="Xamarin.Google.Guava.ListenableFuture" Version="9999.0.0" />
+		<PackageReference Include="Xamarin.AndroidX.Collection" Version="1.4.0.5" />
+		<PackageReference Include="Xamarin.AndroidX.Collection.Ktx" Version="1.4.0.5" />
+		<PackageReference Include="Xamarin.AndroidX.Fragment.Ktx" Version="1.6.2.3" />
 	</ItemGroup>
 
-	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0-android'">
+	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0-android'">
 		<GoogleServicesJson Include="Platforms\Android\google-services.json" />
+		<LinkDescription Include="Platforms\Android\Linker.xml" />
 	</ItemGroup>
 
 </Project>

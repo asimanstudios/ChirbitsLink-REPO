@@ -9,8 +9,17 @@ using ChibitsLink.main.cs.net;
 using Microsoft.Maui.ApplicationModel;
 using System.Threading.Tasks;
 
+[QueryProperty(nameof(RoomCode), "code")]
 public partial class ControllerPage : ContentPage
 {
+    private string _roomCode = "";
+
+    public string RoomCode
+    {
+        get => _roomCode;
+        set => _roomCode = value;
+    }
+
     private readonly ControllerController _controller;
     private readonly Connection _connection;
     private readonly AccountService _accountService;
@@ -35,9 +44,18 @@ public partial class ControllerPage : ContentPage
         _connection.Disconnected += OnUnexpectedDisconnect;
     }
 
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        _orientationService?.SetPortrait();
+        _connection.Disconnected -= OnUnexpectedDisconnect;
+        _connection.MessageReceived -= OnMessageReceived;
+    }
+
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        _connection.MessageReceived += OnMessageReceived;
         
         // Security check
         var user = _accountService.GetCurrentUser();
@@ -47,20 +65,13 @@ public partial class ControllerPage : ContentPage
             return;
         }
 
-        UsernameLabel.Text = user.Username.ToUpper();
+        UsernameLabel.Text = (user.Username ?? "USER").ToUpper();
         UserLevelLabel.Text = $"LVL. {user.Level}";
 
         _orientationService?.SetLandscape();
     }
 
-    protected override void OnDisappearing()
-    {
-        base.OnDisappearing();
-        _orientationService?.SetPortrait();
-        _connection.Disconnected -= OnUnexpectedDisconnect;
-    }
-
-    private async void OnUnexpectedDisconnect()
+    private void OnUnexpectedDisconnect()
     {
         MainThread.BeginInvokeOnMainThread(async () => 
         {
@@ -69,9 +80,27 @@ public partial class ControllerPage : ContentPage
         });
     }
 
+    private void OnMessageReceived(string message)
+    {
+        string trimmed = message.Trim();
+        if (trimmed == "GOTO_LOBBY" || trimmed == "GAME_OVER|LOBBY")
+        {
+            MainThread.BeginInvokeOnMainThread(async () => 
+            {
+                // Navegación absoluta con el código preservado para evitar el BUG del 000000
+                await Shell.Current.GoToAsync($"//LobbyPage?code={_roomCode}"); 
+            });
+        }
+    }
+
     private async void OnBackClicked(object sender, EventArgs e)
     {
-        // Optional: Disconnect logic if needed here
+        var user = _accountService.GetCurrentUser();
+        if (user != null && _connection.IsConnected)
+        {
+            await _connection.SendMessageAsync($"LEAVE|{user.Id}");
+            await _connection.DisconnectAsync();
+        }
         await Shell.Current.GoToAsync("//MainMenuPage");
     }
 
