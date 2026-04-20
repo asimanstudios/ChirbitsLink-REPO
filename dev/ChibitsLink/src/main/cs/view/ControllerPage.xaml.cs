@@ -96,6 +96,10 @@ public partial class ControllerPage : ContentPage
     private async void OnBackClicked(object sender, EventArgs e)
     {
         var user = _accountService.GetCurrentUser();
+        
+        // Desuscribirse para evitar aviso de desconexión inesperada
+        _connection.Disconnected -= OnUnexpectedDisconnect;
+
         if (user != null && _connection.IsConnected)
         {
             await _connection.SendMessageAsync($"LEAVE|{user.Id}");

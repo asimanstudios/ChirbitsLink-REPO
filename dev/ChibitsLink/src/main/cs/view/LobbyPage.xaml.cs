@@ -16,6 +16,7 @@ public partial class LobbyPage : ContentPage
     
     private string _roomCode = "";
     private bool _isReady = false;
+    private bool _isReturningFromGame = false;
     public ObservableCollection<Character> Characters { get; set; } = new();
     public ObservableCollection<Game> AvailableGames { get; set; } = new();
 
@@ -47,6 +48,7 @@ public partial class LobbyPage : ContentPage
         
         // Reset local ready state when re-entering the lobby
         _isReady = false;
+        _isReturningFromGame = true; 
         ReadyButton.Text = "MARCAR COMO LISTO";
         if (Application.Current?.Resources.TryGetValue("Primary", out var primaryColor) == true)
         {
@@ -115,12 +117,16 @@ public partial class LobbyPage : ContentPage
                 }
                 else if (party.GameState == "LOBBY")
                 {
+                    _isReturningFromGame = false;
                     VotingOverlay.IsVisible = false;
                 }
                 // Si el estado cambia a IN_GAME, pasamos a la pantalla de control conservando el código
                 else if (party.GameState == "IN_GAME")
                 {
-                    await Shell.Current.GoToAsync($"//ControllerPage?code={_roomCode}");
+                    if (!_isReturningFromGame)
+                    {
+                        await Shell.Current.GoToAsync($"//ControllerPage?code={_roomCode}");
+                    }
                 }
             });
         });
@@ -271,11 +277,16 @@ public partial class LobbyPage : ContentPage
     private async void OnLeaveClicked(object sender, EventArgs e)
     {
         var user = _accountService.GetCurrentUser();
+        
+        // Desuscribirse del evento antes de desconectar para evitar el mensaje de "Conexión Perdida"
+        _connection.Disconnected -= OnUnexpectedDisconnect;
+
         if (user != null && _connection.IsConnected)
         {
             await _connection.SendMessageAsync($"LEAVE|{user.Id}");
             await _connection.DisconnectAsync();
         }
-        await Shell.Current.GoToAsync("..");
+        
+        await Shell.Current.GoToAsync("//MainMenuPage");
     }
 }
