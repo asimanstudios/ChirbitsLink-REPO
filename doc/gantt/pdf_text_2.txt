@@ -592,3 +592,40 @@ superposición de scripts. Se ha decidido empezar de 0
 y usar lo que ya funciona con añadidos con el fin de
 completar el minijuego y poder pasar con el ultimo mes
 de refactorizaciones lo cual sera largo y tedioso.
+DÍA 05/04
+Toda la sesión de dicho día de 11:00 - 15:00 fue
+dedicada a un remake del minijuego debido a los
+problemas creados con chirbits smash y debido al
+tiempo necesario para pulirlo bien se decidió dejarlo
+como un proyecto futuro o en segundo plano y crear un
+minijuego basado en el uso de ganchos . Se usó dicho
+día para armar ese minijuego tanto el mapa como el
+diseño.
+DÍA 6/04 -12/04
+Se dedicó a la relaizacion de los diferentes sistemas
+del minijuego del gancho tanto scripts como diseño. Se
+definieron las zonas, uso de ganchos, instanciación de
+personajes y objetos y se repararon errores por el
+camino del balanceo y jugabilidad. Fueron sesiones de
+18-22 debido a el horario de prácticas.
+DÍA 13/04 -20/04
+Este periodo se enfocó a la reparación de errores
+persistentes en la interconexión y mejoras de calidad.
+Se reparó el error de vuelta a la lobby, se repararon
+errores de creacion y uso de cuentas, se modificó la
+app movil par a recibir y enviar mensajes, se ajusto
+el sistema de puntuación y niveles aunque requiere de
+ajustes como en la carga de la lista de las lobbis. Se
+retiró el hardcodeo de red ahora se selecciona en base
+a las diferentes redes disponibles del equipo
+permitiendo usar VPN para jugar con gente externa a la
+red, se ha probado con Tailscale y funciona
+correctamente, será la red que use para las muestras
+ya que asegura el funcionamiento.
+Aun se necesita decorar, mejorar ui, ux y algun
+efecto, tambien refactorizar y limpiar pero va tomando
+forma interesante.
+Fueron sesiones de 18-22. Sabados y domingos de 11-15.
+El día 20 fue cuando se implemento el tema de la red
+seleccionable y se actualizó el diario ademas del
+diagrama de Gantt.
