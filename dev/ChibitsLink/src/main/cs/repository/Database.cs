@@ -100,7 +100,7 @@ public class Database
                 .Collection(collection)
                 .GetAsync();
 
-            return querySnapshot.Documents.Select(d => d.ToObject<T>()).ToList();
+            return querySnapshot.Documents.Select(d => d.ToObject<T>()).Where(x => x != null).Cast<T>().ToList();
         }
         catch (Exception ex)
         {
@@ -126,7 +126,32 @@ public class Database
     }
 
     public async Task SaveUser(User user) => await StoreAsync("users", user.Id, user);
-    public async Task UpdateUser(User user) => await SaveUser(user);
+    
+    public async Task UpdateUser(User user)
+    {
+        // SOLUCIÓN FINAL: Solo actualizamos los campos que la App gestiona.
+        // Nivel y Experiencia quedan protegidos porque no los incluimos aquí.
+        try
+        {
+            var updates = new Dictionary<string, object>
+            {
+                { "Username", user.Username },
+                { "SelectedCharacterId", user.SelectedCharacterId },
+                { "GameHistory", user.GameHistory }
+            };
+
+            await _connection.Firestore
+                .Collection("users")
+                .Document(user.Id)
+                .UpdateAsync(updates);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"UpdateUser Error: {ex.Message}. Creando documento...");
+            // Si el documento no existe (primera vez), Update falla, así que usamos Set
+            await SaveUser(user);
+        }
+    }
     public async Task<User?> GetUser(string id) => await GetAsync<User>("users", id);
     
     public async Task SaveGame(Game game) => await StoreAsync("games", game.Id.ToString(), game);
@@ -189,35 +214,34 @@ public class Database
     /// </summary>
     public async Task JoinLobbyAsync(string userId, string roomCode)
     {
-        var history = new PartyHistory
-        {
-            Id = Guid.NewGuid().ToString(),
-            UserId = userId,
-            RoomCode = roomCode,
-            Timestamp = DateTime.UtcNow
-        };
-
-        await StoreAsync("lobbies", history.Id, history);
-
-        // También actualizamos el historial directo del usuario por conveniencia
+        // Ya no guardamos en la colección 'lobbies'. Todo se gestiona en 'parties'.
         var user = await GetUser(userId);
         if (user != null)
         {
             if (user.GameHistory == null) user.GameHistory = new List<string>();
-            user.GameHistory.Add(roomCode);
-            await UpdateUser(user);
+            if (!user.GameHistory.Contains(roomCode)) 
+            {
+                user.GameHistory.Add(roomCode);
+                await UpdateUser(user);
+            }
         }
     }
 
 
-    public async Task<List<PartyHistory>> GetUserHistory(string userId)
+    public async Task<List<Party>> GetUserHistory(string userId)
     {
+        // FIX: Eliminamos el OrderBy temporalmente. 
+        // Si funciona sin él, es que falta un índice compuesto en Firestore.
         var querySnapshot = await _connection.Firestore
-            .Collection("lobbies")
-            .WhereEqualsTo("UserId", userId)
-            .OrderBy("Timestamp", true)
-            .GetAsync();
+            .Collection("parties")
+            .WhereArrayContains("PlayerIds", userId)
+            .WhereEqualsTo("GameState", "CLOSED")
+            .GetAsync(Source.Server);
 
-        return querySnapshot.Documents.Select(d => d.ToObject<PartyHistory>()).ToList();
+        // Ordenamos en memoria para evitar el error de índice de Firestore por ahora
+        return querySnapshot.Documents
+            .Select(d => d.ToObject<Party>())
+            .OrderByDescending(p => p.CreatedAt)
+            .ToList();
     }
 }

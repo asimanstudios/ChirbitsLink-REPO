@@ -32,7 +32,7 @@ public class AccountService : BaseService
     {
         try
         {
-            var userId = await SecureStorage.GetAsync(SESSION_UID_KEY);
+            var userId = Preferences.Get(SESSION_UID_KEY, string.Empty);
             var expiryString = Preferences.Get(SESSION_EXPIRY_KEY, string.Empty);
 
             if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(expiryString))
@@ -53,8 +53,9 @@ public class AccountService : BaseService
 
     private async Task SaveSession(string uid)
     {
-        await SecureStorage.SetAsync(SESSION_UID_KEY, uid);
+        Preferences.Set(SESSION_UID_KEY, uid);
         Preferences.Set(SESSION_EXPIRY_KEY, DateTime.Now.AddDays(30).ToString());
+        await Task.CompletedTask;
     }
 
     /// <summary>
@@ -90,7 +91,7 @@ public class AccountService : BaseService
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Login Error: {ex.Message}");
-            return (false, "Error de autenticación. Comprueba tus credenciales.");
+            return (false, $"Error interno durante el login: {ex.Message}");
         }
         return (false, "La autenticación no devolvió un usuario.");
     }
@@ -186,7 +187,7 @@ public class AccountService : BaseService
     {
         _connection.Auth.SignOut();
         _currentUser = null;
-        SecureStorage.Remove(SESSION_UID_KEY);
+        Preferences.Remove(SESSION_UID_KEY);
         Preferences.Remove(SESSION_EXPIRY_KEY);
         await Task.CompletedTask;
     }

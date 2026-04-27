@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace ChibitsLink.main.cs.model;
@@ -18,4 +19,10 @@ public class Party
     public List<string> ReadyPlayerIds { get; set; } = new List<string>();
     public Dictionary<string, int> Votes { get; set; } = new Dictionary<string, int>();
     public Dictionary<string, int> PlayerScores { get; set; } = new Dictionary<string, int>();
+    public Dictionary<string, string> ParticipantNames { get; set; } = new Dictionary<string, string>();
+    public Dictionary<string, string> ParticipantCharacters { get; set; } = new Dictionary<string, string>();
+    
+    // Historial
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public List<string> PlayedGames { get; set; } = new List<string>();
 }

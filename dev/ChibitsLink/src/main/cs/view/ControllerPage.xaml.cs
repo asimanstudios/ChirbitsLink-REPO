@@ -91,6 +91,14 @@ public partial class ControllerPage : ContentPage
                 await Shell.Current.GoToAsync($"//LobbyPage?code={_roomCode}"); 
             });
         }
+        else if (trimmed == "STOP_SESSION")
+        {
+            MainThread.BeginInvokeOnMainThread(async () => 
+            {
+                await _connection.DisconnectAsync();
+                await Shell.Current.GoToAsync("//MainMenuPage");
+            });
+        }
     }
 
     private async void OnBackClicked(object sender, EventArgs e)

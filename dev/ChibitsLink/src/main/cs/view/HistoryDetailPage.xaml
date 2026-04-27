@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:view="clr-namespace:ChibitsLink.main.cs.view"
+             x:Class="ChibitsLink.main.cs.view.HistoryDetailPage"
+             Title="Resumen de Batalla"
+             BackgroundColor="{StaticResource Background}">
+
+    <Grid RowDefinitions="Auto, *" Padding="20">
+        
+        <!-- Background Decoration -->
+        <BoxView Grid.RowSpan="2" 
+                 BackgroundColor="{StaticResource Primary}" 
+                 Opacity="0.1" 
+                 CornerRadius="0,0,300,300" 
+                 HeightRequest="250" 
+                 VerticalOptions="Start"/>
+
+        <!-- Header -->
+        <VerticalStackLayout Grid.Row="0" Spacing="10" Margin="0,0,0,20">
+            <Label x:Name="RoomLabel" 
+                   Text="SALA XXXX" 
+                   Style="{StaticResource ModernTitle}" 
+                   HorizontalOptions="Center"
+                   TextColor="{StaticResource Secondary}"/>
+            
+            <Border Style="{StaticResource GlassFrame}" 
+                    HorizontalOptions="Center" 
+                    Padding="15,5" 
+                    Stroke="{StaticResource Secondary}">
+                <Label x:Name="DateLabel" 
+                       Text="27 ABR 2026" 
+                       FontSize="14" 
+                       TextColor="{StaticResource TextMain}" 
+                       FontAttributes="Bold"/>
+            </Border>
+        </VerticalStackLayout>
+
+        <!-- Player List -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout x:Name="PlayersList" Spacing="15">
+                <!-- Items will be added from C# -->
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Close Button -->
+        <Button Grid.Row="1" 
+                Text="CERRAR RELATO" 
+                Clicked="OnCloseClicked"
+                VerticalOptions="End"
+                Margin="0,20,0,0"
+                Style="{StaticResource SecondaryButton}"/>
+    </Grid>
+</ContentPage>

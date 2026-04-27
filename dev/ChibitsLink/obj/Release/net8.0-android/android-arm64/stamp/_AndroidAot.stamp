@@ -44,7 +44,6 @@ obj\Release\net8.0-android\android-arm64\aot\Xamarin.AndroidX.Navigation.Runtime
 obj\Release\net8.0-android\android-arm64\aot\Xamarin.AndroidX.Navigation.UI.dll.so
 obj\Release\net8.0-android\android-arm64\aot\Xamarin.AndroidX.RecyclerView.dll.so
 obj\Release\net8.0-android\android-arm64\aot\Xamarin.AndroidX.SavedState.dll.so
-obj\Release\net8.0-android\android-arm64\aot\Xamarin.AndroidX.Security.SecurityCrypto.dll.so
 obj\Release\net8.0-android\android-arm64\aot\Xamarin.AndroidX.SwipeRefreshLayout.dll.so
 obj\Release\net8.0-android\android-arm64\aot\Xamarin.AndroidX.ViewPager.dll.so
 obj\Release\net8.0-android\android-arm64\aot\Xamarin.AndroidX.ViewPager2.dll.so

@@ -1,4 +1,4 @@
-﻿namespace ChibitsLink.main.cs.model;
+namespace ChibitsLink.main.cs.model;
 
 using System.Collections.Generic;
 /*
@@ -10,7 +10,8 @@ public class User
     public string Email { get; set; } = string.Empty;
     public string RealName { get; set; } = string.Empty;
     public string Username { get; set; } = string.Empty;
-    public string SelectedCharacterId { get; set; } = "barbarian"; // Default matching new IDs
+    public string SelectedCharacterId { get; set; } = "barbarian";
     public int Level { get; set; } = 1;
+    public int Experience { get; set; } = 0;
     public List<string> GameHistory { get; set; } = new List<string>();
 }

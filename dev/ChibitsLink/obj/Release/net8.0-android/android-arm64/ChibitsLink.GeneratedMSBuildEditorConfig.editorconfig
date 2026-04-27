@@ -34,6 +34,12 @@ build_metadata.AdditionalFiles.ManifestResourceName = ChibitsLink.src.main.cs.vi
 build_metadata.AdditionalFiles.TargetPath = src\main\cs\view\ControllerPage.xaml
 build_metadata.AdditionalFiles.RelativePath = src\main\cs\view\ControllerPage.xaml
 
+[C:/Users/adris/Desktop/asimanHUD - menucustom/ChirbitsLink-REPO/dev/ChibitsLink/src/main/cs/view/HistoryDetailPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = ChibitsLink.src.main.cs.view.HistoryDetailPage.xaml
+build_metadata.AdditionalFiles.TargetPath = src\main\cs\view\HistoryDetailPage.xaml
+build_metadata.AdditionalFiles.RelativePath = src\main\cs\view\HistoryDetailPage.xaml
+
 [C:/Users/adris/Desktop/asimanHUD - menucustom/ChirbitsLink-REPO/dev/ChibitsLink/src/main/cs/view/HistoryPage.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = ChibitsLink.src.main.cs.view.HistoryPage.xaml

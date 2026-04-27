@@ -128,6 +128,11 @@ public partial class LobbyPage : ContentPage
                         await Shell.Current.GoToAsync($"//ControllerPage?code={_roomCode}");
                     }
                 }
+                else if (party.GameState == "CLOSED")
+                {
+                    await _connection.DisconnectAsync();
+                    await Shell.Current.GoToAsync("//MainMenuPage");
+                }
             });
         });
 
