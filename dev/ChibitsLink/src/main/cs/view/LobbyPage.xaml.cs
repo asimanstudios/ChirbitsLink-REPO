@@ -130,6 +130,7 @@ public partial class LobbyPage : ContentPage
                 }
                 else if (party.GameState == "CLOSED")
                 {
+                    await _accountService.ClaimPartyExperienceAsync(_roomCode, party);
                     await _connection.DisconnectAsync();
                     await Shell.Current.GoToAsync("//MainMenuPage");
                 }
@@ -293,5 +294,11 @@ public partial class LobbyPage : ContentPage
         }
         
         await Shell.Current.GoToAsync("//MainMenuPage");
+    }
+
+    protected override bool OnBackButtonPressed()
+    {
+        OnLeaveClicked(this, EventArgs.Empty);
+        return true;
     }
 }

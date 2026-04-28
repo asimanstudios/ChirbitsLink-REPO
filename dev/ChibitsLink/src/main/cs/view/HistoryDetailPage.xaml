@@ -1,54 +1,73 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:view="clr-namespace:ChibitsLink.main.cs.view"
              x:Class="ChibitsLink.main.cs.view.HistoryDetailPage"
-             Title="Resumen de Batalla"
+             Title="Relato de Batalla"
              BackgroundColor="{StaticResource Background}">
 
-    <Grid RowDefinitions="Auto, *" Padding="20">
-        
-        <!-- Background Decoration -->
-        <BoxView Grid.RowSpan="2" 
-                 BackgroundColor="{StaticResource Primary}" 
-                 Opacity="0.1" 
-                 CornerRadius="0,0,300,300" 
-                 HeightRequest="250" 
-                 VerticalOptions="Start"/>
+    <Grid RowDefinitions="Auto, Auto, *" Padding="20,30,20,20" RowSpacing="10">
 
-        <!-- Header -->
-        <VerticalStackLayout Grid.Row="0" Spacing="10" Margin="0,0,0,20">
-            <Label x:Name="RoomLabel" 
-                   Text="SALA XXXX" 
-                   Style="{StaticResource ModernTitle}" 
+        <!-- ── Header ── -->
+        <VerticalStackLayout Grid.Row="0" Spacing="8">
+            <Label x:Name="RoomLabel"
+                   Text="SALA #"
+                   FontSize="26"
+                   FontAttributes="Bold"
+                   CharacterSpacing="2"
                    HorizontalOptions="Center"
                    TextColor="{StaticResource Secondary}"/>
-            
-            <Border Style="{StaticResource GlassFrame}" 
-                    HorizontalOptions="Center" 
-                    Padding="15,5" 
-                    Stroke="{StaticResource Secondary}">
-                <Label x:Name="DateLabel" 
-                       Text="27 ABR 2026" 
-                       FontSize="14" 
-                       TextColor="{StaticResource TextMain}" 
-                       FontAttributes="Bold"/>
+
+            <Border Style="{StaticResource GlassFrame}"
+                    HorizontalOptions="Center"
+                    Padding="14,5">
+                <Label x:Name="DateLabel"
+                       Text="..."
+                       FontSize="13"
+                       FontAttributes="Bold"
+                       TextColor="{StaticResource TextMain}"/>
             </Border>
+
+            <!-- Juegos jugados -->
+            <Label x:Name="GamesLabel"
+                   Text="Cargando..."
+                   FontSize="12"
+                   TextColor="{StaticResource TextLight}"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"
+                   CharacterSpacing="0.5"/>
         </VerticalStackLayout>
 
-        <!-- Player List -->
-        <ScrollView Grid.Row="1">
-            <VerticalStackLayout x:Name="PlayersList" Spacing="15">
-                <!-- Items will be added from C# -->
-            </VerticalStackLayout>
-        </ScrollView>
+        <!-- ── Separador ── -->
+        <BoxView Grid.Row="1"
+                 HeightRequest="1"
+                 BackgroundColor="{StaticResource Primary}"
+                 Opacity="0.4"
+                 Margin="0,4"/>
 
-        <!-- Close Button -->
-        <Button Grid.Row="1" 
-                Text="CERRAR RELATO" 
-                Clicked="OnCloseClicked"
-                VerticalOptions="End"
-                Margin="0,20,0,0"
-                Style="{StaticResource SecondaryButton}"/>
+        <!-- ── Contenido: loader + lista ── -->
+        <Grid Grid.Row="2">
+            <!-- Spinner -->
+            <ActivityIndicator x:Name="LoadingIndicator"
+                               IsRunning="True"
+                               IsVisible="True"
+                               Color="{StaticResource Secondary}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               WidthRequest="48" HeightRequest="48"/>
+
+            <!-- Lista de jugadores + botón cerrar -->
+            <ScrollView x:Name="ContentScrollView" IsVisible="False">
+                <VerticalStackLayout Spacing="0">
+
+                    <VerticalStackLayout x:Name="PlayersList" Spacing="4"/>
+
+                    <Button Text="CERRAR"
+                            Clicked="OnCloseClicked"
+                            Margin="0,24,0,0"
+                            Style="{StaticResource SecondaryButton}"/>
+                </VerticalStackLayout>
+            </ScrollView>
+        </Grid>
+
     </Grid>
 </ContentPage>

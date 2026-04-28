@@ -14,4 +14,5 @@ public class User
     public int Level { get; set; } = 1;
     public int Experience { get; set; } = 0;
     public List<string> GameHistory { get; set; } = new List<string>();
+    public List<string> XpClaimedParties { get; set; } = new List<string>();
 }

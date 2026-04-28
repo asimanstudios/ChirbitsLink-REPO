@@ -4,6 +4,7 @@
              xmlns:model="clr-namespace:ChibitsLink.main.cs.model"
              x:Class="ChibitsLink.main.cs.view.LobbyPage"
              Title="Sala de Espera"
+             Shell.NavBarIsVisible="False"
              BackgroundColor="{StaticResource Background}">
 
     <Grid Padding="20" RowDefinitions="Auto, *, Auto" RowSpacing="20">

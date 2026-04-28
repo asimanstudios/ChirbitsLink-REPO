@@ -64,6 +64,12 @@ public partial class JoinRoomPage : ContentPage
 
     private async void OnBackClicked(object sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync("..");
+        await Shell.Current.GoToAsync("//MainMenuPage");
+    }
+
+    protected override bool OnBackButtonPressed()
+    {
+        MainThread.BeginInvokeOnMainThread(async () => await Shell.Current.GoToAsync("//MainMenuPage"));
+        return true;
     }
 }

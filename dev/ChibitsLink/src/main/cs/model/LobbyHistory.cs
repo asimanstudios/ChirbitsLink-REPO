@@ -1,17 +1,4 @@
-using System;
-
-namespace ChibitsLink.main.cs.model;
-
-public class LobbyHistory
-{
-    public string Id { get; set; } = string.Empty;
-    public string RoomCode { get; set; } = string.Empty;
-    public string UserId { get; set; } = string.Empty;
-    public DateTime Date { get; set; } = DateTime.UtcNow;
-    public DateTime Timestamp { get; set; } = DateTime.UtcNow;
-    
-    public string CharacterId { get; set; } = string.Empty;
-    // Todo reemplazar si se gano la lobby por la id del jugdor q la ganó
-    public bool Won { get; set; }
-   
-}
+// ARCHIVADO: Este modelo ya no se usa.
+// El historial de partidas se lee directamente desde la colección "parties" (modelo Party)
+// usando los campos ParticipantNames, ParticipantCharacters y PlayerScores.
+// Ver: Database.GetUserHistory() y HistoryDetailPage.xaml.cs

@@ -1,162 +1,225 @@
 using ChibitsLink.main.cs.model;
-using ChibitsLink.main.cs.service;
 using ChibitsLink.main.repository;
 using Microsoft.Maui.Controls.Shapes;
 
 namespace ChibitsLink.main.cs.view;
 
+/// <summary>
+/// Pantalla de detalle de una partida cerrada. Muestra ranking de jugadores
+/// con personaje, nombre real y puntuación obtenida, todo desde Firestore.
+/// No contiene datos hardcodeados: si un campo está vacío en la BBDD, se omite con gracia.
+/// </summary>
 public partial class HistoryDetailPage : ContentPage
 {
-    private readonly Party _party;
+    private readonly Party  _party;
     private readonly Database _db;
-    private List<Character> _allCharacters = new();
 
     public HistoryDetailPage(Party party, Database db)
     {
         InitializeComponent();
-        _party = party;
-        _db = db;
-        
-        LoadDetails();
+        _party = party ?? throw new ArgumentNullException(nameof(party));
+        _db    = db    ?? throw new ArgumentNullException(nameof(db));
     }
 
-    private async void LoadDetails()
+    // ── Lifecycle ────────────────────────────────────────────────────────────
+
+    protected override async void OnAppearing()
     {
-        try 
+        base.OnAppearing();
+        await LoadDetailAsync();
+    }
+
+    // ── Data loading ──────────────────────────────────────────────────────────
+
+    private async Task LoadDetailAsync()
+    {
+        try
         {
-            RoomLabel.Text = $"SALA {_party.RoomCode}";
-            DateLabel.Text = _party.CreatedAt.ToString("dd MMM yyyy HH:mm").ToUpper();
+            SetLoadingVisible(true);
 
-            // Cargar todos los personajes para tener las imágenes
-            _allCharacters = await _db.GetCharacters();
+            RoomLabel.Text = string.IsNullOrEmpty(_party.RoomCode)
+                ? "SALA DESCONOCIDA"
+                : $"SALA #{_party.RoomCode}";
 
-            PopulatePlayers();
+            DateLabel.Text = _party.CreatedAt == default
+                ? "Fecha no disponible"
+                : _party.CreatedAt.ToLocalTime().ToString("dd MMM yyyy  HH:mm").ToUpper();
+
+            // Juegos jugados
+            GamesLabel.Text = (_party.PlayedGames == null || _party.PlayedGames.Count == 0)
+                ? "Sin registro de juegos"
+                : string.Join("  ·  ", _party.PlayedGames);
+
+            // Cargar personajes de Firestore (una vez) para las imágenes
+            var characters = await _db.GetCharacters();
+            var charMap    = characters.ToDictionary(c => c.Id, c => c, StringComparer.OrdinalIgnoreCase);
+
+            BuildPlayerRanking(charMap);
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error loading details: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[HistoryDetailPage] LoadDetailAsync error: {ex.Message}");
+            await DisplayAlert("Error", "No se pudieron cargar los detalles de esta batalla.", "Cerrar");
+        }
+        finally
+        {
+            SetLoadingVisible(false);
         }
     }
 
-    private void PopulatePlayers()
+    // ── UI Building ───────────────────────────────────────────────────────────
+
+    private void BuildPlayerRanking(Dictionary<string, Character> charMap)
     {
         PlayersList.Children.Clear();
 
         if (_party.PlayerScores == null || _party.PlayerScores.Count == 0)
         {
-            PlayersList.Children.Add(new Label 
-            { 
-                Text = "No hay datos de jugadores en esta batalla.", 
-                HorizontalOptions = LayoutOptions.Center,
-                TextColor = Colors.Gray 
-            });
+            PlayersList.Children.Add(BuildEmptyState());
             return;
         }
 
-        // Ordenar por puntuación para el ranking
-        var rankedPlayers = _party.PlayerScores.OrderByDescending(x => x.Value).ToList();
-        int rank = 1;
+        // Ordenar de mayor a menor puntuación
+        var ranked = _party.PlayerScores
+            .OrderByDescending(kvp => kvp.Value)
+            .ToList();
 
-        foreach (var kvp in rankedPlayers)
+        for (int i = 0; i < ranked.Count; i++)
         {
-            string userId = kvp.Key;
-            int score = kvp.Value;
-            string name = _party.ParticipantNames != null && _party.ParticipantNames.ContainsKey(userId) 
-                ? _party.ParticipantNames[userId] : "Jugador";
-            string charId = _party.ParticipantCharacters != null && _party.ParticipantCharacters.ContainsKey(userId)
-                ? _party.ParticipantCharacters[userId] : "barbarian";
+            string userId = ranked[i].Key;
+            int    score  = ranked[i].Value;
+            int    rank   = i + 1;
 
-            var character = _allCharacters.FirstOrDefault(c => c.Id == charId);
-            string imageUrl = character?.ImageUrl ?? "char_placeholder.png";
+            // Nombre: desde ParticipantNames. Si no existe, mostrar UID truncado (nunca hardcode "Jugador")
+            string displayName = (_party.ParticipantNames != null &&
+                                  _party.ParticipantNames.TryGetValue(userId, out var n) &&
+                                  !string.IsNullOrWhiteSpace(n))
+                ? n
+                : $"[{userId[..Math.Min(6, userId.Length)]}...]";
 
-            PlayersList.Children.Add(CreatePlayerCard(rank, name, score, imageUrl));
-            rank++;
+            // Personaje: desde ParticipantCharacters
+            string charId = (_party.ParticipantCharacters != null &&
+                             _party.ParticipantCharacters.TryGetValue(userId, out var c) &&
+                             !string.IsNullOrWhiteSpace(c))
+                ? c : string.Empty;
+
+            charMap.TryGetValue(charId, out var character);
+            string imageSource = (!string.IsNullOrEmpty(character?.ImageUrl))
+                ? character.ImageUrl
+                : "char_default.png";   // asset de fallback genérico en el proyecto
+
+            PlayersList.Children.Add(BuildPlayerCard(rank, displayName, score, imageSource));
         }
     }
 
-    private View CreatePlayerCard(int rank, string name, int score, string imageUrl)
+    private View BuildPlayerCard(int rank, string name, int score, string imageSource)
     {
-        var frame = new Border
+        string medal = rank switch { 1 => "🥇", 2 => "🥈", 3 => "🥉", _ => $"#{rank}" };
+        bool   isWinner = rank == 1;
+
+        var border = new Border
         {
-            Style = (Style)Application.Current.Resources["GlassFrame"],
-            Margin = new Thickness(0, 5),
+            Style   = (Style)Application.Current!.Resources["GlassFrame"],
+            Margin  = new Thickness(0, 6),
             Padding = new Thickness(15),
-            Stroke = rank == 1 ? (Color)Application.Current.Resources["Secondary"] : (Color)Application.Current.Resources["Primary"]
+            Stroke  = isWinner
+                ? (Color)Application.Current.Resources["Secondary"]
+                : (Color)Application.Current.Resources["Primary"]
         };
 
         var grid = new Grid
         {
             ColumnDefinitions = new ColumnDefinitionCollection
             {
-                new ColumnDefinition { Width = GridLength.Auto }, // Rank / Medal
-                new ColumnDefinition { Width = GridLength.Auto }, // Char Image
-                new ColumnDefinition { Width = GridLength.Star }, // Name & Stats
-                new ColumnDefinition { Width = GridLength.Auto }  // Score
+                new ColumnDefinition { Width = 40 },               // medal
+                new ColumnDefinition { Width = 56 },               // avatar
+                new ColumnDefinition { Width = GridLength.Star },   // name + tag
+                new ColumnDefinition { Width = GridLength.Auto }    // score
             },
-            ColumnSpacing = 15
+            ColumnSpacing = 12,
+            VerticalOptions = LayoutOptions.Center
         };
 
-        // Rank / Medal
-        string rankIcon = rank switch
+        // — Medal
+        grid.Add(new Label
         {
-            1 => "🥇",
-            2 => "🥈",
-            3 => "🥉",
-            _ => $"#{rank}"
-        };
-
-        grid.Add(new Label 
-        { 
-            Text = rankIcon, 
-            FontSize = 24, 
-            VerticalOptions = LayoutOptions.Center,
-            FontAttributes = FontAttributes.Bold,
-            TextColor = (Color)Application.Current.Resources["TextMain"]
+            Text            = medal,
+            FontSize        = 22,
+            VerticalOptions = LayoutOptions.Center
         }, 0);
 
-        // Character Image
-        var image = new Image
+        // — Avatar
+        var avatar = new Image
         {
-            Source = imageUrl,
-            WidthRequest = 50,
-            HeightRequest = 50,
-            Aspect = Aspect.AspectFill,
-            Clip = new RoundRectangleGeometry { CornerRadius = new CornerRadius(25) },
-            BackgroundColor = Color.FromRgba(255, 255, 255, 0.1)
+            Source          = imageSource,
+            WidthRequest    = 50,
+            HeightRequest   = 50,
+            Aspect          = Aspect.AspectFill,
+            Clip            = new RoundRectangleGeometry { CornerRadius = new CornerRadius(25) }
         };
-        grid.Add(image, 1);
+        grid.Add(avatar, 1);
 
-        // Name & Info
+        // — Name + tag
         var nameStack = new VerticalStackLayout { VerticalOptions = LayoutOptions.Center };
-        nameStack.Add(new Label 
-        { 
-            Text = name.ToUpper(), 
-            FontAttributes = FontAttributes.Bold, 
-            TextColor = (Color)Application.Current.Resources["TextMain"],
-            FontSize = 16
+        nameStack.Add(new Label
+        {
+            Text            = name.ToUpperInvariant(),
+            FontAttributes  = FontAttributes.Bold,
+            FontSize        = 15,
+            TextColor       = (Color)Application.Current.Resources["TextMain"]
         });
-        nameStack.Add(new Label 
-        { 
-            Text = rank == 1 ? "CAMPEÓN DEL REINO" : "PARTICIPANTE", 
-            FontSize = 10, 
-            TextColor = (Color)Application.Current.Resources["Secondary"],
-            CharacterSpacing = 1
+        nameStack.Add(new Label
+        {
+            Text          = isWinner ? "CAMPEÓN" : "PARTICIPANTE",
+            FontSize      = 10,
+            CharacterSpacing = 1.5,
+            TextColor     = isWinner
+                ? (Color)Application.Current.Resources["Secondary"]
+                : (Color)Application.Current.Resources["TextLight"]
         });
         grid.Add(nameStack, 2);
 
-        // Score
-        grid.Add(new Label 
-        { 
-            Text = $"{score} PTS", 
-            FontAttributes = FontAttributes.Bold, 
+        // — Score
+        grid.Add(new Label
+        {
+            Text            = $"{score} pts",
+            FontAttributes  = FontAttributes.Bold,
+            FontSize        = 17,
             VerticalOptions = LayoutOptions.Center,
-            TextColor = (Color)Application.Current.Resources["TextMain"],
-            FontSize = 18
+            TextColor       = (Color)Application.Current.Resources["TextMain"]
         }, 3);
 
-        frame.Content = grid;
-        return frame;
+        border.Content = grid;
+        return border;
     }
+
+    private static View BuildEmptyState() =>
+        new VerticalStackLayout
+        {
+            HorizontalOptions = LayoutOptions.Center,
+            VerticalOptions   = LayoutOptions.Center,
+            Spacing           = 8,
+            Children =
+            {
+                new Label { Text = "⚔️", FontSize = 40, HorizontalOptions = LayoutOptions.Center },
+                new Label
+                {
+                    Text              = "No hay puntuaciones registradas para esta batalla.",
+                    FontSize          = 13,
+                    HorizontalOptions = LayoutOptions.Center,
+                    HorizontalTextAlignment = TextAlignment.Center
+                }
+            }
+        };
+
+    private void SetLoadingVisible(bool loading)
+    {
+        LoadingIndicator.IsRunning = loading;
+        LoadingIndicator.IsVisible = loading;
+        ContentScrollView.IsVisible = !loading;
+    }
+
+    // ── Handlers ──────────────────────────────────────────────────────────────
 
     private async void OnCloseClicked(object sender, EventArgs e)
     {

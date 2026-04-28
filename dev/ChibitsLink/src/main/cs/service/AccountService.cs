@@ -192,6 +192,92 @@ public class AccountService : BaseService
         await Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Calcula y añade la experiencia ganada en una partida cerrada con la regla de 5k.
+    /// Evita doble reclamación usando XpClaimedParties.
+    /// </summary>
+    public async Task ClaimPartyExperienceAsync(string roomCode, Party party)
+    {
+        if (_currentUser == null || party == null) return;
+        if (_currentUser.XpClaimedParties == null) _currentUser.XpClaimedParties = new List<string>();
+
+        if (_currentUser.XpClaimedParties.Contains(roomCode)) return; // Ya reclamada
+
+        if (party.PlayerScores != null && party.PlayerScores.TryGetValue(_currentUser.Id, out int scoreToAdd))
+        {
+            if (scoreToAdd <= 0) return;
+
+            int newXp = _currentUser.Experience + scoreToAdd;
+            
+            // Lógica de Niveles: Nivel N requiere N * 5000 XP para subir
+            int calculatedLevel = 1;
+            int tempXp = newXp;
+            int xpRequired = calculatedLevel * 5000;
+
+            while (tempXp >= xpRequired)
+            {
+                tempXp -= xpRequired;
+                calculatedLevel++;
+                xpRequired = calculatedLevel * 5000;
+            }
+
+            _currentUser.Experience = newXp;
+            _currentUser.Level = calculatedLevel;
+            _currentUser.XpClaimedParties.Add(roomCode);
+
+            // Asegurarnos de que también está en el GameHistory por si Unity falló en añadirlo
+            if (_currentUser.GameHistory == null) _currentUser.GameHistory = new List<string>();
+            if (!_currentUser.GameHistory.Contains(roomCode))
+            {
+                _currentUser.GameHistory.Add(roomCode);
+            }
+
+            await UpdateUser(_currentUser);
+            System.Diagnostics.Debug.WriteLine($"[AccountService] XP reclamada para sala {roomCode}. +{scoreToAdd} XP -> Nivel {calculatedLevel}");
+        }
+    }
+
+    /// <summary>
+    /// Revisa el historial del perfil del usuario al abrir el menú y reclama la XP 
+    /// de cualquier sala CLOSED de la que aún no hayamos cobrado. (Evita el bug de cierre rápido).
+    /// </summary>
+    public async Task CheckAndClaimPendingExperienceAsync(ChibitsLink.main.repository.Database db)
+    {
+        if (_currentUser == null) return;
+        
+        // Refrescar el usuario para tener la lista de GameHistory actualizada desde Firestore
+        var freshUser = await db.GetUser(_currentUser.Id);
+        if (freshUser != null)
+        {
+            _currentUser = freshUser;
+        }
+
+        if (_currentUser.GameHistory == null || _currentUser.GameHistory.Count == 0) return;
+        if (_currentUser.XpClaimedParties == null) _currentUser.XpClaimedParties = new List<string>();
+
+        // Buscar salas del historial que NO están en XpClaimedParties
+        var pendingRooms = _currentUser.GameHistory.Except(_currentUser.XpClaimedParties).ToList();
+        
+        bool updated = false;
+        foreach (var roomCode in pendingRooms)
+        {
+            var party = await db.GetParty(roomCode);
+            // Solo reclamamos si la sala ya está cerrada por Unity
+            if (party != null && party.GameState == "CLOSED")
+            {
+                await ClaimPartyExperienceAsync(roomCode, party);
+                updated = true;
+            }
+        }
+
+        // Si actualizamos la XP, volvemos a refrescar para que MainMenu lo lea perfecto
+        if (updated)
+        {
+            var refreshedUser = await db.GetUser(_currentUser.Id);
+            if (refreshedUser != null) _currentUser = refreshedUser;
+        }
+    }
+
     /// <summary>Devuelve el usuario actualmente autenticado en memoria, o null si no hay sesión.</summary>
     public User? GetCurrentUser() => _currentUser;
 }

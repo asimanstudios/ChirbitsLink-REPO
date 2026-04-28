@@ -31,6 +31,10 @@ public partial class MainMenuPage : ContentPage
         var user = _accountService.GetCurrentUser();
         if (user != null)
         {
+            // Evitar perder XP si volvimos rápido de una partida
+            await _accountService.CheckAndClaimPendingExperienceAsync(_db);
+            user = _accountService.GetCurrentUser(); // Refrescar por si subió de nivel
+
             UsernameLabel.Text = user.Username.ToUpper();
             UpdateProfileDisplay(user.SelectedCharacterId);
 
@@ -73,6 +77,28 @@ public partial class MainMenuPage : ContentPage
         if (user != null)
         {
             UserLevelLabel.Text = $"LVL. {user.Level}";
+            
+            // Lógica de progreso de XP (Regla de los 5k por nivel)
+            int currentLevel = user.Level;
+            int totalXp = user.Experience;
+            int xpForCurrentLevel = 0;
+            
+            for (int i = 1; i < currentLevel; i++)
+            {
+                xpForCurrentLevel += i * 5000;
+            }
+            
+            int xpIntoCurrentLevel = totalXp - xpForCurrentLevel;
+            int xpNeededForNextLevel = currentLevel * 5000;
+            
+            // Prevención de errores matemáticos
+            if (xpIntoCurrentLevel < 0) xpIntoCurrentLevel = 0;
+            
+            double progress = (double)xpIntoCurrentLevel / xpNeededForNextLevel;
+            if (progress > 1) progress = 1;
+
+            XpProgressBar.Progress = progress;
+            XpProgressLabel.Text = $"{xpIntoCurrentLevel} / {xpNeededForNextLevel} XP";
         }
     }
 
@@ -184,7 +210,7 @@ public partial class MainMenuPage : ContentPage
 
     private async void OnJoinRoomClicked(object sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync("JoinRoomPage");
+        await Shell.Current.GoToAsync("//JoinRoomPage");
     }
 
     private async void OnProfileClicked(object sender, EventArgs e)

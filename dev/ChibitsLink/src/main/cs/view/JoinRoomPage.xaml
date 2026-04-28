@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="ChibitsLink.main.cs.view.JoinRoomPage"
              Title="Unirse a Partida"
+             Shell.NavBarIsVisible="False"
              BackgroundColor="{StaticResource Background}">
 
     <Grid Padding="30" RowDefinitions="Auto, *, Auto, Auto" RowSpacing="20">

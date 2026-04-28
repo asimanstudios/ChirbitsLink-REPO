@@ -193,4 +193,10 @@ public partial class ControllerPage : ContentPage
             await _controller.HandleButtonPressed(buttonId);
         }
     }
+
+    protected override bool OnBackButtonPressed()
+    {
+        OnBackClicked(this, EventArgs.Empty);
+        return true;
+    }
 }

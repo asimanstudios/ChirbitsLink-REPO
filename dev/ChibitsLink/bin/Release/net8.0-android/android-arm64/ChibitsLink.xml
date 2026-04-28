@@ -39,7 +39,12 @@
         <member name="T:ChibitsLink.main.cs.model.Game">
             <summary>
             Representa un minijuego disponible en la plataforma ChirBits.
+            Campos que Unity escribe en Firestore: Id, Name, Description, ImageUrl.
+            El campo Type es metadato interno de la App (seeder/UI) y NO se persiste en Firestore.
             </summary>
+        </member>
+        <member name="P:ChibitsLink.main.cs.model.Game.Type">
+            <summary>Categoría interna del minijuego. No se escribe en Firestore desde Unity.</summary>
         </member>
         <member name="T:ChibitsLink.main.cs.model.GameType">
             <summary>
@@ -67,6 +72,7 @@
         <member name="T:ChibitsLink.main.cs.model.PartyProgress">
             <summary>
             Registra el progreso de una partida concreta: puntuaciones, ganador y momento de finalización.
+            Las claves de PlayerScores son UIDs de usuario (string), igual que en Firestore.
             </summary>
         </member>
         <member name="T:ChibitsLink.main.cs.service.AccountService">
@@ -101,6 +107,18 @@
         </member>
         <member name="M:ChibitsLink.main.cs.service.AccountService.Logout">
             <summary>Cierra la sesión del usuario y borra los datos de sesión persistidos.</summary>
+        </member>
+        <member name="M:ChibitsLink.main.cs.service.AccountService.ClaimPartyExperienceAsync(System.String,ChibitsLink.main.cs.model.Party)">
+            <summary>
+            Calcula y añade la experiencia ganada en una partida cerrada con la regla de 5k.
+            Evita doble reclamación usando XpClaimedParties.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.cs.service.AccountService.CheckAndClaimPendingExperienceAsync(ChibitsLink.main.repository.Database)">
+            <summary>
+            Revisa el historial del perfil del usuario al abrir el menú y reclama la XP 
+            de cualquier sala CLOSED de la que aún no hayamos cobrado. (Evita el bug de cierre rápido).
+            </summary>
         </member>
         <member name="M:ChibitsLink.main.cs.service.AccountService.GetCurrentUser">
             <summary>Devuelve el usuario actualmente autenticado en memoria, o null si no hay sesión.</summary>
@@ -159,6 +177,13 @@
             Registra la participación de un usuario en una sala para que aparezca en su historial.
             </summary>
         </member>
+        <member name="T:ChibitsLink.main.cs.view.HistoryDetailPage">
+            <summary>
+            Pantalla de detalle de una partida cerrada. Muestra ranking de jugadores
+            con personaje, nombre real y puntuación obtenida, todo desde Firestore.
+            No contiene datos hardcodeados: si un campo está vacío en la BBDD, se omite con gracia.
+            </summary>
+        </member>
         <member name="T:ChibitsLink.main.cs.view.JoinRoomPage">
             <summary>
             Página de unión a sala mediante código de 6 dígitos.
@@ -199,28 +224,64 @@
         </member>
         <member name="T:ChibitsLink.main.repository.Database">
             <summary>
-            Gestiona las operaciones CRUD sobre Cloud Firestore.
+            Capa de acceso a datos sobre Cloud Firestore.
+            Responsabilidad única: traducir operaciones del dominio a llamadas Firestore.
+            No contiene lógica de negocio.
             </summary>
         </member>
         <member name="M:ChibitsLink.main.repository.Database.ListenAsync``1(System.String,System.String,System.Action{``0})">
             <summary>
-            Escucha cambios en tiempo real de un documento de Firestore.
-            </summary>
-        </member>
-        <member name="M:ChibitsLink.main.repository.Database.CheckLobbyExistsAsync(System.String)">
-            <summary>
-            Verifica si un lobby existe por su código de sala.
+            Suscribe un listener a cambios en tiempo real de un documento.
+            El caller es responsable de llamar Dispose() cuando ya no lo necesite.
             </summary>
         </member>
         <member name="M:ChibitsLink.main.repository.Database.InitializeCharactersAsync">
             <summary>
-            Initializes characters in the database if they don't exist.
-            This allows the user to add images later.
+            Inicializa la colección de personajes con datos por defecto si está vacía.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.repository.Database.UpdateUser(ChibitsLink.main.cs.model.User)">
+            <summary>
+            Actualiza los datos del perfil del usuario, incluyendo experiencia y nivel.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.repository.Database.AddPartyToUserHistoryAsync(System.String,System.String)">
+            <summary>
+            Añade atómicamente un roomCode al historial del usuario
+            sin leer el documento completo (usa ArrayUnion).
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.repository.Database.CheckLobbyExistsAsync(System.String)">
+            <summary>
+            Comprueba si una sala existe y está activa (no cerrada).
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.repository.Database.UpdatePartyProgress(System.String,ChibitsLink.main.cs.model.PartyProgress)">
+            <summary>
+            Actualiza el progreso (puntuaciones) de una sala activa.
             </summary>
         </member>
         <member name="M:ChibitsLink.main.repository.Database.JoinLobbyAsync(System.String,System.String)">
             <summary>
-            Registers a user's participation in a lobby.
+            Registra la participación de un usuario en una sala.
+            Delega en <see cref="M:ChibitsLink.main.repository.Database.AddPartyToUserHistoryAsync(System.String,System.String)"/> para máxima atomicidad.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.repository.Database.GetUserHistory(System.String)">
+            <summary>
+            Devuelve las partidas cerradas en las que ha participado el usuario,
+            ordenadas de más reciente a más antigua. Lee desde el historial del perfil
+            para evitar problemas si Unity limpió los PlayerIds al cerrar el socket.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.repository.Database.TryDeserializeParty(Plugin.CloudFirestore.IDocumentSnapshot)">
+            <summary>
+            Deserializa un documento de Party garantizando que sus colecciones nunca son null.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.repository.Database.IsDocumentNotFound(System.Exception)">
+            <summary>
+            Heurístico para detectar errores de "documento no existe" sin depender de un tipo concreto.
             </summary>
         </member>
         <member name="T:ChibitsLink.main.repository.DatabaseSeeder">
