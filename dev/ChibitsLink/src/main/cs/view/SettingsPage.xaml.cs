@@ -75,10 +75,24 @@ public partial class SettingsPage : ContentPage
             // Handle password update
             if (!string.IsNullOrEmpty(NewPasswordEntry.Text))
             {
+                if (NewPasswordEntry.Text != ConfirmNewPasswordEntry.Text)
+                {
+                    await DisplayAlert("Error", "Las contraseñas no coinciden.", "Reintentar");
+                    return;
+                }
+
+                var (isValid, message) = ChibitsLink.main.cs.utils.PasswordValidator.Validate(NewPasswordEntry.Text);
+                if (!isValid)
+                {
+                    await DisplayAlert("Contraseña Débil", message, "OK");
+                    return;
+                }
+
                 var passResult = await _accountService.ChangePassword(NewPasswordEntry.Text);
                 if (!passResult.Success)
                 {
                     await DisplayAlert("Error Contraseña", passResult.ErrorMessage, "OK");
+                    return;
                 }
             }
 

@@ -2,18 +2,23 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:model="clr-namespace:ChibitsLink.main.cs.model"
+             xmlns:viewmodel="clr-namespace:ChibitsLink.main.cs.viewmodel"
+             xmlns:conv="clr-namespace:ChibitsLink.main.cs.converters"
              x:Class="ChibitsLink.main.cs.view.LobbyPage"
+             x:DataType="viewmodel:LobbyViewModel"
              Title="Sala de Espera"
              Shell.NavBarIsVisible="False"
              BackgroundColor="{StaticResource Background}">
 
+    <ContentPage.Resources>
+        <conv:BooleanToReadyTextConverter x:Key="BooleanToReadyTextConverter" />
+    </ContentPage.Resources>
+
     <Grid Padding="20" RowDefinitions="Auto, *, Auto" RowSpacing="20">
-        <!-- Contenido actual del lobby -->
         
         <!-- Header -->
         <VerticalStackLayout Grid.Row="0" Spacing="5" HorizontalOptions="Center">
-            <Label x:Name="RoomTitleLabel" 
-                   Text="SALA #000000" 
+            <Label Text="{Binding RoomCode, StringFormat='SALA #{0}'}" 
                    Style="{StaticResource ModernTitle}" 
                    HorizontalOptions="Center"
                    TextColor="{StaticResource Secondary}"/>
@@ -24,104 +29,159 @@
                    CharacterSpacing="1"/>
         </VerticalStackLayout>
 
-        <!-- Player Selection Area -->
-        <VerticalStackLayout Grid.Row="1" Spacing="30" VerticalOptions="Center">
+        <!-- Main Content Area -->
+        <VerticalStackLayout Grid.Row="1" Spacing="20">
             
-            <!-- Character Circle -->
-                <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
-                    <VerticalStackLayout.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnProfileTapped" />
-                    </VerticalStackLayout.GestureRecognizers>
-                    <Border WidthRequest="160" 
-                            HeightRequest="160" 
-                            Padding="0" 
-                            Stroke="{StaticResource BorderColor}"
-                            StrokeThickness="4"
-                            BackgroundColor="{StaticResource Surface}">
-                        <Border.StrokeShape>
-                            <Ellipse />
-                        </Border.StrokeShape>
-                        <Image x:Name="ProfileImage" 
-                               Source="dotnet_bot.png" 
-                               Aspect="AspectFill" />
-                    </Border>
-                <Label x:Name="CharacterNameLabel" 
-                       Text="VALIENTE" 
+            <!-- User Profile & Character Display -->
+            <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                <VerticalStackLayout.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ToggleCharacterListCommand}" />
+                </VerticalStackLayout.GestureRecognizers>
+                <Border WidthRequest="140" 
+                        HeightRequest="140" 
+                        Padding="0" 
+                        Stroke="{StaticResource BorderColor}"
+                        StrokeThickness="4"
+                        BackgroundColor="{StaticResource Surface}">
+                    <Border.StrokeShape>
+                        <Ellipse />
+                    </Border.StrokeShape>
+                    <Image Source="{Binding SelectedCharacterImage}" 
+                           Aspect="AspectFill" />
+                </Border>
+                <Label Text="{Binding SelectedCharacterName}" 
                        FontAttributes="Bold" 
-                       FontSize="22" 
+                       FontSize="20" 
                        HorizontalOptions="Center" 
                        TextColor="{StaticResource TextMain}"
                        CharacterSpacing="2"/>
                 
                 <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
-                    <Label x:Name="UserLevelLabel" 
-                           Text="LVL. 1" 
-                           FontSize="14" 
+                    <Label Text="{Binding LevelDisplay}" 
+                           FontSize="12" 
                            FontAttributes="Bold"
                            TextColor="{StaticResource Tertiary}"/>
-                    <Label x:Name="UsernameLabel" 
-                           Text="USUARIO" 
-                           FontSize="14" 
+                    <Label Text="{Binding Username}" 
+                           FontSize="12" 
                            TextColor="{StaticResource TextMain}"
                            Opacity="0.8"/>
                 </HorizontalStackLayout>
 
                 <Label Text="toca para cambiar" 
-                       FontSize="11" 
+                       FontSize="10" 
                        TextColor="{StaticResource Tertiary}" 
                        HorizontalOptions="Center" 
-                       Opacity="0.9"
+                       Opacity="0.7"
                        FontAttributes="Bold"/>
             </VerticalStackLayout>
 
-            <!-- Character Selection (Carousel) -->
-            <VerticalStackLayout x:Name="CharacterSelectionLayout" IsVisible="False" Spacing="10">
-                <CollectionView x:Name="CharactersCollection"
+            <!-- Character Selection Carousel (Hidden by default) -->
+            <VerticalStackLayout IsVisible="{Binding IsCharacterListVisible}" Spacing="10">
+                <CollectionView ItemsSource="{Binding Characters}"
                                 SelectionMode="None"
-                                HeightRequest="180">
+                                HeightRequest="150">
                     <CollectionView.ItemsLayout>
-                        <LinearItemsLayout Orientation="Horizontal" ItemSpacing="15" />
+                        <LinearItemsLayout Orientation="Horizontal" ItemSpacing="12" />
                     </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="model:Character">
-                                <Border Padding="5" 
-                                        Stroke="{StaticResource BorderColor}" 
-                                        StrokeThickness="3"
-                                        BackgroundColor="{StaticResource Surface}"
-                                        WidthRequest="120">
-                                    <Border.StrokeShape>
-                                        <RoundRectangle CornerRadius="24" />
-                                    </Border.StrokeShape>
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="OnCharacterSelected" CommandParameter="{Binding .}" />
-                                    </Border.GestureRecognizers>
-                                    <VerticalStackLayout VerticalOptions="Center" Spacing="5" InputTransparent="True">
-                                        <Image Source="{Binding ImageUrl}" 
-                                               HeightRequest="80" 
-                                               WidthRequest="80" 
-                                               Aspect="AspectFit"
-                                               InputTransparent="True" />
-                                        <Label Text="{Binding Name}" 
-                                               FontAttributes="Bold" 
-                                               HorizontalOptions="Center" 
-                                               FontSize="12" 
-                                               TextColor="{StaticResource TextMain}"
-                                               InputTransparent="True" />
-                                    </VerticalStackLayout>
-                                </Border>
+                            <Border Padding="5" 
+                                    Stroke="{StaticResource BorderColor}" 
+                                    StrokeThickness="2"
+                                    BackgroundColor="{StaticResource Surface}"
+                                    WidthRequest="100">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="20" />
+                                </Border.StrokeShape>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:LobbyViewModel}}, Path=SelectCharacterCommand}" CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                                <VerticalStackLayout VerticalOptions="Center" Spacing="5" InputTransparent="True">
+                                    <Image Source="{Binding ImageUrl}" 
+                                           HeightRequest="60" 
+                                           WidthRequest="60" 
+                                           Aspect="AspectFit"
+                                           InputTransparent="True" />
+                                    <Label Text="{Binding Name}" 
+                                           FontAttributes="Bold" 
+                                           HorizontalOptions="Center" 
+                                           FontSize="10" 
+                                           TextColor="{StaticResource TextMain}"
+                                           InputTransparent="True" />
+                                </VerticalStackLayout>
+                            </Border>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
             </VerticalStackLayout>
 
+            <!-- Player List (Always Visible) -->
+            <Label Text="JUGADORES EN LA SALA" 
+                   FontSize="12" 
+                   FontAttributes="Bold" 
+                   TextColor="{StaticResource Secondary}"
+                   CharacterSpacing="1"
+                   Margin="0,10,0,5"/>
+
+            <CollectionView x:Name="PlayersList" 
+                            ItemsSource="{Binding Players}"
+                            HeightRequest="200">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="8"/>
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="viewmodel:PlayerItem">
+                        <Border Style="{StaticResource GlassFrame}" Padding="10" Margin="0,1">
+                            <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="12">
+                                <Border Grid.Column="0" 
+                                        WidthRequest="40" 
+                                        HeightRequest="40" 
+                                        StrokeThickness="2"
+                                        Stroke="{StaticResource Secondary}">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="20"/>
+                                    </Border.StrokeShape>
+                                    <Image Source="{Binding CharacterImage}" 
+                                           Aspect="AspectFill"
+                                           WidthRequest="40"
+                                           HeightRequest="40"/>
+                                </Border>
+
+                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                    <Label Text="{Binding Name}" 
+                                           FontAttributes="Bold" 
+                                           FontSize="14"
+                                           TextColor="{StaticResource TextMain}"/>
+                                    <Label Text="{Binding LevelDisplay}" 
+                                           FontSize="10"
+                                           TextColor="{StaticResource Secondary}"/>
+                                </VerticalStackLayout>
+
+                                <Border Grid.Column="2" 
+                                        Padding="10,3"
+                                        IsVisible="{Binding IsReady}"
+                                        BackgroundColor="{StaticResource Secondary}"
+                                        VerticalOptions="Center">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="10"/>
+                                    </Border.StrokeShape>
+                                    <Label Text="READY" 
+                                           FontSize="9" 
+                                           FontAttributes="Bold"
+                                           TextColor="Black"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
         </VerticalStackLayout>
 
         <!-- Footer Actions -->
         <VerticalStackLayout Grid.Row="2" Spacing="10">
-            <Button x:Name="ReadyButton"
-                    Text="MARCAR COMO LISTO"
+            <Button Text="{Binding IsReady, Converter={StaticResource BooleanToReadyTextConverter}}"
                     Style="{StaticResource ModernButton}"
-                    Clicked="OnReadyClicked" />
+                    Command="{Binding ToggleReadyCommand}" />
             
             <Button Text="ABANDONAR SALA"
                     Style="{StaticResource SecondaryButton}"
@@ -131,37 +191,47 @@
         <!-- Voting Overlay -->
         <Grid x:Name="VotingOverlay" 
               Grid.RowSpan="3" 
-              BackgroundColor="#CC000000" 
-              IsVisible="False"
-              Padding="30">
-            <VerticalStackLayout VerticalOptions="Center" Spacing="20">
+              BackgroundColor="#F2000000" 
+              IsVisible="{Binding IsVoting}"
+              Padding="20">
+            
+            <VerticalStackLayout VerticalOptions="Center" Spacing="15">
                 <Label Text="VOTA UN MINIJUEGO" 
                        TextColor="White" 
-                       FontSize="24" 
+                       FontSize="28" 
                        FontAttributes="Bold" 
-                       HorizontalOptions="Center"/>
+                       HorizontalOptions="Center"
+                       Margin="0,0,0,10"/>
                 
-                <CollectionView x:Name="GamesCollection"
-                                SelectionMode="Single"
-                                SelectionChanged="OnGameVoted"
-                                HeightRequest="400">
-                    <CollectionView.ItemTemplate>
+                <ListView ItemsSource="{Binding AvailableGames}"
+                          ItemSelected="OnGameSelected"
+                          HeightRequest="400"
+                          BackgroundColor="Transparent"
+                          SeparatorVisibility="None"
+                          HasUnevenRows="True">
+                    <ListView.ItemTemplate>
                         <DataTemplate x:DataType="model:Game">
-                            <Border Margin="0,8" Padding="15" BackgroundColor="{StaticResource Surface}" Stroke="{StaticResource BorderColor}" StrokeThickness="2">
-                                <Border.StrokeShape>
-                                    <RoundRectangle CornerRadius="18" />
-                                </Border.StrokeShape>
-                                <HorizontalStackLayout Spacing="15">
-                                    <Image Source="{Binding ImageUrl}" WidthRequest="60" HeightRequest="60" IsVisible="True"/>
-                                    <VerticalStackLayout VerticalOptions="Center">
-                                        <Label Text="{Binding Name}" FontAttributes="Bold" TextColor="{StaticResource TextMain}" FontSize="18"/>
-                                        <Label Text="{Binding Description}" FontSize="12" TextColor="{StaticResource TextLight}"/>
-                                    </VerticalStackLayout>
-                                </HorizontalStackLayout>
-                            </Border>
+                            <ViewCell>
+                                <ViewCell.View>
+                                    <Grid Margin="0,5" Padding="15">
+                                        <Border BackgroundColor="#222222" Stroke="#FF6B00" StrokeThickness="2">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="15" />
+                                            </Border.StrokeShape>
+                                            <HorizontalStackLayout Spacing="15" Padding="10">
+                                                <Image Source="{Binding ImageUrl}" WidthRequest="50" HeightRequest="50"/>
+                                                <VerticalStackLayout VerticalOptions="Center">
+                                                    <Label Text="{Binding Name}" FontAttributes="Bold" TextColor="White" FontSize="18"/>
+                                                    <Label Text="{Binding Description}" FontSize="12" TextColor="#CCCCCC"/>
+                                                </VerticalStackLayout>
+                                            </HorizontalStackLayout>
+                                        </Border>
+                                    </Grid>
+                                </ViewCell.View>
+                            </ViewCell>
                         </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
+                    </ListView.ItemTemplate>
+                </ListView>
             </VerticalStackLayout>
         </Grid>
 

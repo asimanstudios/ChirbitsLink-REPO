@@ -21,6 +21,7 @@ public class Party
     public Dictionary<string, int> PlayerScores { get; set; } = new Dictionary<string, int>();
     public Dictionary<string, string> ParticipantNames { get; set; } = new Dictionary<string, string>();
     public Dictionary<string, string> ParticipantCharacters { get; set; } = new Dictionary<string, string>();
+    public Dictionary<string, int> ParticipantLevels { get; set; } = new Dictionary<string, int>();
     
     // Historial
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

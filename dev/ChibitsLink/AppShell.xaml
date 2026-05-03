@@ -7,38 +7,34 @@
     xmlns:view="clr-namespace:ChibitsLink.main.cs.view"
     Shell.FlyoutBehavior="Flyout"
     FlyoutBackgroundColor="{StaticResource Surface}"
+    Shell.BackgroundColor="{StaticResource Surface}"
     Shell.ForegroundColor="{StaticResource TextMain}"
     Shell.TitleColor="{StaticResource TextMain}">
 
-    <!-- Flyout Header -->
-    <Shell.FlyoutHeader>
-        <Grid HeightRequest="180" BackgroundColor="{StaticResource Primary}" Padding="20">
-            <VerticalStackLayout VerticalOptions="End" Spacing="5">
-                <Border WidthRequest="70" 
-                        HeightRequest="70" 
-                        Stroke="{StaticResource Secondary}"
-                        StrokeThickness="3"
-                        HorizontalOptions="Start"
-                        BackgroundColor="{StaticResource Surface}">
-                    <Border.StrokeShape>
-                        <Ellipse />
-                    </Border.StrokeShape>
-                    <Image Source="dotnet_bot" Aspect="AspectFill" />
-                </Border>
-                <Label Text="MI CUENTA" 
-                       TextColor="White" 
-                       FontSize="12" 
-                       FontAttributes="Bold" 
-                       Opacity="0.8"
-                       CharacterSpacing="1"/>
-                <Label x:Name="FlyoutUsernameLabel" 
-                       Text="Aventurero" 
-                       TextColor="{StaticResource Tertiary}" 
-                       FontSize="20" 
-                       FontAttributes="Bold"/>
-            </VerticalStackLayout>
-        </Grid>
-    </Shell.FlyoutHeader>
+    <!-- Flyout Menu comprimido y bonito (Sin panel naranja) -->
+    <Shell.ItemTemplate>
+        <DataTemplate>
+            <Grid Padding="20,12" ColumnDefinitions="40, *">
+                <!-- Icono -->
+                <Image Grid.Column="0" 
+                       Source="{Binding Icon}" 
+                       HeightRequest="22" 
+                       WidthRequest="22" 
+                       HorizontalOptions="Center" 
+                       VerticalOptions="Center" 
+                       Opacity="0.7"/>
+                
+                <!-- Texto -->
+                <Label Grid.Column="1" 
+                       Text="{Binding Title}" 
+                       TextColor="{StaticResource TextMain}" 
+                       FontFamily="FredokaBold" 
+                       FontSize="16" 
+                       VerticalOptions="Center" 
+                       Margin="10,0,0,0"/>
+            </Grid>
+        </DataTemplate>
+    </Shell.ItemTemplate>
 
     <!-- Auth Flow (Hidden from Flyout) -->
     <ShellContent

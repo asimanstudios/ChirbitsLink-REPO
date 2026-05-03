@@ -2,37 +2,39 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:model="clr-namespace:ChibitsLink.main.cs.model"
+             xmlns:viewmodel="clr-namespace:ChibitsLink.main.cs.viewmodel"
              x:Class="ChibitsLink.main.cs.view.MainMenuPage"
+             x:DataType="viewmodel:MainMenuViewModel"
              Title="Chibits Hub"
              BackgroundColor="{StaticResource Background}">
     
     <Grid RowDefinitions="Auto, *, Auto" Padding="25" RowSpacing="20">
         
         <!-- Header & Profile -->
-            <VerticalStackLayout Grid.Row="0" Spacing="15" HorizontalOptions="Center">
+            <VerticalStackLayout x:Name="ProfileSection" Grid.Row="0" Spacing="15" HorizontalOptions="Center" Opacity="0">
                 <VerticalStackLayout.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnProfileTapped" />
+                    <TapGestureRecognizer Command="{Binding ToggleCharacterListCommand}" />
                 </VerticalStackLayout.GestureRecognizers>
                 
                 <!-- Circular Profile Image (Sticker Style) -->
-                <Border WidthRequest="120" 
+                <Border x:Name="ProfileBorder"
+                        WidthRequest="120" 
                         HeightRequest="120" 
                         Padding="0" 
                         HorizontalOptions="Center"
                         Stroke="{StaticResource BorderColor}"
-                        StrokeThickness="4">
+                        StrokeThickness="4"
+                        Style="{StaticResource GlowFrame}">
                     <Border.StrokeShape>
                         <Ellipse />
                     </Border.StrokeShape>
-                    <Image x:Name="ProfileImage" 
-                           Source="char_placeholder" 
+                    <Image Source="{Binding SelectedCharacterImage}" 
                            Aspect="AspectFill" 
                            BackgroundColor="{StaticResource Surface}"/>
                 </Border>
             
             <VerticalStackLayout Spacing="2" HorizontalOptions="Center" InputTransparent="True">
-                <Label x:Name="UsernameLabel"
-                       Text=""
+                <Label Text="{Binding Username}"
                        FontAttributes="Bold"
                        FontSize="22"
                        HorizontalOptions="Center"
@@ -41,14 +43,12 @@
                        InputTransparent="True"/>
                 
                 <HorizontalStackLayout HorizontalOptions="Center" Spacing="10" InputTransparent="True">
-                    <Label x:Name="UserLevelLabel" 
-                           Text="LVL. 1" 
+                    <Label Text="{Binding LevelDisplay}" 
                            FontSize="14" 
                            FontAttributes="Bold"
                            TextColor="{StaticResource Tertiary}"
                            InputTransparent="True"/>
-                    <Label x:Name="CharacterNameLabel"
-                           Text="VALIENTE"
+                    <Label Text="{Binding SelectedCharacterName}"
                            FontSize="14"
                            TextColor="{StaticResource Secondary}"
                            HorizontalOptions="Center"
@@ -57,8 +57,8 @@
                 </HorizontalStackLayout>
                 
                 <VerticalStackLayout Spacing="5" Margin="0, 10, 0, 5" HorizontalOptions="Center" WidthRequest="200" InputTransparent="True">
-                    <ProgressBar x:Name="XpProgressBar" Progress="0.0" ProgressColor="{StaticResource Tertiary}" BackgroundColor="{StaticResource Surface}" HeightRequest="8" />
-                    <Label x:Name="XpProgressLabel" Text="0 / 5000 XP" FontSize="11" TextColor="{StaticResource TextLight}" HorizontalOptions="Center" />
+                    <ProgressBar Progress="{Binding XpProgress}" ProgressColor="{StaticResource Tertiary}" BackgroundColor="{StaticResource Surface}" HeightRequest="8" />
+                    <Label Text="{Binding XpStatus}" FontSize="11" TextColor="{StaticResource TextLight}" HorizontalOptions="Center" />
                 </VerticalStackLayout>
                 
                 <Label Text="TOCA PARA CAMBIAR"
@@ -74,17 +74,17 @@
 
         <!-- Main Content -->
         <ScrollView Grid.Row="1">
-            <VerticalStackLayout Spacing="20">
+            <VerticalStackLayout x:Name="ContentStack" Spacing="20" Opacity="0">
                 
                 <!-- Character Selection (Hidden by default) -->
-                <VerticalStackLayout x:Name="CharacterSelectionLayout" IsVisible="False" Spacing="10">
+                <VerticalStackLayout IsVisible="{Binding IsCharacterListVisible}" Spacing="10">
                     <Label Text="CAMBIAR PERSONAJE" 
                            FontSize="14" 
                            FontAttributes="Bold"
                            TextColor="{StaticResource Secondary}"
                            HorizontalOptions="Center" />
                     
-                    <CollectionView x:Name="CharactersCollection"
+                    <CollectionView ItemsSource="{Binding Characters}"
                                     SelectionMode="None"
                                     HeightRequest="200">
                         <CollectionView.ItemsLayout>
@@ -102,7 +102,7 @@
                                         <RoundRectangle CornerRadius="24" />
                                     </Border.StrokeShape>
                                     <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="OnCharacterSelected" CommandParameter="{Binding .}" />
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:MainMenuViewModel}}, Path=SelectCharacterCommand}" CommandParameter="{Binding .}" />
                                     </Border.GestureRecognizers>
                                     <VerticalStackLayout VerticalOptions="Center" Spacing="5" InputTransparent="True">
                                         <Image Source="{Binding ImageUrl}" 
@@ -166,7 +166,7 @@
         </ScrollView>
 
         <!-- Action Buttons -->
-        <VerticalStackLayout Grid.Row="2" Spacing="12" VerticalOptions="End">
+        <VerticalStackLayout x:Name="FooterStack" Grid.Row="2" Spacing="12" VerticalOptions="End" Opacity="0">
             <Button Text="CONECTAR A PARTIDA" 
                     Style="{StaticResource ModernButton}" 
                     Clicked="OnJoinRoomClicked" />

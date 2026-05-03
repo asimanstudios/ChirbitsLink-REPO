@@ -33,9 +33,14 @@ public partial class JoinRoomPage : ContentPage
     private async void OnConnectClicked(object sender, EventArgs e)
     {
         string code = RoomCodeEntry.Text;
+        if (code != null)
+        {
+            code = code.Trim().ToUpperInvariant();
+        }
+
         if (string.IsNullOrEmpty(code) || code.Length != 6)
         {
-            await DisplayAlert("Ups", "El código debe ser de 6 dígitos mágicos.", "Vale");
+            await DisplayAlert("Ups", "El código debe ser de exactamente 6 dígitos mágicos.", "Vale");
             return;
         }
 
@@ -48,17 +53,23 @@ public partial class JoinRoomPage : ContentPage
 
             if (isValid)
             {
-                await Shell.Current.GoToAsync($"LobbyPage?code={code}");
+                await Shell.Current.GoToAsync($"//LobbyPage?code={code}");
             }
             else
             {
                 await DisplayAlert("Error", "La sala no existe o el código es incorrecto.", "Vale");
             }
         }
-        catch (Exception)
+        catch (ChibitsLink.main.cs.exception.DatabaseException dbEx)
         {
             LoadingIndicator.IsRunning = false;
-            await DisplayAlert("Error de Conexión", "No hemos podido verificar la sala. Comprueba tu conexión.", "Vale");
+            string detail = dbEx.InnerException != null ? dbEx.InnerException.Message : dbEx.Message;
+            await DisplayAlert("Error de Conexión", $"No hemos podido verificar la sala: {detail}", "Vale");
+        }
+        catch (Exception ex)
+        {
+            LoadingIndicator.IsRunning = false;
+            await DisplayAlert("Error de Conexión", $"Fallo inesperado: {ex.Message}", "Vale");
         }
     }
 

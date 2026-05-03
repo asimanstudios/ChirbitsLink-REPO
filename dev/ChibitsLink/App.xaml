@@ -7,6 +7,7 @@
         <ResourceDictionary>
             <!-- ChirBits Adventure Palette (Vibrant & Cozy) -->
             <Color x:Key="Primary">#FF9200</Color>      <!-- ChirBits Orange -->
+            <Color x:Key="PrimaryDark">#E68400</Color>
             <Color x:Key="Secondary">#48DBFB</Color>    <!-- ChirBits Magic Cyan -->
             <Color x:Key="Tertiary">#FFCE5C</Color>     <!-- ChirBits Sunny Yellow -->
             <Color x:Key="Accent">#A044FF</Color>       <!-- Bird Purple -->
@@ -17,11 +18,30 @@
             <Color x:Key="Success">#00D2D3</Color>      <!-- Jade Green -->
             <Color x:Key="BorderColor">#432C52</Color>  <!-- Thick Outline Color -->
             
-            <!-- Default Colors for Legacy Support -->
-            <Color x:Key="DefaultPrimaryColor">#FF9200</Color>
-            <Color x:Key="DefaultSecondaryColor">#48DBFB</Color>
+            <!-- Modern Gradients & Meshes -->
+            <LinearGradientBrush x:Key="PrimaryGradient" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#FFB347" Offset="0.1" />
+                <GradientStop Color="#FF9200" Offset="1.0" />
+            </LinearGradientBrush>
 
-            <!-- Playful & Premium Styles -->
+            <LinearGradientBrush x:Key="SecondaryGradient" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#70E1F5" Offset="0.1" />
+                <GradientStop Color="#48DBFB" Offset="1.0" />
+            </LinearGradientBrush>
+
+            <RadialGradientBrush x:Key="BackgroundMesh" Center="0.5,0.5" Radius="1.5">
+                <GradientStop Color="#FFFDF0" Offset="0" />
+                <GradientStop Color="#FFEAC7" Offset="1" />
+            </RadialGradientBrush>
+
+            <!-- Professional Shadows -->
+            <Style x:Key="SoftShadow" TargetType="VisualElement">
+                <Setter Property="Shadow">
+                    <Shadow Brush="#000000" Offset="0,4" Radius="12" Opacity="0.08" />
+                </Setter>
+            </Style>
+
+            <!-- Refined Styles -->
             <Style x:Key="ModernLabel" TargetType="Label">
                 <Setter Property="TextColor" Value="{StaticResource TextMain}" />
                 <Setter Property="FontFamily" Value="FredokaRegular" />
@@ -30,30 +50,31 @@
 
             <Style x:Key="ModernTitle" TargetType="Label" BasedOn="{StaticResource ModernLabel}">
                 <Setter Property="FontFamily" Value="FredokaBold" />
-                <Setter Property="FontSize" Value="32" />
+                <Setter Property="FontSize" Value="34" />
                 <Setter Property="TextColor" Value="{StaticResource Primary}" />
-                <Setter Property="HorizontalOptions" Value="Center" />
-                <Setter Property="CharacterSpacing" Value="1" />
+                <Setter Property="HorizontalOptions" Value="Start" />
+                <Setter Property="CharacterSpacing" Value="0.5" />
             </Style>
 
+            <!-- Buttons: Premium Smooth -->
             <Style x:Key="ModernButton" TargetType="Button">
-                <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                <Setter Property="Background" Value="{StaticResource PrimaryGradient}" />
                 <Setter Property="TextColor" Value="White" />
-                <Setter Property="CornerRadius" Value="28" />
+                <Setter Property="CornerRadius" Value="18" />
                 <Setter Property="FontAttributes" Value="Bold" />
-                <Setter Property="FontSize" Value="18" />
-                <Setter Property="HeightRequest" Value="60" />
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="HeightRequest" Value="58" />
                 <Setter Property="Padding" Value="24,0" />
-                <Setter Property="BorderWidth" Value="3" />
-                <Setter Property="BorderColor" Value="{StaticResource BorderColor}" />
+                <Setter Property="Shadow">
+                    <Shadow Brush="{StaticResource Primary}" Offset="0,4" Radius="8" Opacity="0.3" />
+                </Setter>
                 <Setter Property="VisualStateManager.VisualStateGroups">
                     <VisualStateGroupList>
                         <VisualStateGroup x:Name="CommonStates">
                             <VisualState x:Name="Normal" />
                             <VisualState x:Name="Pressed">
                                 <VisualState.Setters>
-                                    <Setter Property="Scale" Value="0.95" />
-                                    <Setter Property="BackgroundColor" Value="#E68400" />
+                                    <Setter Property="Scale" Value="0.97" />
                                 </VisualState.Setters>
                             </VisualState>
                         </VisualStateGroup>
@@ -62,42 +83,63 @@
             </Style>
 
             <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
-                <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
+                <Setter Property="Background" Value="#F0F0F0" />
                 <Setter Property="TextColor" Value="{StaticResource TextMain}" />
-                <Setter Property="BorderColor" Value="{StaticResource BorderColor}" />
+                <Setter Property="Shadow" Value="{x:Null}" />
             </Style>
 
+            <!-- Premium Inputs (Boxed) -->
             <Style x:Key="ModernEntry" TargetType="Entry">
-                <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
+                <Setter Property="BackgroundColor" Value="#F7F7F7" />
                 <Setter Property="TextColor" Value="{StaticResource TextMain}" />
                 <Setter Property="PlaceholderColor" Value="{StaticResource TextLight}" />
-                <Setter Property="HeightRequest" Value="56" />
-                <Setter Property="FontSize" Value="16" />
-                <Setter Property="Margin" Value="0,8" />
+                <Setter Property="HeightRequest" Value="54" />
+                <Setter Property="FontSize" Value="15" />
+                <Setter Property="Margin" Value="0,4" />
             </Style>
 
+            <!-- Premium Uniform Cards -->
             <Style x:Key="GlassFrame" TargetType="Border">
                 <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
                 <Setter Property="StrokeShape">
                     <RoundRectangle CornerRadius="28" />
                 </Setter>
-                <Setter Property="Stroke" Value="{StaticResource BorderColor}" />
-                <Setter Property="StrokeThickness" Value="3" />
-                <Setter Property="Padding" Value="15" />
+                <Setter Property="Stroke" Value="#EEEEEE" />
+                <Setter Property="StrokeThickness" Value="1" />
+                <Setter Property="Padding" Value="24" />
                 <Setter Property="Shadow">
-                    <Shadow Brush="Black" Offset="5,5" Radius="10" Opacity="0.1" />
+                    <Shadow Brush="#000000" Offset="0,10" Radius="20" Opacity="0.06" />
+                </Setter>
+            </Style>
+
+            <Style x:Key="HeroCard" TargetType="Border" BasedOn="{StaticResource GlassFrame}">
+                 <Setter Property="BackgroundColor" Value="White" />
+                 <Setter Property="Shadow">
+                    <Shadow Brush="{StaticResource Primary}" Offset="0,10" Radius="25" Opacity="0.1" />
+                </Setter>
+            </Style>
+
+            <Style x:Key="GlowFrame" TargetType="Border" BasedOn="{StaticResource GlassFrame}">
+                <Setter Property="Shadow">
+                    <Shadow Brush="{StaticResource Primary}" Offset="0,0" Radius="15" Opacity="0.2" />
                 </Setter>
             </Style>
 
             <!-- Specialty Buttons -->
             <Style x:Key="MedievalButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
-                <Setter Property="BackgroundColor" Value="{StaticResource Tertiary}" />
+                <Setter Property="Background" Value="{StaticResource Tertiary}" />
                 <Setter Property="TextColor" Value="{StaticResource TextMain}" />
+                <Setter Property="Shadow">
+                    <Shadow Brush="{StaticResource Tertiary}" Offset="0,4" Radius="8" Opacity="0.4" />
+                </Setter>
             </Style>
 
             <Style x:Key="NeonButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
-                <Setter Property="BackgroundColor" Value="{StaticResource Secondary}" />
+                <Setter Property="Background" Value="{StaticResource SecondaryGradient}" />
                 <Setter Property="TextColor" Value="{StaticResource TextMain}" />
+                <Setter Property="Shadow">
+                    <Shadow Brush="{StaticResource Secondary}" Offset="0,4" Radius="8" Opacity="0.4" />
+                </Setter>
             </Style>
 
             <!-- Compatibility Aliases -->

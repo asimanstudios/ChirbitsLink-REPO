@@ -1,8 +1,10 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Maui.Storage;
-using ChibitsLink.main.cs.exception;
 using ChibitsLink.main.cs.model;
+using ChibitsLink.main.repository.interfaces;
+using ChibitsLink.main.repository;
+using ChibitsLink.main.cs.exception;
 
 namespace ChibitsLink.main.cs.service;
 
@@ -12,16 +14,18 @@ namespace ChibitsLink.main.cs.service;
 /// </summary>
 public class AccountService : BaseService
 {
-    private readonly ChibitsLink.main.repository.Database _db;
-    private readonly ChibitsLink.main.repository.FirebaseConnection _connection;
+    private readonly IUserRepository _userRepo;
+    private readonly IMasterDataRepository _masterRepo;
+    private readonly FirebaseConnection _connection;
     private User? _currentUser;
 
     private const string SESSION_UID_KEY = "session_uid";
     private const string SESSION_EXPIRY_KEY = "session_expiry";
 
-    public AccountService(ChibitsLink.main.repository.Database db, ChibitsLink.main.repository.FirebaseConnection connection)
+    public AccountService(IUserRepository userRepo, IMasterDataRepository masterRepo, FirebaseConnection connection)
     {
-        _db = db;
+        _userRepo = userRepo;
+        _masterRepo = masterRepo;
         _connection = connection;
     }
 
@@ -40,7 +44,7 @@ public class AccountService : BaseService
 
             if (DateTime.TryParse(expiryString, out var expiry) && DateTime.Now < expiry)
             {
-                _currentUser = await _db.GetUser(userId);
+                _currentUser = await _userRepo.GetUserAsync(userId);
                 return _currentUser != null;
             }
         }
@@ -60,51 +64,52 @@ public class AccountService : BaseService
 
     /// <summary>
     /// Inicia sesión con email y contraseña mediante Firebase Auth.
+    /// Lanza excepciones específicas si ocurre un error.
     /// </summary>
-    public async Task<(bool Success, string? ErrorMessage)> Login(string email, string password)
+    public async Task Login(string email, string password)
     {
         try
         {
             var result = await _connection.Auth.SignInWithEmailAndPasswordAsync(email, password);
-            if (result.User != null)
+            if (result.User == null)
+                throw new AuthException("La autenticación no devolvió un usuario válido.");
+
+            // FIX: Mayor pausa para asegurar propagación
+            await Task.Delay(1500);
+
+            _currentUser = await _userRepo.GetUserAsync(result.User.Uid);
+            
+            if (_currentUser == null)
             {
-                // FIX: Mayor pausa para asegurar propagación
-                await Task.Delay(1500);
-
-                _currentUser = await _db.GetUser(result.User.Uid);
-                
-                if (_currentUser == null)
-                {
-                    _connection.Auth.SignOut();
-                    return (false, $"CRÍTICO: El perfil Firestore no existe para el UID Auth actual ({result.User.Uid}). Elimina tu cuenta desde la consola de Firebase Auth y regístrate de nuevo.");
-                }
-
-                _currentUser.Email = result.User.Email ?? email;
-                await SaveSession(result.User.Uid);
-                return (true, null);
+                _connection.Auth.SignOut();
+                throw new DatabaseException($"El perfil Firestore no existe para el UID actual ({result.User.Uid}). Elimina tu cuenta desde la consola de Firebase Auth y regístrate de nuevo.", "users", result.User.Uid);
             }
+
+            _currentUser.Email = result.User.Email ?? email;
+            await SaveSession(result.User.Uid);
         }
-        catch (DatabaseException ex)
+        catch (DatabaseException)
         {
-            return (false, $"Error al recuperar datos de usuario: {ex.Message}");
+            throw; // Re-lanzar excepciones de negocio conocidas
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Login Error: {ex.Message}");
-            return (false, $"Error interno durante el login: {ex.Message}");
+            throw new AuthException($"Error interno durante el login: {ex.Message}");
         }
-        return (false, "La autenticación no devolvió un usuario.");
     }
 
     /// <summary>
     /// Registra un nuevo usuario en Firebase Auth y crea su perfil en Firestore.
+    /// Lanza excepciones si el registro falla.
     /// </summary>
-    public async Task<(bool Success, string? ErrorMessage)> RegisterAsync(string realName, string username, string email, string password)
+    public async Task RegisterAsync(string realName, string username, string email, string password)
     {
         try
         {
             var result = await _connection.Auth.CreateUserWithEmailAndPasswordAsync(email, password);
-            if (result.User == null) return (false, "El registro no devolvió un usuario.");
+            if (result.User == null) 
+                throw new AuthException("El registro no devolvió un usuario.");
 
             // FIX: Mayor pausa para asegurar la propagación del Token de Auth a Firestore (Race Condition pesado)
             await Task.Delay(1500);
@@ -119,36 +124,34 @@ public class AccountService : BaseService
 
             try 
             {
-                await _db.SaveUser(newUser);
+                await _userRepo.SaveUserAsync(newUser);
             }
-            catch (DatabaseException ex)
+            catch (Exception ex)
             {
                 // ROLLBACK: Borrar la cuenta vacía de Auth si falla la escritura en BBDD para no dejarla "huérfana"
                 await result.User.DeleteAsync();
-                return (false, $"Error bloqueando en BBDD (probablemente Reglas/Tiempo). Cuenta de Auth cancelada para evitar bucles. Detalle: {ex.Message}");
+                throw new DatabaseException($"Error bloqueando en BBDD (probablemente Reglas/Tiempo). Cuenta de Auth cancelada para evitar bucles. Detalle: {ex.Message}");
             }
             _currentUser = newUser;
             await SaveSession(result.User.Uid);
 
-            await _db.InitializeCharactersAsync();
-
-            return (true, null);
+            await _masterRepo.InitializeCharactersAsync();
         }
-        catch (DatabaseException ex)
+        catch (DatabaseException)
         {
-            return (false, $"Error al guardar perfil de usuario: {ex.Message}");
+            throw; // Re-lanzar excepciones conocidas
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Registration Error: {ex.Message}");
-            return (false, "Error al crear la cuenta. Inténtalo de nuevo más tarde.");
+            throw new AuthException($"Error al crear la cuenta. Inténtalo de nuevo más tarde: {ex.Message}");
         }
     }
 
     /// <summary>Actualiza los datos del usuario tanto en Firestore como en memoria.</summary>
     public async Task UpdateUser(User user)
     {
-        await _db.UpdateUser(user);
+        await _userRepo.UpdateUserAsync(user);
         _currentUser = user;
     }
 
@@ -241,12 +244,12 @@ public class AccountService : BaseService
     /// Revisa el historial del perfil del usuario al abrir el menú y reclama la XP 
     /// de cualquier sala CLOSED de la que aún no hayamos cobrado. (Evita el bug de cierre rápido).
     /// </summary>
-    public async Task CheckAndClaimPendingExperienceAsync(ChibitsLink.main.repository.Database db)
+    public async Task CheckAndClaimPendingExperienceAsync(ILobbyRepository lobbyRepo)
     {
         if (_currentUser == null) return;
         
         // Refrescar el usuario para tener la lista de GameHistory actualizada desde Firestore
-        var freshUser = await db.GetUser(_currentUser.Id);
+        var freshUser = await _userRepo.GetUserAsync(_currentUser.Id);
         if (freshUser != null)
         {
             _currentUser = freshUser;
@@ -258,10 +261,16 @@ public class AccountService : BaseService
         // Buscar salas del historial que NO están en XpClaimedParties
         var pendingRooms = _currentUser.GameHistory.Except(_currentUser.XpClaimedParties).ToList();
         
+        // Buscar todas las salas de Firestore en paralelo (súper rápido)
+        var partyTasks = pendingRooms.Select(code => lobbyRepo.GetPartyAsync(code));
+        var parties = await Task.WhenAll(partyTasks);
+        
         bool updated = false;
-        foreach (var roomCode in pendingRooms)
+        for (int i = 0; i < pendingRooms.Count; i++)
         {
-            var party = await db.GetParty(roomCode);
+            var roomCode = pendingRooms[i];
+            var party = parties[i];
+            
             // Solo reclamamos si la sala ya está cerrada por Unity
             if (party != null && party.GameState == "CLOSED")
             {
@@ -273,7 +282,7 @@ public class AccountService : BaseService
         // Si actualizamos la XP, volvemos a refrescar para que MainMenu lo lea perfecto
         if (updated)
         {
-            var refreshedUser = await db.GetUser(_currentUser.Id);
+            var refreshedUser = await _userRepo.GetUserAsync(_currentUser.Id);
             if (refreshedUser != null) _currentUser = refreshedUser;
         }
     }

@@ -4,36 +4,40 @@
         <name>ChibitsLink</name>
     </assembly>
     <members>
-        <member name="T:ChibitsLink.main.cs.controller.AccountController">
-            <summary>
-            Controla el sistema de autenticación de usuarios.
-            Intermediario entre las páginas de login/registro y <see cref="T:ChibitsLink.main.cs.service.AccountService"/>.
-            </summary>
-        </member>
-        <member name="M:ChibitsLink.main.cs.controller.AccountController.Login(ChibitsLink.main.cs.view.LoginPage,System.String,System.String)">
-            <summary>
-            Gestiona el intento de inicio de sesión. Actualiza la UI de la vista con el resultado.
-            </summary>
-        </member>
-        <member name="M:ChibitsLink.main.cs.controller.AccountController.Register(ChibitsLink.main.cs.view.RegisterPage,System.String,System.String,System.String,System.String)">
-            <summary>
-            Gestiona el intento de registro. Actualiza la UI de la vista con el resultado.
-            </summary>
-        </member>
         <member name="T:ChibitsLink.main.cs.exception.ChibitsLinkException">
             <summary>
             Excepción base de la aplicación ChibitsLink.
             Todas las excepciones del dominio heredan de esta clase.
             </summary>
         </member>
+        <member name="T:ChibitsLink.main.cs.exception.ChirbitsException">
+            <summary>
+            Clase base para todas las excepciones del ecosistema Chirbits.
+            </summary>
+        </member>
         <member name="T:ChibitsLink.main.cs.exception.DatabaseException">
             <summary>
-            Excepción lanzada cuando ocurre un error en las operaciones de base de datos (Firestore).
+            Errores relacionados con la base de datos (Firestore).
             </summary>
         </member>
         <member name="T:ChibitsLink.main.cs.exception.RecordNotFoundException">
             <summary>
-            Excepción lanzada cuando un documento no se encuentra en la colección de Firestore indicada.
+            Excepción lanzada cuando un documento no se encuentra en Firestore.
+            </summary>
+        </member>
+        <member name="T:ChibitsLink.main.cs.exception.AuthException">
+            <summary>
+            Errores de autenticación (Firebase Auth).
+            </summary>
+        </member>
+        <member name="T:ChibitsLink.main.cs.exception.NetworkException">
+            <summary>
+            Errores de conexión TCP con el servidor Unity.
+            </summary>
+        </member>
+        <member name="T:ChibitsLink.main.cs.exception.SessionException">
+            <summary>
+            Errores de sesión o estado de juego inválido.
             </summary>
         </member>
         <member name="T:ChibitsLink.main.cs.model.Game">
@@ -89,11 +93,13 @@
         <member name="M:ChibitsLink.main.cs.service.AccountService.Login(System.String,System.String)">
             <summary>
             Inicia sesión con email y contraseña mediante Firebase Auth.
+            Lanza excepciones específicas si ocurre un error.
             </summary>
         </member>
         <member name="M:ChibitsLink.main.cs.service.AccountService.RegisterAsync(System.String,System.String,System.String,System.String)">
             <summary>
             Registra un nuevo usuario en Firebase Auth y crea su perfil en Firestore.
+            Lanza excepciones si el registro falla.
             </summary>
         </member>
         <member name="M:ChibitsLink.main.cs.service.AccountService.UpdateUser(ChibitsLink.main.cs.model.User)">
@@ -114,7 +120,7 @@
             Evita doble reclamación usando XpClaimedParties.
             </summary>
         </member>
-        <member name="M:ChibitsLink.main.cs.service.AccountService.CheckAndClaimPendingExperienceAsync(ChibitsLink.main.repository.Database)">
+        <member name="M:ChibitsLink.main.cs.service.AccountService.CheckAndClaimPendingExperienceAsync(ChibitsLink.main.repository.interfaces.ILobbyRepository)">
             <summary>
             Revisa el historial del perfil del usuario al abrir el menú y reclama la XP 
             de cualquier sala CLOSED de la que aún no hayamos cobrado. (Evita el bug de cierre rápido).
@@ -147,20 +153,18 @@
         <member name="T:ChibitsLink.main.cs.service.GameService">
             <summary>
             Gestiona la lógica relacionada con las salas de juego (lobbies) y los juegos disponibles.
+            Refactorizado para usar repositorios modulares (Fase 2).
             </summary>
         </member>
         <member name="M:ChibitsLink.main.cs.service.GameService.GetAvailableGames">
             <summary>
             Recupera la lista de juegos disponibles desde Firestore.
-            Lanza <see cref="T:ChibitsLink.main.cs.exception.DatabaseException"/> si hay un error de comunicación.
             </summary>
         </member>
         <member name="M:ChibitsLink.main.cs.service.GameService.ValidateLobbyAsync(System.String)">
             <summary>
             Valida si una sala de juego con el código indicado existe en Firestore.
             </summary>
-            <param name="roomCode">Código de sala de 6 caracteres.</param>
-            <returns>True si la sala existe; false en caso contrario.</returns>
         </member>
         <member name="M:ChibitsLink.main.cs.service.GameService.GetCharacters">
             <summary>
@@ -177,11 +181,19 @@
             Registra la participación de un usuario en una sala para que aparezca en su historial.
             </summary>
         </member>
-        <member name="T:ChibitsLink.main.cs.view.HistoryDetailPage">
+        <member name="M:ChibitsLink.main.cs.service.GameService.ToggleReadyAsync(System.String,System.String,System.Boolean)">
             <summary>
-            Pantalla de detalle de una partida cerrada. Muestra ranking de jugadores
-            con personaje, nombre real y puntuación obtenida, todo desde Firestore.
-            No contiene datos hardcodeados: si un campo está vacío en la BBDD, se omite con gracia.
+            Cambia el estado de preparación de un jugador en la sala.
+            </summary>
+        </member>
+        <member name="M:ChibitsLink.main.cs.utils.PasswordValidator.Validate(System.String)">
+            <summary>
+            Valida que la contraseña tenga al menos 8 caracteres, 1 número y 1 carácter especial.
+            </summary>
+        </member>
+        <member name="T:ChibitsLink.main.cs.viewmodel.HistoryItem">
+            <summary>
+            Modelo simple para la lista del historial. Evita problemas de binding con modelos complejos.
             </summary>
         </member>
         <member name="T:ChibitsLink.main.cs.view.JoinRoomPage">
@@ -189,23 +201,6 @@
             Página de unión a sala mediante código de 6 dígitos.
             Valida el código contra Firestore antes de navegar al LobbyPage.
             </summary>
-        </member>
-        <member name="T:ChibitsLink.main.cs.view.LoginPage">
-            <summary>
-            Página de inicio de sesión. Autentica al usuario con email y contraseña.
-            </summary>
-        </member>
-        <member name="M:ChibitsLink.main.cs.view.LoginPage.NavigateToSelection">
-            <summary>Navega al menú principal tras un login exitoso.</summary>
-        </member>
-        <member name="T:ChibitsLink.main.cs.view.RegisterPage">
-            <summary>
-            Página de registro de nuevos usuarios.
-            Recoge nombre completo, alias, email y contraseña (sin confirmación — XAML no tiene ese campo).
-            </summary>
-        </member>
-        <member name="M:ChibitsLink.main.cs.view.RegisterPage.NavigateToLogin">
-            <summary>Navega a la pantalla de login tras un registro exitoso.</summary>
         </member>
         <member name="T:ChibitsLink.main.cs.view.SelectionPage">
             <summary>
@@ -286,17 +281,13 @@
         </member>
         <member name="T:ChibitsLink.main.repository.DatabaseSeeder">
             <summary>
-            Class responsible for seeding the database with initial data.
+            Clase responsable de poblar la base de datos con datos iniciales.
+            Refactorizado para usar interfaces de repositorio (Fase 2).
             </summary>
         </member>
         <member name="M:ChibitsLink.main.repository.DatabaseSeeder.SeedAllAsync">
             <summary>
-            Executes the full database seeding.
-            </summary>
-        </member>
-        <member name="M:ChibitsLink.main.repository.DatabaseSeeder.SeedCharactersAsync">
-            <summary>
-            Seeds the characters collection.
+            Ejecuta el sembrado completo.
             </summary>
         </member>
         <member name="M:ChibitsLink.main.repository.DatabaseSeeder.SeedGamesAsync">
@@ -307,17 +298,6 @@
         <member name="T:ChibitsLink.main.test.GameServiceTests">
             <summary>
             Pruebas unitarias manuales de los servicios principales.
-            Para ejecutarlas en un entorno de test completo, mueve esta clase a un proyecto xUnit/MSTest independiente.
-            </summary>
-        </member>
-        <member name="M:ChibitsLink.main.test.GameServiceTests.ValidateLobbyAsync_ShouldReturnFalse_WhenRoomCodeIsEmpty">
-            <summary>
-            Verifica que ValidateLobbyAsync devuelve false cuando se pasa una cadena vacía.
-            </summary>
-        </member>
-        <member name="M:ChibitsLink.main.test.GameServiceTests.ValidateLobbyAsync_ShouldReturnFalse_WhenCodeTooShort">
-            <summary>
-            Verifica que ValidateLobbyAsync devuelve false cuando el código no tiene 6 dígitos.
             </summary>
         </member>
     </members>

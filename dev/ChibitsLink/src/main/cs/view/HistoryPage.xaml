@@ -1,22 +1,16 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:model="clr-namespace:ChibitsLink.main.cs.model"
-             xmlns:view="clr-namespace:ChibitsLink.main.cs.view"
-             xmlns:conv="clr-namespace:ChibitsLink.main.cs.converters"
+             xmlns:viewmodel="clr-namespace:ChibitsLink.main.cs.viewmodel"
              x:Class="ChibitsLink.main.cs.view.HistoryPage"
+             x:DataType="viewmodel:HistoryViewModel"
              Title="Relatos de Batalla"
              BackgroundColor="{StaticResource Background}">
-
-    <ContentPage.Resources>
-        <conv:BooleanToTextConverter x:Key="BooleanToTextConverter" />
-        <conv:BooleanToColorConverter x:Key="BooleanToColorConverter" />
-    </ContentPage.Resources>
 
     <Grid RowDefinitions="Auto, *" Padding="20" RowSpacing="20">
         
         <!-- Header -->
-        <VerticalStackLayout Grid.Row="0" Spacing="5">
+        <VerticalStackLayout Grid.Row="0" Spacing="5" Margin="0,10,0,10">
             <Label Text="RELATOS DE BATALLA" 
                    Style="{StaticResource ModernTitle}" 
                    HorizontalOptions="Center"
@@ -25,55 +19,95 @@
                    FontSize="13" 
                    TextColor="{StaticResource TextLight}"
                    HorizontalOptions="Center"
-                   CharacterSpacing="1"/>
+                   Opacity="0.8"/>
         </VerticalStackLayout>
 
         <!-- Loader -->
-        <ActivityIndicator Grid.Row="1" x:Name="LoadingIndicator" 
-                           IsRunning="False" IsVisible="False"
+        <ActivityIndicator Grid.Row="1" 
+                           IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
                            Color="{StaticResource Secondary}"
                            HorizontalOptions="Center" VerticalOptions="Center"
                            WidthRequest="50" HeightRequest="50"/>
 
-        <!-- History List -->
-        <RefreshView x:Name="RefreshControl" 
-                     Grid.Row="1" 
+        <!-- Main List -->
+        <RefreshView Grid.Row="1" 
                      Command="{Binding RefreshCommand}"
+                     IsRefreshing="{Binding IsBusy}"
+                     IsVisible="{Binding IsNotBusy}"
                      RefreshColor="{StaticResource Secondary}">
-            <CollectionView x:Name="HistoryCollection" 
-                            SelectionMode="Single"
-                            SelectionChanged="OnSelectionChanged">
+            
+            <CollectionView ItemsSource="{Binding History}" 
+                            SelectionMode="None">
                 <CollectionView.EmptyView>
-                    <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="10">
-                        <Label Text="📭" FontSize="48" HorizontalOptions="Center"/>
-                        <Label Text="Aún no has participado en ninguna batalla." 
+                    <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="10" Padding="0,50">
+                        <Label Text="📭" FontSize="50" HorizontalOptions="Center" Opacity="0.5"/>
+                        <Label Text="Aún no hay batallas registradas." 
                                TextColor="{StaticResource TextLight}"
-                               HorizontalOptions="Center"/>
+                               HorizontalOptions="Center"
+                               FontAttributes="Bold"/>
                     </VerticalStackLayout>
                 </CollectionView.EmptyView>
                 
                 <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="view:PartyHistoryItem">
-                        <Border Style="{StaticResource GlassFrame}" Margin="0,5" Stroke="{StaticResource Primary}">
-                            <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="15">
-                                <Label Grid.Column="0" Text="⚔️" FontSize="26" VerticalOptions="Center"/>
-                                
-                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
-                                    <Label Text="{Binding RoomCode, StringFormat='SALA {0}'}" 
-                                           FontAttributes="Bold" 
-                                           FontSize="17"
-                                           TextColor="{StaticResource TextMain}"/>
-                                    <Label Text="{Binding Date, StringFormat='{0:dd MMM yyyy}'}" 
+                    <DataTemplate x:DataType="viewmodel:HistoryItem">
+                        <!-- Tarjeta Premium Refinada -->
+                        <Border Style="{StaticResource GlassFrame}" 
+                                Margin="0,10" 
+                                Padding="0"
+                                Stroke="{StaticResource Primary}"
+                                StrokeThickness="1">
+                            <Border.StrokeShape><RoundRectangle CornerRadius="16"/></Border.StrokeShape>
+                            
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer 
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:HistoryViewModel}}, Path=SelectPartyCommand}"
+                                    CommandParameter="{Binding .}"/>
+                            </Border.GestureRecognizers>
+
+                            <Grid ColumnDefinitions="*, Auto">
+                                <!-- Info Principal -->
+                                <VerticalStackLayout Padding="20" Spacing="6" VerticalOptions="Center">
+                                    <HorizontalStackLayout Spacing="8">
+                                        <Label Text="⚔️" FontSize="18" VerticalOptions="Center"/>
+                                        <Label Text="{Binding Code, FallbackValue='SALA DESCONOCIDA'}" 
+                                               FontAttributes="Bold" 
+                                               FontSize="18"
+                                               TextColor="{StaticResource Secondary}"
+                                               VerticalOptions="Center"
+                                               CharacterSpacing="1"/>
+                                    </HorizontalStackLayout>
+                                    
+                                    <Label Text="{Binding DateText, FallbackValue='Fecha Desconocida'}" 
                                            FontSize="12" 
-                                           TextColor="{StaticResource TextLight}"/>
+                                           TextColor="{StaticResource TextLight}"
+                                           Margin="26,0,0,0"/> <!-- Alinear bajo el código -->
                                 </VerticalStackLayout>
-    
-                                <Label Grid.Column="2" 
-                                       Text="{Binding Won, Converter={StaticResource BooleanToTextConverter}}" 
-                                       TextColor="{Binding Won, Converter={StaticResource BooleanToColorConverter}}"
-                                       FontAttributes="Bold"
-                                       FontSize="16"
-                                       VerticalOptions="Center"/>
+
+                                <!-- Panel Lateral (Jugadores y Flecha) -->
+                                <Border Grid.Column="1" 
+                                        BackgroundColor="#0A000000" 
+                                        StrokeThickness="0" 
+                                        Padding="20,0"
+                                        WidthRequest="100">
+                                    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="8">
+                                        <Label Text="{Binding PlayerCount}" 
+                                               FontSize="11"
+                                               FontAttributes="Bold"
+                                               HorizontalTextAlignment="Center"
+                                               TextColor="{StaticResource TextMain}"/>
+                                        
+                                        <Border BackgroundColor="{StaticResource Secondary}"
+                                                StrokeThickness="0"
+                                                Padding="12,4"
+                                                HorizontalOptions="Center">
+                                            <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
+                                            <Label Text="VER ›" 
+                                                   FontSize="10" 
+                                                   FontAttributes="Bold" 
+                                                   TextColor="White"/>
+                                        </Border>
+                                    </VerticalStackLayout>
+                                </Border>
                             </Grid>
                         </Border>
                     </DataTemplate>

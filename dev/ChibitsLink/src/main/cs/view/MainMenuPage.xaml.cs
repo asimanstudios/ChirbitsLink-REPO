@@ -1,196 +1,58 @@
 using System.Diagnostics;
-using System.Collections.ObjectModel;
-using ChibitsLink.main.cs.model;
 using ChibitsLink.main.cs.service;
-using ChibitsLink.main.repository;
 using ChibitsLink.main.cs.net;
+using ChibitsLink.main.cs.viewmodel;
 
 namespace ChibitsLink.main.cs.view;
 
 public partial class MainMenuPage : ContentPage
 {
+    private readonly MainMenuViewModel _viewModel;
     private readonly AccountService _accountService;
-    private readonly Database _db;
     private readonly Connection _connection;
-    public ObservableCollection<Character> Characters { get; set; } = new();
 
-    public MainMenuPage(AccountService accountService, Database db, Connection connection)
+    public MainMenuPage(MainMenuViewModel viewModel, AccountService accountService, Connection connection)
     {
         InitializeComponent();
+        _viewModel = viewModel;
         _accountService = accountService;
-        _db = db;
         _connection = connection;
         
-        LoadCharacters();
-        BindingContext = this;
+        BindingContext = _viewModel;
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        var user = _accountService.GetCurrentUser();
-        if (user != null)
-        {
-            // Evitar perder XP si volvimos rápido de una partida
-            await _accountService.CheckAndClaimPendingExperienceAsync(_db);
-            user = _accountService.GetCurrentUser(); // Refrescar por si subió de nivel
-
-            UsernameLabel.Text = user.Username.ToUpper();
-            UpdateProfileDisplay(user.SelectedCharacterId);
-
-            // Sync Shell UI
-            if (Shell.Current is AppShell shell)
-            {
-                shell.UpdateHeader(user.Username);
-            }
-        }
-        else
-        {
-            // Security: Redirect to login if no session
-            await Shell.Current.GoToAsync("//LoginPage");
-        }
-    }
-
-    private void UpdateProfileDisplay(string characterId)
-    {
-        Debug.WriteLine($"[MainMenu] Buscando personaje con ID: {characterId}");
-        var character = Characters.FirstOrDefault(c => c.Id == characterId) 
-                        ?? Characters.FirstOrDefault();
+        _ = _viewModel.InitializeAsync();
         
-        if (character != null)
-        {
-            // Fallback for missing/null ImageUrl
-            var imageUrl = string.IsNullOrEmpty(character.ImageUrl) ? "char_placeholder" : character.ImageUrl;
-            
-            // Critical fix: Ensure we don't try to load known missing default assets
-            if (imageUrl == "dotnet_bot" || imageUrl.Contains("char_knight") || imageUrl.Contains("char_valiente"))
-            {
-                imageUrl = "char_placeholder";
-            }
-
-            ProfileImage.Source = imageUrl;
-            CharacterNameLabel.Text = character.Name;
-            Debug.WriteLine($"[MainMenu] UI Actualizada: {character.Name} con imagen {imageUrl}");
-        }
-
-        var user = _accountService.GetCurrentUser();
-        if (user != null)
-        {
-            UserLevelLabel.Text = $"LVL. {user.Level}";
-            
-            // Lógica de progreso de XP (Regla de los 5k por nivel)
-            int currentLevel = user.Level;
-            int totalXp = user.Experience;
-            int xpForCurrentLevel = 0;
-            
-            for (int i = 1; i < currentLevel; i++)
-            {
-                xpForCurrentLevel += i * 5000;
-            }
-            
-            int xpIntoCurrentLevel = totalXp - xpForCurrentLevel;
-            int xpNeededForNextLevel = currentLevel * 5000;
-            
-            // Prevención de errores matemáticos
-            if (xpIntoCurrentLevel < 0) xpIntoCurrentLevel = 0;
-            
-            double progress = (double)xpIntoCurrentLevel / xpNeededForNextLevel;
-            if (progress > 1) progress = 1;
-
-            XpProgressBar.Progress = progress;
-            XpProgressLabel.Text = $"{xpIntoCurrentLevel} / {xpNeededForNextLevel} XP";
-        }
+        // Animación de entrada secuencial para fluidez premium
+        await AnimateEntrance();
     }
 
-    private async void LoadCharacters()
+    private async Task AnimateEntrance()
     {
-        try
-        {
-            var dbCharacters = await _db.GetCharacters(); 
-            
-            Characters.Clear();
-            if (dbCharacters != null && dbCharacters.Any())
-            {
-                foreach (var c in dbCharacters) 
-                {
-                    // Sanitize ImageUrl
-                    if (string.IsNullOrEmpty(c.ImageUrl) || c.ImageUrl == "dotnet_bot" || (c.ImageUrl.Contains("char_") && !c.ImageUrl.Contains("placeholder")))
-                    {
-                        c.ImageUrl = "char_placeholder";
-                    }
-                    Characters.Add(c);
-                }
-            }
-            else
-            {
-                AddMockCharacters();
-            }
+        // Reset inicial para el efecto "slide"
+        ProfileSection.TranslationY = -30;
+        ContentStack.TranslationY = 30;
+        FooterStack.TranslationY = 30;
 
-            // Refresh profile display now that we have character data
-            var user = _accountService.GetCurrentUser();
-            if (user != null)
-            {
-                UpdateProfileDisplay(user.SelectedCharacterId);
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"LoadCharacters Error: {ex.Message}");
-            
-            // Production improvement: Notify user but keep app running with mocks
-            await DisplayAlert("Error de Conexión", "No hemos podido contactar con el reino. Usando héroes de reserva por ahora.", "Vale");
-            
-            Characters.Clear();
-            AddMockCharacters();
+        // 1. Aparece el perfil (desde arriba)
+        await Task.WhenAll(
+            ProfileSection.FadeTo(1, 450, Easing.CubicOut),
+            ProfileSection.TranslateTo(0, 0, 450, Easing.CubicOut)
+        );
 
-            var user = _accountService.GetCurrentUser();
-            if (user != null) UpdateProfileDisplay(user.SelectedCharacterId);
-        }
-        
-        CharactersCollection.ItemsSource = Characters;
+        // 2. Aparece el contenido y el pie (desde abajo)
+        await Task.WhenAll(
+            ContentStack.FadeTo(1, 400, Easing.CubicOut),
+            ContentStack.TranslateTo(0, 0, 400, Easing.CubicOut),
+            FooterStack.FadeTo(1, 400, Easing.CubicOut),
+            FooterStack.TranslateTo(0, 0, 400, Easing.CubicOut)
+        );
     }
 
-    private void AddMockCharacters()
-    {
-        Characters.Add(new Character { Id = "barbarian", Name = "Barbarian", ImageUrl = "char_placeholder" });
-        Characters.Add(new Character { Id = "rogue", Name = "Rogue", ImageUrl = "char_placeholder" });
-        Characters.Add(new Character { Id = "knight", Name = "Knight", ImageUrl = "char_placeholder" });
-    }
-
-    private async void OnCharacterSelected(object sender, TappedEventArgs e)
-    {
-        if (e.Parameter is Character character)
-        {
-            Debug.WriteLine($"[MainMenu] Personaje seleccionado mediante Tap: {character.Id}");
-            
-            // Close the carousel
-            CharacterSelectionLayout.IsVisible = false;
-            
-            // Update UI
-            ProfileImage.Source = character.ImageUrl;
-            CharacterNameLabel.Text = character.Name;
-            
-            // Update User Service & DB
-            var currentUser = _accountService.GetCurrentUser();
-            if (currentUser != null)
-            {
-                currentUser.SelectedCharacterId = character.Id; 
-                await _accountService.UpdateUser(currentUser);
-
-                // Real-time Sync via TCP
-                if (_connection.IsConnected)
-                {
-                    string syncMessage = $"SYNC_CHAR|{currentUser.Id}|{character.Id}|{currentUser.Username}";
-                    await _connection.SendMessageAsync(syncMessage);
-                    Debug.WriteLine($"[MainMenu] Sync enviado: {syncMessage}");
-                }
-            }
-
-            // Visual feedback
-            await DisplayAlert("¡Héroe Elegido!", $"Tu destino ahora está unido a {character.Name}", "Vale");
-        }
-    }
-
+    // ── Handlers (UI-specific navigation) ─────────────────────────────────────
 
     private async void OnControllerClicked(object sender, EventArgs e)
     {
@@ -199,13 +61,7 @@ public partial class MainMenuPage : ContentPage
 
     private async void OnHistoryClicked(object sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync("HistoryPage");
-    }
-
-    private void OnProfileTapped(object sender, EventArgs e)
-    {
-        Debug.WriteLine("[MainMenu] Perfil tocado. Alternando selector...");
-        CharacterSelectionLayout.IsVisible = !CharacterSelectionLayout.IsVisible;
+        await Shell.Current.GoToAsync("//HistoryPage");
     }
 
     private async void OnJoinRoomClicked(object sender, EventArgs e)

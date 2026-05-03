@@ -5,127 +5,96 @@
              Title="Ajustes del Héroe"
              BackgroundColor="{StaticResource Background}">
     
-    <ScrollView Padding="25">
-        <VerticalStackLayout Spacing="25">
+    <ScrollView Background="{StaticResource BackgroundMesh}">
+        <VerticalStackLayout Spacing="30" Padding="25">
             <!-- Header Section -->
-            <VerticalStackLayout Spacing="5">
-                <Label Text="PERFIL DEL AVENTURERO"
+            <VerticalStackLayout Spacing="5" Margin="0,10">
+                <Label Text="AJUSTES DEL HÉROE"
                        Style="{StaticResource ModernTitle}" />
-                <Label Text="Gestiona tus datos sagrados"
-                       FontSize="13"
+                <Label Text="Configura tu identidad y conexión mágica"
+                       FontSize="14"
                        TextColor="{StaticResource TextLight}"
-                       HorizontalOptions="Center"
-                       CharacterSpacing="1"/>
+                       Opacity="0.8"/>
             </VerticalStackLayout>
             
-            <!-- Profile Form -->
-            <Border Style="{StaticResource GlassFrame}">
-                <VerticalStackLayout Spacing="15">
-                    <Label Text="Nombre Real" 
-                           FontSize="14" 
-                           TextColor="{StaticResource Secondary}" 
-                           FontAttributes="Bold" />
-                    <Entry x:Name="RealNameEntry" 
-                           Placeholder="Tu nombre mortal"
-                           Style="{StaticResource ModernEntry}" />
+            <!-- Profile Section -->
+            <Label Text="DATOS PERSONALES" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource Secondary}" CharacterSpacing="1.5" />
+            <Border Style="{StaticResource HeroCard}">
+                <VerticalStackLayout Spacing="20">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Nombre Real" FontSize="13" TextColor="{StaticResource TextLight}" Margin="5,0" />
+                        <Grid ColumnDefinitions="40, *">
+                            <Label Text="🆔" VerticalOptions="Center" HorizontalOptions="Center" FontSize="18"/>
+                            <Entry Grid.Column="1" x:Name="RealNameEntry" Placeholder="Tu nombre" Style="{StaticResource ModernEntry}" />
+                        </Grid>
+                    </VerticalStackLayout>
 
-                    <Label Text="Nombre de Usuario" 
-                           FontSize="14" 
-                           TextColor="{StaticResource Secondary}" 
-                           FontAttributes="Bold" />
-                    <Entry x:Name="UsernameEntry" 
-                           Placeholder="@hero"
-                           Style="{StaticResource ModernEntry}" />
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Nombre de Usuario" FontSize="13" TextColor="{StaticResource TextLight}" Margin="5,0" />
+                        <Grid ColumnDefinitions="40, *">
+                            <Label Text="👤" VerticalOptions="Center" HorizontalOptions="Center" FontSize="18"/>
+                            <Entry Grid.Column="1" x:Name="UsernameEntry" Placeholder="@alias" Style="{StaticResource ModernEntry}" />
+                        </Grid>
+                    </VerticalStackLayout>
                     
-                    <Label Text="Correo Mágico" 
-                           FontSize="14" 
-                           TextColor="{StaticResource Secondary}" 
-                           FontAttributes="Bold" />
-                    <Entry x:Name="EmailEntry" 
-                           Placeholder="tu@correo.com"
-                           Keyboard="Email"
-                           Style="{StaticResource ModernEntry}" />
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Correo Mágico" FontSize="13" TextColor="{StaticResource TextLight}" Margin="5,0" />
+                        <Grid ColumnDefinitions="40, *">
+                            <Label Text="📧" VerticalOptions="Center" HorizontalOptions="Center" FontSize="18"/>
+                            <Entry Grid.Column="1" x:Name="EmailEntry" Placeholder="correo@ejemplo.com" Keyboard="Email" Style="{StaticResource ModernEntry}" />
+                        </Grid>
+                    </VerticalStackLayout>
                 </VerticalStackLayout>
             </Border>
 
             <!-- Security Section -->
-            <Label Text="SEGURIDAD"
-                   FontSize="16"
-                   FontAttributes="Bold"
-                   TextColor="{StaticResource Tertiary}" 
-                   CharacterSpacing="1"/>
-            
-            <Border Style="{StaticResource GlassFrame}">
-                <VerticalStackLayout Spacing="15">
-                    <Label Text="Nueva Contraseña" 
-                           FontSize="14" 
-                           TextColor="{StaticResource Secondary}" 
-                           FontAttributes="Bold" />
-                    <Entry x:Name="NewPasswordEntry" 
-                           Placeholder="Dejar en blanco para no cambiar"
-                           IsPassword="True"
-                           Style="{StaticResource ModernEntry}" />
-                </VerticalStackLayout>
-            </Border>
-
-            <!-- Preferences Section -->
-            <Label Text="PREFERENCIAS"
-                   FontSize="16"
-                   FontAttributes="Bold"
-                   TextColor="{StaticResource Tertiary}"
-                   CharacterSpacing="1"/>
-            
+            <Label Text="SEGURIDAD" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource Secondary}" CharacterSpacing="1.5" />
             <Border Style="{StaticResource GlassFrame}">
                 <VerticalStackLayout Spacing="20">
-                    <Grid ColumnDefinitions="*, Auto">
-                        <Label Text="Mantener Sesión (30 días)" VerticalOptions="Center" TextColor="{StaticResource TextMain}" />
-                        <Switch x:Name="PersistenceSwitch" Grid.Column="1" IsToggled="True" OnColor="{StaticResource Secondary}" />
-                    </Grid>
-                    
-                    <Grid ColumnDefinitions="*, Auto">
-                        <Label Text="Vibración en Mando" VerticalOptions="Center" TextColor="{StaticResource TextMain}" />
-                        <Switch IsToggled="True" Grid.Column="1" OnColor="{StaticResource Secondary}" />
-                    </Grid>
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Nueva Contraseña" FontSize="13" TextColor="{StaticResource TextLight}" Margin="5,0" />
+                        <Grid ColumnDefinitions="40, *">
+                            <Label Text="🔒" VerticalOptions="Center" HorizontalOptions="Center" FontSize="18"/>
+                            <Entry Grid.Column="1" x:Name="NewPasswordEntry" Placeholder="••••••••" IsPassword="True" Style="{StaticResource ModernEntry}" />
+                        </Grid>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Confirmar Contraseña" FontSize="13" TextColor="{StaticResource TextLight}" Margin="5,0" />
+                        <Grid ColumnDefinitions="40, *">
+                            <Label Text="🔄" VerticalOptions="Center" HorizontalOptions="Center" FontSize="18"/>
+                            <Entry Grid.Column="1" x:Name="ConfirmNewPasswordEntry" Placeholder="••••••••" IsPassword="True" Style="{StaticResource ModernEntry}" />
+                        </Grid>
+                    </VerticalStackLayout>
                 </VerticalStackLayout>
             </Border>
 
             <!-- Networking Section -->
-            <Label Text="CONFIGURACIÓN DE RED"
-                   FontSize="16"
-                   FontAttributes="Bold"
-                   TextColor="{StaticResource Tertiary}"
-                   CharacterSpacing="1"/>
-
+            <Label Text="CONEXIÓN CON UNITY" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource Secondary}" CharacterSpacing="1.5" />
             <Border Style="{StaticResource GlassFrame}">
-                <VerticalStackLayout Spacing="15">
-                    <Label Text="Dirección IP del Juego" 
-                           FontSize="14" 
-                           TextColor="{StaticResource Secondary}" 
-                           FontAttributes="Bold" />
-                    <Entry x:Name="ServerIpEntry" 
-                           Placeholder="localhost o 127.0.0.1"
-                           Style="{StaticResource ModernEntry}" />
+                <VerticalStackLayout Spacing="20">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="IP del Servidor" FontSize="13" TextColor="{StaticResource TextLight}" Margin="5,0" />
+                        <Grid ColumnDefinitions="40, *">
+                            <Label Text="🌐" VerticalOptions="Center" HorizontalOptions="Center" FontSize="18"/>
+                            <Entry Grid.Column="1" x:Name="ServerIpEntry" Placeholder="127.0.0.1" Style="{StaticResource ModernEntry}" />
+                        </Grid>
+                    </VerticalStackLayout>
 
-                    <Label Text="Puerto del Servidor" 
-                           FontSize="14" 
-                           TextColor="{StaticResource Secondary}" 
-                           FontAttributes="Bold" />
-                    <Entry x:Name="ServerPortEntry" 
-                           Placeholder="11000"
-                           Keyboard="Numeric"
-                           Style="{StaticResource ModernEntry}" />
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Puerto" FontSize="13" TextColor="{StaticResource TextLight}" Margin="5,0" />
+                        <Grid ColumnDefinitions="40, *">
+                            <Label Text="🔌" VerticalOptions="Center" HorizontalOptions="Center" FontSize="18"/>
+                            <Entry Grid.Column="1" x:Name="ServerPortEntry" Placeholder="11000" Keyboard="Numeric" Style="{StaticResource ModernEntry}" />
+                        </Grid>
+                    </VerticalStackLayout>
                 </VerticalStackLayout>
             </Border>
 
             <!-- Actions -->
-            <VerticalStackLayout Spacing="12" Margin="0,10,0,0">
-                <Button Text="GUARDAR CAMBIOS"
-                        Style="{StaticResource ModernButton}"
-                        Clicked="OnSaveClicked" />
-                
-                <Button Text="VOLVER"
-                        Style="{StaticResource SecondaryButton}"
-                        Clicked="OnBackClicked" />
+            <VerticalStackLayout Spacing="15" Margin="0,10,0,30">
+                <Button Text="GUARDAR CAMBIOS" Style="{StaticResource ModernButton}" Clicked="OnSaveClicked" />
+                <Button Text="CANCELAR" Style="{StaticResource SecondaryButton}" Clicked="OnBackClicked" />
             </VerticalStackLayout>
         </VerticalStackLayout>
     </ScrollView>

@@ -1,56 +1,44 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ChibitsLink.main.cs.exception;
 using ChibitsLink.main.cs.model;
+using ChibitsLink.main.repository.interfaces;
 
 namespace ChibitsLink.main.cs.service;
 
 /// <summary>
 /// Gestiona la lógica relacionada con las salas de juego (lobbies) y los juegos disponibles.
+/// Refactorizado para usar repositorios modulares (Fase 2).
 /// </summary>
 public class GameService
 {
-    private readonly ChibitsLink.main.repository.Database _db;
+    private readonly ILobbyRepository _lobbyRepo;
+    private readonly IMasterDataRepository _masterRepo;
+    private readonly IUserRepository _userRepo;
 
-    public GameService(ChibitsLink.main.repository.Database db)
+    public GameService(ILobbyRepository lobbyRepo, IMasterDataRepository masterRepo, IUserRepository userRepo)
     {
-        _db = db;
+        _lobbyRepo = lobbyRepo;
+        _masterRepo = masterRepo;
+        _userRepo = userRepo;
     }
 
     /// <summary>
     /// Recupera la lista de juegos disponibles desde Firestore.
-    /// Lanza <see cref="DatabaseException"/> si hay un error de comunicación.
     /// </summary>
     public async Task<List<Game>> GetAvailableGames()
     {
-        try
-        {
-            return await _db.GetAvailableGames();
-        }
-        catch (DatabaseException)
-        {
-            throw;
-        }
+        return await _masterRepo.GetGamesAsync();
     }
 
     /// <summary>
     /// Valida si una sala de juego con el código indicado existe en Firestore.
     /// </summary>
-    /// <param name="roomCode">Código de sala de 6 caracteres.</param>
-    /// <returns>True si la sala existe; false en caso contrario.</returns>
     public async Task<bool> ValidateLobbyAsync(string roomCode)
     {
-        if (string.IsNullOrWhiteSpace(roomCode))
-            return false;
-
-        try
-        {
-            return await _db.CheckLobbyExistsAsync(roomCode);
-        }
-        catch (DatabaseException)
-        {
-            throw;
-        }
+        if (string.IsNullOrWhiteSpace(roomCode)) return false;
+        return await _lobbyRepo.ExistsAsync(roomCode);
     }
 
     /// <summary>
@@ -58,14 +46,7 @@ public class GameService
     /// </summary>
     public async Task<List<Character>> GetCharacters()
     {
-        try
-        {
-            return await _db.GetCharacters();
-        }
-        catch (DatabaseException)
-        {
-            throw;
-        }
+        return await _masterRepo.GetCharactersAsync();
     }
 
     /// <summary>
@@ -73,7 +54,7 @@ public class GameService
     /// </summary>
     public IDisposable ListenToLobby(string roomCode, Action<Party?> onChanged)
     {
-        return _db.ListenAsync<Party>("parties", roomCode, onChanged);
+        return _lobbyRepo.ListenToParty(roomCode, onChanged);
     }
 
     /// <summary>
@@ -83,11 +64,19 @@ public class GameService
     {
         try
         {
-            await _db.JoinLobbyAsync(userId, roomCode);
+            await _userRepo.AddToHistoryAsync(userId, roomCode);
         }
         catch (DatabaseException ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error al registrar participación: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[GameService] Error al registrar participación: {ex.Message}");
         }
+    }
+
+    /// <summary>
+    /// Cambia el estado de preparación de un jugador en la sala.
+    /// </summary>
+    public async Task ToggleReadyAsync(string roomCode, string userId, bool isReady)
+    {
+        await _lobbyRepo.ToggleReadyAsync(roomCode, userId, isReady);
     }
 }

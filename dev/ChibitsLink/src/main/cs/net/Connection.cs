@@ -1,4 +1,4 @@
-﻿namespace ChibitsLink.main.cs.net;
+namespace ChibitsLink.main.cs.net;
 
 using System;
 using System.Linq;
@@ -42,10 +42,11 @@ public class Connection
         if (_isConnecting || (_tcpClient?.Connected ?? false)) return;
         _isConnecting = true;
 
+        string finalHost = host ?? Microsoft.Maui.Storage.Preferences.Get("pref_server_ip", "127.0.0.1");
+        int finalPort = port ?? Microsoft.Maui.Storage.Preferences.Get("pref_server_port", 11000);
+
         try
         {
-            string finalHost = host ?? Microsoft.Maui.Storage.Preferences.Get("pref_server_ip", "127.0.0.1");
-            int finalPort = port ?? Microsoft.Maui.Storage.Preferences.Get("pref_server_port", 11000);
 
             _tcpClient = new System.Net.Sockets.TcpClient();
             _cts = new CancellationTokenSource();
@@ -59,7 +60,7 @@ public class Connection
         {
             System.Diagnostics.Debug.WriteLine($"TCP Connection Error: {ex.Message}");
             _isConnecting = false;
-            throw;
+            throw new ChibitsLink.main.cs.exception.NetworkException($"Error al conectar con la sala ({finalHost}:{finalPort}). Revisa tu conexión Wi-Fi.", ex);
         }
         finally
         {
@@ -120,11 +121,14 @@ public class Connection
 
     public async Task DisconnectAsync()
     {
-        _cts?.Cancel();
+        if (_cts != null)
+        {
+            try { _cts.Cancel(); } catch { }
+        }
 
         if (_webSocket != null && _webSocket.State == WebSocketState.Open)
         {
-            await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Disconnected by user", CancellationToken.None);
+            try { await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Disconnected by user", CancellationToken.None); } catch { }
             _webSocket.Dispose();
             _webSocket = null;
         }
@@ -137,32 +141,65 @@ public class Connection
             _tcpClient = null;
         }
 
-        _cts?.Dispose();
+        if (_cts != null)
+        {
+            try { _cts.Dispose(); } catch { }
+            _cts = null;
+        }
     }
 
     private async Task ReceiveTcpLoop()
     {
         var buffer = new byte[4096];
-        while (_tcpClient != null && _tcpClient.Connected && _tcpStream != null)
+        var sb = new StringBuilder();
+        try
         {
-            try
+            while (true)
             {
-                int bytesRead = await _tcpStream.ReadAsync(buffer, 0, buffer.Length, _cts?.Token ?? CancellationToken.None);
+                var client = _tcpClient;
+                var stream = _tcpStream;
+                if (client == null || !client.Connected || stream == null) break;
+
+                int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, _cts?.Token ?? CancellationToken.None);
                 if (bytesRead == 0) break;
 
-                var message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                ProcessReceivedMessage(message);
+                var chunk = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                sb.Append(chunk);
+
+                string data = sb.ToString();
+                int newlineIndex;
+                while ((newlineIndex = data.IndexOf('\n')) >= 0)
+                {
+                    string msg = data.Substring(0, newlineIndex).Trim('\r');
+                    data = data.Substring(newlineIndex + 1);
+                    if (!string.IsNullOrWhiteSpace(msg))
+                    {
+                        ProcessReceivedMessage(msg);
+                    }
+                }
+                sb.Clear();
+                sb.Append(data);
             }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"TCP Receive Exception: {ex.Message}");
-                break;
-            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"TCP Receive Exception: {ex.Message}");
         }
         
         StopHeartbeat();
         
-        if (_tcpClient != null) // If still not null but loop ended, it's an unexpected drop
+        // Evitar lanzar el evento si la desconexión fue intencionada (ej. llamada a DisconnectAsync)
+        bool wasCancelled = false;
+        try 
+        {
+            wasCancelled = _cts?.IsCancellationRequested ?? false;
+        }
+        catch (ObjectDisposedException) 
+        {
+            wasCancelled = true; // Si está disposed, es que se llamó a DisconnectAsync
+        }
+
+        if (_tcpClient != null && !wasCancelled)
         {
             Disconnected?.Invoke();
         }
@@ -171,24 +208,36 @@ public class Connection
     private async Task ReceiveWebSocketLoop()
     {
         var buffer = new byte[4096];
-        while (_webSocket != null && _webSocket.State == WebSocketState.Open)
+        try
         {
-            try 
+            while (true)
             {
-                var result = await _webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), _cts?.Token ?? CancellationToken.None);
+                var ws = _webSocket;
+                if (ws == null || ws.State != WebSocketState.Open) break;
+
+                var result = await ws.ReceiveAsync(new ArraySegment<byte>(buffer), _cts?.Token ?? CancellationToken.None);
                 if (result.MessageType == WebSocketMessageType.Close) break;
                 
                 var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
                 ProcessReceivedMessage(message);
             }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"WebSocket Receive Exception: {ex.Message}");
-                break;
-            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"WebSocket Receive Exception: {ex.Message}");
         }
 
-        if (_webSocket != null && _webSocket.State != WebSocketState.Closed)
+        bool wasCancelled = false;
+        try 
+        {
+            wasCancelled = _cts?.IsCancellationRequested ?? false;
+        }
+        catch (ObjectDisposedException) 
+        {
+            wasCancelled = true; // Si está disposed, es que se llamó a DisconnectAsync
+        }
+
+        if (_webSocket != null && _webSocket.State != WebSocketState.Closed && !wasCancelled)
         {
             Disconnected?.Invoke();
         }

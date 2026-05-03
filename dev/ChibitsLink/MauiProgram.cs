@@ -5,6 +5,9 @@ using ChibitsLink.main.cs.service;
 using ChibitsLink.main.cs.net;
 using ChibitsLink.main.cs.view;
 using ChibitsLink.main.cs.controller;
+using ChibitsLink.main.cs.viewmodel;
+using ChibitsLink.main.repository;
+using ChibitsLink.main.repository.interfaces;
 
 namespace ChibitsLink;
 
@@ -27,9 +30,11 @@ public static class MauiProgram
 #endif
 
         // Repositories
-        builder.Services.AddSingleton<ChibitsLink.main.repository.FirebaseConnection>();
-        builder.Services.AddSingleton<ChibitsLink.main.repository.Database>();
-        builder.Services.AddSingleton<ChibitsLink.main.repository.DatabaseSeeder>();
+        builder.Services.AddSingleton<FirebaseConnection>();
+        builder.Services.AddSingleton<IUserRepository, UserRepository>();
+        builder.Services.AddSingleton<ILobbyRepository, LobbyRepository>();
+        builder.Services.AddSingleton<IMasterDataRepository, MasterDataRepository>();
+        builder.Services.AddSingleton<DatabaseSeeder>();
 
         // Services
         builder.Services.AddSingleton<ChibitsLink.main.cs.net.Connection>();
@@ -52,6 +57,14 @@ public static class MauiProgram
         builder.Services.AddTransient<JoinRoomPage>();
         builder.Services.AddTransient<LobbyPage>();
         builder.Services.AddTransient<HistoryPage>();
+
+        // ViewModels
+        builder.Services.AddTransient<MainMenuViewModel>();
+        builder.Services.AddTransient<HistoryViewModel>();
+        builder.Services.AddTransient<LoginPageViewModel>();
+        builder.Services.AddTransient<RegisterPageViewModel>();
+        builder.Services.AddTransient<JoinRoomViewModel>();
+        builder.Services.AddTransient<LobbyViewModel>();
 
         // Controllers (Services for the pages)
         builder.Services.AddSingleton<AccountController>();

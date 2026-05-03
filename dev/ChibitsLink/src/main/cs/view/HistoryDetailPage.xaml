@@ -1,73 +1,96 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:view="clr-namespace:ChibitsLink.main.cs.view"
              x:Class="ChibitsLink.main.cs.view.HistoryDetailPage"
-             Title="Relato de Batalla"
-             BackgroundColor="{StaticResource Background}">
+             Title="Crónica de Batalla"
+             BackgroundColor="{StaticResource Background}"> <!-- Fondo cálido claro -->
 
-    <Grid RowDefinitions="Auto, Auto, *" Padding="20,30,20,20" RowSpacing="10">
+    <Grid RowDefinitions="Auto, *, Auto" Padding="0">
+        
+        <!-- Header con tema claro -->
+        <Border Grid.Row="0" Margin="0" Padding="20,40,20,30" BackgroundColor="{StaticResource Surface}" StrokeThickness="0">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="0,0,30,30" />
+            </Border.StrokeShape>
+            <Border.Shadow>
+                <Shadow Brush="#000000" Offset="0,4" Radius="12" Opacity="0.05" />
+            </Border.Shadow>
+            <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                <Label Text="CRÓNICA DE BATALLA" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Secondary}" HorizontalOptions="Center" CharacterSpacing="2"/>
+                <Label x:Name="RoomLabel" Text="SALA #" FontFamily="FredokaBold" FontSize="36" HorizontalOptions="Center" TextColor="{StaticResource Primary}"/>
+                <Label x:Name="DateLabel" Text="..." FontSize="12" TextColor="{StaticResource TextLight}" HorizontalOptions="Center" Opacity="0.8"/>
+            </VerticalStackLayout>
+        </Border>
 
-        <!-- ── Header ── -->
-        <VerticalStackLayout Grid.Row="0" Spacing="8">
-            <Label x:Name="RoomLabel"
-                   Text="SALA #"
-                   FontSize="26"
-                   FontAttributes="Bold"
-                   CharacterSpacing="2"
-                   HorizontalOptions="Center"
-                   TextColor="{StaticResource Secondary}"/>
+        <!-- Main Content -->
+        <Grid Grid.Row="1" Padding="20">
+            <ActivityIndicator x:Name="LoadingIndicator" IsRunning="True" Color="{StaticResource Primary}" HorizontalOptions="Center" VerticalOptions="Center"/>
+            
+            <!-- Empty State (Se muestra si no hay jugadores) -->
+            <VerticalStackLayout x:Name="EmptyStateView" IsVisible="False" VerticalOptions="Center" HorizontalOptions="Center" Spacing="15" Opacity="0.7">
+                <Label Text="👻" FontSize="60" HorizontalOptions="Center" />
+                <Label Text="SALA FANTASMA" FontFamily="FredokaBold" FontSize="20" TextColor="{StaticResource TextMain}" HorizontalOptions="Center"/>
+                <Label Text="El servidor se cerró sin registrar héroes." FontSize="14" TextColor="{StaticResource TextLight}" HorizontalOptions="Center"/>
+            </VerticalStackLayout>
 
-            <Border Style="{StaticResource GlassFrame}"
-                    HorizontalOptions="Center"
-                    Padding="14,5">
-                <Label x:Name="DateLabel"
-                       Text="..."
-                       FontSize="13"
-                       FontAttributes="Bold"
-                       TextColor="{StaticResource TextMain}"/>
-            </Border>
+            <ListView x:Name="PlayersListView" 
+                      IsVisible="False" 
+                      SeparatorVisibility="None" 
+                      HasUnevenRows="True"
+                      SelectionMode="None"
+                      BackgroundColor="Transparent">
+                
+                <ListView.Header>
+                    <VerticalStackLayout Spacing="15" Margin="0,10,0,15">
+                        <Label Text="HÉROES DEL SOFÁ" HorizontalOptions="Center" FontAttributes="Bold" FontSize="12" CharacterSpacing="2" TextColor="{StaticResource Primary}"/>
+                    </VerticalStackLayout>
+                </ListView.Header>
 
-            <!-- Juegos jugados -->
-            <Label x:Name="GamesLabel"
-                   Text="Cargando..."
-                   FontSize="12"
-                   TextColor="{StaticResource TextLight}"
-                   HorizontalOptions="Center"
-                   HorizontalTextAlignment="Center"
-                   CharacterSpacing="0.5"/>
-        </VerticalStackLayout>
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="view:HistoryPlayerItem">
+                        <ViewCell>
+                            <!-- Tarjeta Estilo Claro (GlassFrame) -->
+                            <Border Style="{StaticResource GlassFrame}" Margin="0,6" Padding="15">
+                                <Grid ColumnDefinitions="40, 55, *, Auto" ColumnSpacing="15" VerticalOptions="Center">
+                                    
+                                    <!-- Rank -->
+                                    <Label Text="{Binding RankDisplay}" FontSize="24" FontAttributes="Bold" TextColor="{StaticResource TextMain}" VerticalOptions="Center" HorizontalOptions="Center"/>
+                                    
+                                    <!-- Avatar -->
+                                    <Border Grid.Column="1" WidthRequest="50" HeightRequest="50" Stroke="{Binding RankColor}" StrokeThickness="2" BackgroundColor="{StaticResource Surface}">
+                                        <Border.StrokeShape><Ellipse/></Border.StrokeShape>
+                                        <Image Source="{Binding CharacterImage}" Aspect="AspectFill"/>
+                                    </Border>
 
-        <!-- ── Separador ── -->
-        <BoxView Grid.Row="1"
-                 HeightRequest="1"
-                 BackgroundColor="{StaticResource Primary}"
-                 Opacity="0.4"
-                 Margin="0,4"/>
+                                    <!-- Name & Level -->
+                                    <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="2">
+                                        <Label Text="{Binding Name}" FontFamily="FredokaBold" FontSize="16" TextColor="{StaticResource TextMain}"/>
+                                        <Label Text="{Binding LevelDisplay}" FontSize="11" TextColor="{StaticResource Secondary}" FontAttributes="Bold"/>
+                                    </VerticalStackLayout>
 
-        <!-- ── Contenido: loader + lista ── -->
-        <Grid Grid.Row="2">
-            <!-- Spinner -->
-            <ActivityIndicator x:Name="LoadingIndicator"
-                               IsRunning="True"
-                               IsVisible="True"
-                               Color="{StaticResource Secondary}"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center"
-                               WidthRequest="48" HeightRequest="48"/>
+                                    <!-- Score Badge -->
+                                    <Border Grid.Column="3" Padding="12,6" BackgroundColor="{Binding RankColor}" VerticalOptions="Center">
+                                        <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
+                                        <Label Text="{Binding ScoreDisplay}" FontAttributes="Bold" FontSize="13" TextColor="White"/>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
 
-            <!-- Lista de jugadores + botón cerrar -->
-            <ScrollView x:Name="ContentScrollView" IsVisible="False">
-                <VerticalStackLayout Spacing="0">
-
-                    <VerticalStackLayout x:Name="PlayersList" Spacing="4"/>
-
-                    <Button Text="CERRAR"
-                            Clicked="OnCloseClicked"
-                            Margin="0,24,0,0"
-                            Style="{StaticResource SecondaryButton}"/>
-                </VerticalStackLayout>
-            </ScrollView>
+                <ListView.Footer>
+                    <VerticalStackLayout Spacing="15" Margin="0,30,0,20">
+                        <BoxView HeightRequest="1" Color="{StaticResource TextLight}" Opacity="0.1" Margin="40,0"/>
+                        <Label Text="BATALLAS LIBRADAS" HorizontalOptions="Center" FontAttributes="Bold" FontSize="12" CharacterSpacing="2" TextColor="{StaticResource Primary}"/>
+                        <FlexLayout x:Name="GamesFlexList" Wrap="Wrap" JustifyContent="Center" AlignContent="Center" Direction="Row" />
+                    </VerticalStackLayout>
+                </ListView.Footer>
+            </ListView>
         </Grid>
 
+        <!-- Action Button -->
+        <Button Grid.Row="2" Text="CERRAR CRÓNICA" Clicked="OnCloseClicked" Style="{StaticResource SecondaryButton}" Margin="20,0,20,30" HeightRequest="55" CornerRadius="27" FontAttributes="Bold"/>
     </Grid>
 </ContentPage>

@@ -1,3 +1,11 @@
+C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\bin\Release\net8.0-android\android-arm64\ChibitsLink.runtimeconfig.json
+C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\bin\Release\net8.0-android\android-arm64\ChibitsLink.dll
+C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\bin\Release\net8.0-android\android-arm64\ChibitsLink.pdb
+C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\bin\Release\net8.0-android\android-arm64\com.companyname.chibitslink.apk
+C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\bin\Release\net8.0-android\android-arm64\com.companyname.chibitslink.aab
+C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\bin\Release\net8.0-android\android-arm64\com.companyname.chibitslink-Signed.aab
+C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\bin\Release\net8.0-android\android-arm64\com.companyname.chibitslink-Signed.apk
+C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\bin\Release\net8.0-android\android-arm64\com.companyname.chibitslink-Signed.apk.idsig
 C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\obj\Release\net8.0-android\android-arm64\.NETCoreApp,Version=v8.0.AssemblyAttributes.cs
 C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\obj\Release\net8.0-android\android-arm64\build.props
 C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\obj\Release\net8.0-android\android-arm64\adb.props
@@ -116,14 +124,6 @@ C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\
 C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\obj\Release\net8.0-android\android-arm64\ChibitsLink.AssemblyInfo.cs
 C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\obj\Release\net8.0-android\android-arm64\ChibitsLink.csproj.CoreCompileInputs.cache
 C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\obj\Release\net8.0-android\android-arm64\ChibitsLink.sourcelink.json
-C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\bin\Release\net8.0-android\android-arm64\ChibitsLink.runtimeconfig.json
-C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\bin\Release\net8.0-android\android-arm64\ChibitsLink.dll
-C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\bin\Release\net8.0-android\android-arm64\ChibitsLink.pdb
-C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\bin\Release\net8.0-android\android-arm64\com.companyname.chibitslink.apk
-C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\bin\Release\net8.0-android\android-arm64\com.companyname.chibitslink.aab
-C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\bin\Release\net8.0-android\android-arm64\com.companyname.chibitslink-Signed.aab
-C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\bin\Release\net8.0-android\android-arm64\com.companyname.chibitslink-Signed.apk
-C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\bin\Release\net8.0-android\android-arm64\com.companyname.chibitslink-Signed.apk.idsig
 C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\obj\Release\net8.0-android\android-arm64\XamlC.stamp
 C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\obj\Release\net8.0-android\android-arm64\ChibitsLink.dll
 C:\Users\adris\Desktop\asimanHUD - menucustom\ChirbitsLink-REPO\dev\ChibitsLink\obj\Release\net8.0-android\android-arm64\ChibitsLink.pdb

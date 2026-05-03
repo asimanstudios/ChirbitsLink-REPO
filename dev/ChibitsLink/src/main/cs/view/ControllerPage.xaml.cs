@@ -26,8 +26,7 @@ public partial class ControllerPage : ContentPage
     private readonly IOrientationService? _orientationService;
     private double _baseX, _baseY;
 
-    public event Action<float, float>? OnJoystickMoved;
-    public event Action<string>? OnButtonPressed;
+
 
     public ControllerPage(ControllerController controller, Connection connection, AccountService accountService, IOrientationService? orientationService = null)
     {

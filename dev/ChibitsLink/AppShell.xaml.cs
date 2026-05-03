@@ -9,16 +9,11 @@ public partial class AppShell : Shell
 		InitializeComponent();
 
         Routing.RegisterRoute("RegisterPage", typeof(RegisterPage));
-        Routing.RegisterRoute("JoinRoomPage", typeof(JoinRoomPage));
-        Routing.RegisterRoute("LobbyPage", typeof(LobbyPage));
-        Routing.RegisterRoute("HistoryPage", typeof(HistoryPage));
 	}
 
     public void UpdateHeader(string username)
     {
-        if (FlyoutUsernameLabel != null)
-        {
-            FlyoutUsernameLabel.Text = username.ToUpper();
-        }
+        // La cabecera visual del menú lateral fue eliminada.
+        // Se mantiene el método vacío por si otras clases lo llaman (ej: tras hacer Login).
     }
 }

@@ -2,48 +2,30 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ChibitsLink.main.cs.model;
+using ChibitsLink.main.repository.interfaces;
 
 namespace ChibitsLink.main.repository;
 
 /// <summary>
-/// Class responsible for seeding the database with initial data.
+/// Clase responsable de poblar la base de datos con datos iniciales.
+/// Refactorizado para usar interfaces de repositorio (Fase 2).
 /// </summary>
 public class DatabaseSeeder
 {
-    private readonly Database _database;
+    private readonly IMasterDataRepository _masterRepo;
 
-    public DatabaseSeeder(Database database)
+    public DatabaseSeeder(IMasterDataRepository masterRepo)
     {
-        _database = database;
+        _masterRepo = masterRepo;
     }
 
     /// <summary>
-    /// Executes the full database seeding.
+    /// Ejecuta el sembrado completo.
     /// </summary>
     public async Task SeedAllAsync()
     {
-        await SeedCharactersAsync();
+        await _masterRepo.InitializeCharactersAsync();
         await SeedGamesAsync();
-    }
-
-    /// <summary>
-    /// Seeds the characters collection.
-    /// </summary>
-    public async Task SeedCharactersAsync()
-    {
-        var characters = new List<Character>
-        {
-            new Character { Id = "VALIENTE",    Name = "Valiente",    Description = "Guerrero audaz, fuerte en combate cuerpo a cuerpo.",   ImageUrl = "char_placeholder" },
-            new Character { Id = "MAGO",        Name = "Mago",        Description = "Maestro de las artes arcanas, poder mágico superior.", ImageUrl = "char_placeholder" },
-            new Character { Id = "EXPLORADOR",  Name = "Explorador",  Description = "Rápido y sigiloso, experto en movimiento y evasión.",  ImageUrl = "char_placeholder" },
-            new Character { Id = "CURADORA",    Name = "Curadora",    Description = "Especialista en sanación y apoyo al equipo.",          ImageUrl = "char_placeholder" },
-            new Character { Id = "TANQUE",      Name = "Tanque",      Description = "Defensa impenetrable, capaz de absorber mucho daño.",    ImageUrl = "char_placeholder" }
-        };
-
-        foreach (var c in characters)
-        {
-            await _database.StoreAsync("characters", c.Id, c);
-        }
     }
 
     /// <summary>
@@ -61,7 +43,7 @@ public class DatabaseSeeder
 
         foreach (var g in games)
         {
-            await _database.SaveGame(g);
+            await _masterRepo.SaveGameAsync(g);
         }
     }
 }

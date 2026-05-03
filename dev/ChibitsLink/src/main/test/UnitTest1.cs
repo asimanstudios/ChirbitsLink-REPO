@@ -1,41 +1,34 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ChibitsLink.main.cs.service;
 using ChibitsLink.main.cs.model;
 using ChibitsLink.main.repository;
+using ChibitsLink.main.repository.interfaces;
 
 namespace ChibitsLink.main.test;
 
 /// <summary>
 /// Pruebas unitarias manuales de los servicios principales.
-/// Para ejecutarlas en un entorno de test completo, mueve esta clase a un proyecto xUnit/MSTest independiente.
 /// </summary>
 public class GameServiceTests
 {
-    /// <summary>
-    /// Verifica que ValidateLobbyAsync devuelve false cuando se pasa una cadena vacía.
-    /// </summary>
     public static async Task ValidateLobbyAsync_ShouldReturnFalse_WhenRoomCodeIsEmpty()
     {
-        var db = new Database(null!);
-        var service = new GameService(db);
+        // Usamos null! para los repositorios en este test simple que solo valida formato
+        var service = new GameService(null!, null!, null!);
 
         bool result = await service.ValidateLobbyAsync("");
 
-        if (!result == false)
+        if (result)
             throw new Exception("FAILED: ValidateLobbyAsync debería devolver false para código vacío.");
 
         Console.WriteLine("PASSED: ValidateLobbyAsync devuelve false para código vacío.");
     }
 
-    /// <summary>
-    /// Verifica que ValidateLobbyAsync devuelve false cuando el código no tiene 6 dígitos.
-    /// </summary>
     public static async Task ValidateLobbyAsync_ShouldReturnFalse_WhenCodeTooShort()
     {
-        var db = new Database(null!);
-        var service = new GameService(db);
+        var service = new GameService(null!, null!, null!);
 
         bool result = await service.ValidateLobbyAsync("123");
 
