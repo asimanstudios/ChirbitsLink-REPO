@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChibitsLink", "ChibitsLink.csproj", "{247AC192-B375-5316-B9C9-0E332288B031}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{247AC192-B375-5316-B9C9-0E332288B031}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{247AC192-B375-5316-B9C9-0E332288B031}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{247AC192-B375-5316-B9C9-0E332288B031}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{247AC192-B375-5316-B9C9-0E332288B031}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EF936344-BE21-4A7F-A216-DBC83534EEE2}
+	EndGlobalSection
+EndGlobal
