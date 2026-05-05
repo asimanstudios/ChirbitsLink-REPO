@@ -83,4 +83,4 @@ The goal of Chirbits is to provide an accessible multiplayer gaming experience f
 
 ## Notes
 
-This project demonstrates a complete real-time multiplayer architecture including networking, mobile integration, and cloud-based backend services.
+This project demonstrates a complete real-time multiplayer architecture including networking and mobile integration.
