@@ -8,38 +8,70 @@ using ChibitsLink.Core.Exceptions;
 
 namespace ChibitsLink.UI
 {
+    /// <summary>
+    /// Gestor principal de la interfaz de usuario del lobby.
+    /// Coordina todos los componentes UI del lobby y votaciones.
+    /// </summary>
+    /// <remarks>
+    /// Maneja múltiples paneles UI y estados de conexión.
+    /// Integra con LobbyManager y TcpNetworkServer.
+    /// Proporciona interfaz para selección de red y votación de juegos.
+    /// </remarks>
     public class LobbyUIManager : MonoBehaviour
     {
-        [Header("Networking Components")]
+        [Header("Componentes de Red")]
+        /// <summary>Gestor del lobby para conexión y gestión de jugadores</summary>
         public LobbyManager lobbyManager;
+        /// <summary>Servidor TCP para comunicación con clientes móviles</summary>
         public TcpNetworkServer tcpServer;
+        /// <summary>Personajes iniciales disponibles</summary>
         public Character[] initialCharacters;
+        /// <summary>Juegos iniciales disponibles</summary>
         public Game[] initialGames;
 
-        [Header("UI Panels")]
+        [Header("Paneles UI")]
+        /// <summary>Panel de configuración inicial</summary>
         public GameObject setupPanel;
+        /// <summary>Panel principal del lobby</summary>
         public GameObject lobbyPanel;
 
-        [Header("UI Elements")]
+        [Header("Elementos UI")]
+        /// <summary>Texto para mostrar código de sala</summary>
         public TextMeshProUGUI roomCodeText;
+        /// <summary>Botón para iniciar lobby</summary>
         public Button startLobbyButton;
+        /// <summary>Botón para regresar</summary>
         public Button backButton;
+        /// <summary>Botón para salir</summary>
         public Button quitButton;
+        /// <summary>Texto para mostrar estado</summary>
         public TextMeshProUGUI statusText;
+        /// <summary>Texto para mostrar jugadores conectados</summary>
         public TextMeshProUGUI connectedPlayersText;
 
-        [Header("Network Selection")]
+        [Header("Selección de Red")]
+        /// <summary>Dropdown para seleccionar interfaz de red</summary>
         public TMP_Dropdown ipDropdown;
+        /// <summary>Lista de interfaces de red disponibles</summary>
         private List<NetworkInterfaceData> _availableInterfaces;
 
-        [Header("Voting UI")]
+        [Header("UI de Votación")]
+        /// <summary>Panel para votación de juegos</summary>
         public GameObject votingPanel;
+        /// <summary>Texto para temporizador de votación</summary>
         public TextMeshProUGUI votingTimerText;
+        /// <summary>Duración de la votación</summary>
         public float votingDuration = 15f;
 
+        /// <summary>Código de la sala actual</summary>
         private string _roomCode;
-        private bool _isVoting = false;
+        /// <summary>Indica si hay votación en progreso</summary>
+        private bool _isVoting; = false;
 
+        /// <summary>
+        /// Se ejecuta al habilitar el componente.
+        /// Refresca las interfaces de red disponibles.
+        /// </summary>
         private void OnEnable()
         {
             try
@@ -53,6 +85,10 @@ namespace ChibitsLink.UI
             }
         }
 
+        /// <summary>
+        /// Refresca la lista de interfaces de red disponibles.
+        /// Actualiza el dropdown con las interfaces detectadas.
+        /// </summary>
         public void RefreshNetworkInterfaces()
         {
             try
@@ -110,7 +146,11 @@ namespace ChibitsLink.UI
                 ipDropdown.value = bestIndex;
             }
         }
-        void Start()
+        /// <summary>
+        /// Inicialización de los listeners de botones.
+        /// Configura los eventos onClick para los botones de la UI.
+        /// </summary>
+        private void Start()
         {
             if (startLobbyButton != null)
                 startLobbyButton.onClick.AddListener(OnCreateLobby);
@@ -159,6 +199,14 @@ namespace ChibitsLink.UI
             }
         }
 
+        /// <summary>
+        /// Maneja el evento de crear lobby.
+        /// Inicia el servidor TCP y genera código de sala.
+        /// </summary>
+        /// <remarks>
+        /// Este método se ejecuta cuando el usuario pulsa el botón de crear lobby.
+        /// Inicia el servidor TCP y genera un código de sala único.
+        /// </remarks>
         private async void OnCreateLobby()
         {
             Debug.Log("[LobbyUI] Botón pulsado, iniciando proceso...");
@@ -210,6 +258,10 @@ namespace ChibitsLink.UI
             }
         }
 
+        /// <summary>
+        /// Maneja el evento de regresar al menú principal.
+        /// Detiene el servidor y regresa a la escena principal.
+        /// </summary>
         private void OnBackToMenu()
         {
             Debug.Log("[LobbyUI] Volviendo al menú. Cerrando servidor...");
@@ -236,6 +288,10 @@ namespace ChibitsLink.UI
             if (setupPanel != null) setupPanel.SetActive(true);
         }
 
+        /// <summary>
+        /// Maneja el evento de salir del juego.
+        /// Cierra la aplicación y regresa al sistema operativo.
+        /// </summary>
         private void OnQuitGame()
         {
             Debug.Log("[LobbyUI] Saliendo del juego...");
@@ -246,6 +302,10 @@ namespace ChibitsLink.UI
 #endif
         }
 
+        /// <summary>
+        /// Comienza a escuchar conexiones al lobby existente.
+        /// Activa el panel de lobby y actualiza lista de jugadores.
+        /// </summary>
         private void StartListeningToLobby()
         {
             // Nota: En una implementación ideal, LobbyManager expondría un evento.
@@ -253,6 +313,11 @@ namespace ChibitsLink.UI
             _ = MonitorLobbyState();
         }
 
+        /// <summary>
+        /// Monitorea el estado del lobby de forma asíncrona.
+        /// Consulta Firestore para detectar cambios en el estado del juego.
+        /// </summary>
+        /// <returns>Task para monitoreo asíncrono</returns>
         private async System.Threading.Tasks.Task MonitorLobbyState()
         {
             bool keepMonitoring = !string.IsNullOrEmpty(_roomCode) && !_isVoting;
@@ -281,6 +346,10 @@ namespace ChibitsLink.UI
             }
         }
 
+        /// <summary>
+        /// Inicia la cuenta regresiva para votación.
+        /// Muestra el panel de votación y temporizador.
+        /// </summary>
         private async void StartVotingCountdown()
         {
             _isVoting = true;
@@ -299,6 +368,11 @@ namespace ChibitsLink.UI
             if (mgr != null) await mgr.DecideWinnerAndStartGameAsync(_roomCode);
         }
 
+        /// <summary>
+        /// Actualiza la lista de jugadores conectados.
+        /// Muestra los nombres en la UI del lobby.
+        /// </summary>
+        /// <param name="names">Lista de nombres de jugadores conectados</param>
         public void UpdatePlayerList(List<string> names)
         {
             if (connectedPlayersText != null)

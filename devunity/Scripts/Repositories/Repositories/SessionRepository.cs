@@ -74,6 +74,13 @@ namespace ChibitsLink.Repositories
             }
         }
         
+        /// <summary>
+        /// Valida los datos de sesión.
+        /// Verifica que los valores sean válidos y no negativos.
+        /// </summary>
+        /// <param name="activePlayers">Número de jugadores activos</param>
+        /// <param name="totalPoints">Puntos totales de la sesión</param>
+        /// <exception cref="ArgumentException">Si los valores son negativos</exception>
         private void ValidateSessionData(int activePlayers, int totalPoints)
         {
             if (activePlayers < 0)
@@ -87,6 +94,11 @@ namespace ChibitsLink.Repositories
             }
         }
         
+        /// <summary>
+        /// Valida que el repositorio esté inicializado.
+        /// Verifica que se haya llamado al constructor correctamente.
+        /// </summary>
+        /// <exception cref="RepositoryNotInitializedException">Si no está inicializado</exception>
         private void ValidateRepositoryInitialized()
         {
             if (!_isInitialized)
@@ -95,6 +107,12 @@ namespace ChibitsLink.Repositories
             }
         }
         
+        /// <summary>
+        /// Valida el ID del host.
+        /// Verifica que no sea nulo o vacío.
+        /// </summary>
+        /// <param name="hostId">ID del host a validar</param>
+        /// <exception cref="ArgumentNullException">Si hostId es null o vacío</exception>
         private void ValidateHostId(string hostId)
         {
             if (string.IsNullOrEmpty(hostId))
@@ -102,6 +120,13 @@ namespace ChibitsLink.Repositories
                 throw new ArgumentNullException(nameof(hostId));
             }
         }
+        /// <summary>
+        /// Obtiene una sesión de juego de forma asíncrona.
+        /// Busca por ID de host y retorna los datos de la sesión.
+        /// </summary>
+        /// <param name="hostId">ID del host de la sesión</param>
+        /// <returns>Diccionario con datos de la sesión o null</returns>
+        /// <exception cref="SessionRetrievalException">Si falla la recuperación</exception>
         public async Task<Dictionary<string, object>> GetGameSessionAsync(string hostId)
         {
             ValidateRepositoryInitialized();

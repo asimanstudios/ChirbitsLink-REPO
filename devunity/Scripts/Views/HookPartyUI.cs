@@ -5,20 +5,41 @@ using ChibitsLink.Core.Exceptions;
 
 namespace ChibitsLink.UI.Minigames
 {
+    /// <summary>
+    /// Interfaz de usuario para el minijuego Hook Party.
+    /// Muestra HUD en juego, temporizador, puntuaciones y resultados.
+    /// Se conecta automáticamente con el gestor del juego.
+    /// </summary>
+    /// <remarks>
+    /// Maneja múltiples paneles UI (HUD y resultados).
+    /// Proporciona actualización en tiempo real de puntuaciones.
+    /// Incluye manejo de errores para componentes faltantes.
+    /// </remarks>
     public class HookPartyUI : MonoBehaviour
     {
-        [Header("HUD Components")]
+        [Header("Componentes del HUD")]
+        /// <summary>Texto del temporizador</summary>
         public TextMeshProUGUI timerText;
+        /// <summary>Texto de puntuación global</summary>
         public TextMeshProUGUI globalScoreText;
+        /// <summary>Texto de cuenta regresiva</summary>
         public TextMeshProUGUI countdownText;
+        /// <summary>Panel del HUD</summary>
         public GameObject hudPanel;
 
-        [Header("Results Screen")]
+        [Header("Pantalla de Resultados")]
+        /// <summary>Panel de resultados</summary>
         public GameObject resultsPanel;
+        /// <summary>Texto de ranking</summary>
         public TextMeshProUGUI rankingText;
 
+        /// <summary>Referencia al gestor del juego</summary>
         private HookPartyManager _gameManager;
 
+        /// <summary>
+        /// Inicialización de la UI.
+        /// Configura componentes y establece estado inicial.
+        /// </summary>
         private void Start()
         {
             try
@@ -33,6 +54,11 @@ namespace ChibitsLink.UI.Minigames
             }
         }
         
+        /// <summary>
+        /// Inicializa los componentes necesarios.
+        /// Busca el gestor del juego y valida referencias.
+        /// </summary>
+        /// <exception cref="ComponentNotFoundException">Si no se encuentra el gestor</exception>
         private void InitializeComponents()
         {
             _gameManager = HookPartyManager.Instance;
@@ -42,6 +68,10 @@ namespace ChibitsLink.UI.Minigames
             }
         }
         
+        /// <summary>
+        /// Configura el estado inicial de la UI.
+        /// Oculta paneles no necesarios al inicio.
+        /// </summary>
         private void SetupUI()
         {
             if (resultsPanel != null) 
@@ -55,6 +85,10 @@ namespace ChibitsLink.UI.Minigames
             }
         }
 
+        /// <summary>
+        /// Actualización de la UI cada frame.
+        /// Actualiza HUD y estado visual según el estado del juego.
+        /// </summary>
         private void Update()
         {
             if (_gameManager != null)
@@ -64,6 +98,10 @@ namespace ChibitsLink.UI.Minigames
             }
         }
 
+        /// <summary>
+        /// Actualiza el HUD del juego.
+        /// Muestra temporizador y puntuaciones en tiempo real.
+        /// </summary>
         private void UpdateHUD()
         {
             // Timer
@@ -79,6 +117,10 @@ namespace ChibitsLink.UI.Minigames
             UpdateRankingHUD();
         }
 
+        /// <summary>
+        /// Actualiza el HUD de puntuaciones.
+        /// Muestra ranking de jugadores con nombres y niveles.
+        /// </summary>
         private void ActualizarRankingHUD()
         {
             bool canUpdateScoreHud = textoPuntuacionGlobal != null && ScoreManager.Instance != null;
@@ -122,6 +164,10 @@ namespace ChibitsLink.UI.Minigames
             }
         }
 
+        /// <summary>
+        /// Actualiza el estado visual de la UI.
+        /// Muestra/oculta paneles según el estado del juego.
+        /// </summary>
         private void ActualizarEstadoVisual()
         {
             var gestor = HookPartyManager.Instance;
@@ -163,6 +209,10 @@ namespace ChibitsLink.UI.Minigames
             }
         }
 
+        /// <summary>
+        /// Muestra la pantalla de resultados.
+        /// Despliega ranking final y mensaje de despedida.
+        /// </summary>
         public void MostrarResultados()
         {
             bool canShowResults = panelResultados != null && ScoreManager.Instance != null;

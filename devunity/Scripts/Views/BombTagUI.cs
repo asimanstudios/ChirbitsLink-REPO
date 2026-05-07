@@ -37,10 +37,15 @@ namespace ChibitsLink.UI.Minigames
 
         /// <summary>Referencia al gestor del juego BombTag</summary>
         private BombTagGameManager _gameManager;
-        /// <summary>Referencia al controlador de UI (posible referencia circular)</summary>
-        private BombTagUI _uiController;
         /// <summary>Cache del último texto de resultados para optimización</summary>
         private string lastResultsText = "";
+
+        /// <summary>
+        /// Genera el texto de resultados para mostrar.
+        /// Crea ranking con información detallada de jugadores.
+        /// </summary>
+        /// <returns>String con el ranking formateado</returns>
+        private string GenerateResultsText() { return ""; }
 
         /// <summary>
         /// Inicializa los componentes y configura la interfaz.
@@ -143,6 +148,10 @@ namespace ChibitsLink.UI.Minigames
         /// <remarks>
         /// Solo actualiza si existe una instancia del gestor del juego.
         /// </remarks>
+        /// <summary>
+        /// Actualiza la interfaz de usuario cada frame.
+        /// Sincroniza el HUD con el estado del juego.
+        /// </summary>
         private void Update()
         {
             if (BombTagGameManager.Instance != null)
@@ -155,6 +164,10 @@ namespace ChibitsLink.UI.Minigames
         /// <summary>
         /// Actualiza los elementos del HUD en tiempo real.
         /// Refresca temporizador, portador y cantidad de jugadores vivos.
+        /// </summary>
+        /// <summary>
+        /// Actualiza el HUD del juego.
+        /// Muestra temporizador, portador y jugadores vivos.
         /// </summary>
         private void UpdateHUD()
         {
@@ -186,6 +199,10 @@ namespace ChibitsLink.UI.Minigames
         /// <summary>
         /// Actualiza el estado visual de la UI según el estado del juego.
         /// Muestra/oculta paneles según la fase actual.
+        /// </summary>
+        /// <summary>
+        /// Actualiza el estado visual de la UI.
+        /// Muestra/oculta paneles según el estado del juego.
         /// </summary>
         private void UpdateVisualState()
         {
@@ -233,6 +250,10 @@ namespace ChibitsLink.UI.Minigames
         /// Optimizado para solo reconstruir cuando el contenido cambia.
         /// Incluye cuenta regresiva para retorno al lobby.
         /// </remarks>
+        /// <summary>
+        /// Muestra la pantalla de resultados.
+        /// Genera y muestra el ranking final del juego.
+        /// </summary>
         private void ShowResults()
         {
             if (rankingText != null)

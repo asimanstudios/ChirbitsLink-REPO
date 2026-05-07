@@ -7,19 +7,40 @@ using ChibitsLink.GameSide;
 
 namespace ChibiCocina.Services
 {
+    /// <summary>
+    /// Servicio para gestión de bots jugadores.
+    /// Crea, maneja y elimina bots para testing y desarrollo.
+    /// Implementa patrón Singleton para acceso global.
+    /// </summary>
+    /// <remarks>
+    /// Utilizado para simular jugadores en modo desarrollo.
+    /// Permite testing de funcionalidades sin jugadores reales.
+    /// Se integra con PlayerManager para gestión de jugadores.
+    /// </remarks>
     public class BotService : MonoBehaviour
     {
+        /// <summary>Instancia global del servicio (patrón Singleton)</summary>
         public static BotService Instance { get; private set; }
         
         [Header("Configuración de Bots")]
+        /// <summary>Número máximo de bots permitidos</summary>
         public int maxBots = 10;
+        /// <summary>IDs de personajes por defecto para bots</summary>
         public string[] defaultCharacterIds = { "char_1", "char_2", "char_3", "char_4" };
+        /// <summary>Nivel mínimo para bots</summary>
         public int minLevel = 1;
+        /// <summary>Nivel máximo para bots</summary>
         public int maxLevel = 15;
         
+        /// <summary>Lista de bots activos</summary>
         private List<BotModel> activeBots;
+        /// <summary>Contador para IDs únicos de bots</summary>
         private int botCounter;
         
+        /// <summary>
+        /// Inicialización del servicio de bots.
+        /// Establece el patrón Singleton y configura estado inicial.
+        /// </summary>
         private void Awake()
         {
             if (Instance == null)
@@ -34,6 +55,10 @@ namespace ChibiCocina.Services
             }
         }
         
+        /// <summary>
+        /// Inicializa el servicio de bots.
+        /// Prepara listas y contadores para gestión de bots.
+        /// </summary>
         private void InitializeBotService()
         {
             activeBots = new List<BotModel>();
@@ -42,6 +67,13 @@ namespace ChibiCocina.Services
             DebugLogService.Instance?.Log(DebugModule.Player, "[BotService] Servicio inicializado");
         }
         
+        /// <summary>
+        /// Spawnea una cantidad específica de bots.
+        /// Crea bots con datos aleatorios y los registra en el sistema.
+        /// </summary>
+        /// <param name="count">Número de bots a crear</param>
+        /// <returns>Número de bots creados exitosamente</returns>
+        /// <exception cref="BotServiceException">Si hay errores en la creación</exception>
         public int SpawnBots(int count)
         {
             if (count <= 0)
@@ -81,6 +113,11 @@ namespace ChibiCocina.Services
             return spawnedCount;
         }
         
+        /// <summary>
+        /// Crea un nuevo bot con datos aleatorios.
+        /// Genera ID, nombre, personaje y nivel aleatorios.
+        /// </summary>
+        /// <returns>Nuevo modelo de bot creado</returns>
         private BotModel CreateBot()
         {
             botCounter++;
@@ -105,6 +142,11 @@ namespace ChibiCocina.Services
             return bot;
         }
         
+        /// <summary>
+        /// Obtiene un ID de personaje aleatorio.
+        /// Prioriza personajes disponibles en PlayerManager.
+        /// </summary>
+        /// <returns>ID de personaje aleatorio</returns>
         private string GetRandomCharacterId()
         {
             var availableChars = PlayerManager.Instance?.GetAllCharacterIds();
@@ -121,6 +163,11 @@ namespace ChibiCocina.Services
             return defaultCharacterIds[fallbackIndex];
         }
         
+        /// <summary>
+        /// Remueve un bot específico del sistema.
+        /// Desactiva el bot y notifica a PlayerManager.
+        /// </summary>
+        /// <param name="botId">ID del bot a remover</param>
         public void RemoveBot(string botId)
         {
             BotModel bot = FindBot(botId);
@@ -140,6 +187,10 @@ namespace ChibiCocina.Services
             }
         }
         
+        /// <summary>
+        /// Remueve todos los bots activos del sistema.
+        /// Utiliza RemoveBot para cada bot individualmente.
+        /// </summary>
         public void RemoveAllBots()
         {
             var botsToRemove = new List<BotModel>(activeBots);
@@ -152,26 +203,53 @@ namespace ChibiCocina.Services
             DebugLogService.Instance?.Log(DebugModule.Player, "Todos los bots han sido removidos");
         }
         
+        /// <summary>
+        /// Busca un bot activo por su ID.
+        /// Solo busca bots que estén activos.
+        /// </summary>
+        /// <param name="botId">ID del bot a buscar</param>
+        /// <returns>Bot encontrado o null</returns>
         public BotModel FindBot(string botId)
         {
             return activeBots.Find(bot => bot.Id == botId && bot.IsActive);
         }
         
+        /// <summary>
+        /// Obtiene la lista de bots activos.
+        /// Retorna una copia de la lista de bots activos.
+        /// </summary>
+        /// <returns>Lista de bots activos</returns>
         public List<BotModel> GetActiveBots()
         {
             return new List<BotModel>(activeBots.FindAll(bot => bot.IsActive));
         }
         
+        /// <summary>
+        /// Obtiene el número de bots activos.
+        /// </summary>
+        /// <returns>Número de bots activos</returns>
         public int GetActiveBotCount()
         {
             return activeBots.Count;
         }
         
+        /// <summary>
+        /// Verifica si un ID de jugador corresponde a un bot.
+        /// Comprueba si el ID comienza con "BOT_".
+        /// </summary>
+        /// <param name="playerId">ID del jugador a verificar</param>
+        /// <returns>True si es un bot</returns>
         public bool IsBot(string playerId)
         {
             return playerId.StartsWith("BOT_");
         }
         
+        /// <summary>
+        /// Actualiza el nivel de un bot específico.
+        /// Modifica el nivel del bot en el modelo local.
+        /// </summary>
+        /// <param name="botId">ID del bot a actualizar</param>
+        /// <param name="newLevel">Nuevo nivel del bot</param>
         public void UpdateBotLevel(string botId, int newLevel)
         {
             BotModel bot = FindBot(botId);
@@ -182,6 +260,12 @@ namespace ChibiCocina.Services
             }
         }
         
+        /// <summary>
+        /// Actualiza el personaje de un bot específico.
+        /// Modifica el ID del personaje en el modelo local.
+        /// </summary>
+        /// <param name="botId">ID del bot a actualizar</param>
+        /// <param name="newCharacterId">Nuevo ID de personaje</param>
         public void UpdateBotCharacter(string botId, string newCharacterId)
         {
             BotModel bot = FindBot(botId);
@@ -191,16 +275,4 @@ namespace ChibiCocina.Services
                 DebugLogService.Instance?.Log(DebugModule.Player, $"Bot {botId} personaje actualizado a {newCharacterId}");
             }
         }
-    }
-    
-    [System.Serializable]
-    public class BotModel
-    {
-        public string Id;
-        public string Name;
-        public string CharacterId;
-        public int Level;
-        public System.DateTime CreatedAt;
-        public bool IsActive;
-    }
 }

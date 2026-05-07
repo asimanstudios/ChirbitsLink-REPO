@@ -137,6 +137,10 @@ namespace ChibitsLink.Services.Network
             }
         }
 
+        /// <summary>
+        /// Detiene el servidor TCP.
+        /// Cierra todas las conexiones y libera recursos.
+        /// </summary>
         public void StopServer()
         {
             if (_isRunning)
@@ -170,6 +174,10 @@ namespace ChibitsLink.Services.Network
             }
         }
 
+        /// <summary>
+        /// Acepta conexiones entrantes de forma asíncrona.
+        /// Maneja cada cliente en un hilo separado.
+        /// </summary>
         private async Task AcceptConnectionsAsync()
         {
             while (_isRunning)
@@ -200,6 +208,11 @@ namespace ChibitsLink.Services.Network
             }
         }
 
+        /// <summary>
+        /// Maneja un cliente TCP de forma asíncrona.
+        /// Lee datos del stream y procesa mensajes completos.
+        /// </summary>
+        /// <param name="client">Cliente TCP a manejar</param>
         private async Task HandleClientAsync(TcpClient client)
         {
             NetworkStream stream = null;
@@ -235,6 +248,12 @@ namespace ChibitsLink.Services.Network
             }
         }
 
+        /// <summary>
+        /// Procesa los datos recibidos de un cliente.
+        /// Almacena en buffer y procesa mensajes completos separados por newline.
+        /// </summary>
+        /// <param name="client">Cliente TCP origen de los datos</param>
+        /// <param name="data">Datos recibidos del cliente</param>
         private void ProcessClientData(TcpClient client, string data)
         {
             try
@@ -269,6 +288,12 @@ namespace ChibitsLink.Services.Network
             }
         }
 
+        /// <summary>
+        /// Procesa un mensaje individual recibido.
+        /// Parsea el formato COMMAND:DATA y ejecuta el comando correspondiente.
+        /// </summary>
+        /// <param name="client">Cliente TCP que envió el mensaje</param>
+        /// <param name="message">Mensaje en formato COMMAND:DATA</param>
         private void ProcessMessage(TcpClient client, string message)
         {
             try
@@ -310,6 +335,12 @@ namespace ChibitsLink.Services.Network
             }
         }
 
+        /// <summary>
+        /// Maneja el comando de conexión de un cliente.
+        /// Parsea datos del jugador y lo registra en el sistema.
+        /// </summary>
+        /// <param name="client">Cliente TCP que se conecta</param>
+        /// <param name="data">Datos del jugador en formato JSON</param>
         private void HandleConnectCommand(TcpClient client, string data)
         {
             try
@@ -364,6 +395,12 @@ namespace ChibitsLink.Services.Network
             }
         }
 
+        /// <summary>
+        /// Maneja el comando de desconexión de un cliente.
+        /// Busca al cliente y lo desconecta del servidor.
+        /// </summary>
+        /// <param name="client">Cliente TCP que se desconecta</param>
+        /// <param name="data">Datos de desconexión (opcional)</param>
         private void HandleDisconnectCommand(TcpClient client, string data)
         {
             try
@@ -399,6 +436,12 @@ namespace ChibitsLink.Services.Network
             }
         }
 
+        /// <summary>
+        /// Maneja el comando de input de un cliente.
+        /// Procesa datos de controlador (joystick, botones, sensores).
+        /// </summary>
+        /// <param name="client">Cliente TCP que envía input</param>
+        /// <param name="data">Datos del input en formato JSON</param>
         private void HandleInputCommand(TcpClient client, string data)
         {
             try
@@ -454,6 +497,11 @@ namespace ChibitsLink.Services.Network
             }
         }
 
+        /// <summary>
+        /// Desconecta un cliente específico del servidor.
+        /// Cierra la conexión y limpia todos los datos asociados.
+        /// </summary>
+        /// <param name="client">Cliente TCP a desconectar</param>
         private void DisconnectClient(TcpClient client)
         {
             try
@@ -487,6 +535,12 @@ namespace ChibitsLink.Services.Network
             }
         }
 
+        /// <summary>
+        /// Envía un mensaje a un cliente específico.
+        /// Escribe el mensaje en el stream del cliente TCP.
+        /// </summary>
+        /// <param name="client">Cliente TCP destinatario</param>
+        /// <param name="message">Mensaje a enviar</param>
         public void SendMessageToClient(TcpClient client, string message)
         {
             try
@@ -504,6 +558,12 @@ namespace ChibitsLink.Services.Network
             }
         }
 
+        /// <summary>
+        /// Envía un mensaje a un usuario específico por ID.
+        /// Busca el cliente asociado al ID y le envía el mensaje.
+        /// </summary>
+        /// <param name="userId">ID del usuario destinatario</param>
+        /// <param name="message">Mensaje a enviar</param>
         public void SendMessageToUser(string userId, string message)
         {
             try
@@ -523,6 +583,11 @@ namespace ChibitsLink.Services.Network
             }
         }
 
+        /// <summary>
+        /// Envía un mensaje a todos los clientes conectados.
+        /// Itera sobre la lista de clientes y envía el mismo mensaje.
+        /// </summary>
+        /// <param name="message">Mensaje a broadcast</param>
         public void BroadcastMessage(string message)
         {
             try
@@ -538,6 +603,12 @@ namespace ChibitsLink.Services.Network
             }
         }
 
+        /// <summary>
+        /// Obtiene el endpoint de un cliente TCP.
+        /// Extrae la dirección IP y puerto del cliente remoto.
+        /// </summary>
+        /// <param name="client">Cliente TCP del cual obtener endpoint</param>
+        /// <returns>String con dirección IP:puerto o "Unknown" si hay error</returns>
         private string GetClientEndpoint(TcpClient client)
         {
             try
