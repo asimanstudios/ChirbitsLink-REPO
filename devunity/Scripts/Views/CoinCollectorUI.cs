@@ -6,20 +6,41 @@ using ChibitsLink.Core.Exceptions;
 
 namespace ChibitsLink.UI.Minigames
 {
+    /// <summary>
+    /// Interfaz de usuario para el minijuego Coin Collector.
+    /// Muestra HUD en juego, temporizador, puntuaciones y resultados.
+    /// Se conecta automáticamente con el gestor del juego.
+    /// </summary>
+    /// <remarks>
+    /// Maneja múltiples paneles UI (HUD y resultados).
+    /// Proporciona actualización en tiempo real de puntuaciones.
+    /// Incluye manejo de errores para componentes faltantes.
+    /// </remarks>
     public class CoinCollectorUI : MonoBehaviour
     {
-        [Header("HUD Components")]
+        [Header("Componentes del HUD")]
+        /// <summary>Texto del temporizador</summary>
         public TextMeshProUGUI timerText;
+        /// <summary>Texto de puntuación global</summary>
         public TextMeshProUGUI globalScoreText;
+        /// <summary>Texto de cuenta regresiva</summary>
         public TextMeshProUGUI countdownText;
+        /// <summary>Panel del HUD</summary>
         public GameObject hudPanel;
 
-        [Header("Results Screen")]
+        [Header("Pantalla de Resultados")]
+        /// <summary>Panel de resultados</summary>
         public GameObject resultsPanel;
+        /// <summary>Texto de ranking</summary>
         public TextMeshProUGUI rankingText;
 
+        /// <summary>Referencia al gestor del juego</summary>
         private CoinCollectorGameManager _gameManager;
 
+        /// <summary>
+        /// Inicialización de la UI.
+        /// Configura componentes y establece estado inicial.
+        /// </summary>
         private void Start()
         {
             try
@@ -34,6 +55,11 @@ namespace ChibitsLink.UI.Minigames
             }
         }
         
+        /// <summary>
+        /// Inicializa los componentes necesarios.
+        /// Busca el gestor del juego y valida referencias.
+        /// </summary>
+        /// <exception cref="ComponentNotFoundException">Si no se encuentra el gestor</exception>
         private void InitializeComponents()
         {
             _gameManager = CoinCollectorGameManager.Instance;
@@ -43,6 +69,10 @@ namespace ChibitsLink.UI.Minigames
             }
         }
         
+        /// <summary>
+        /// Configura el estado inicial de la UI.
+        /// Oculta paneles no necesarios al inicio.
+        /// </summary>
         private void SetupUI()
         {
             if (resultsPanel != null) 

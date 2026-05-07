@@ -4,18 +4,38 @@ using System.Collections.Generic;
 
 namespace ChibiCocina.Editor
 {
+    /// <summary>
+    /// Ventana de editor para buscar scripts faltantes en GameObjects.
+    /// Identifica objetos que tienen referencias rotas a scripts.
+    /// </summary>
+    /// <remarks>
+    /// Escanea la escena actual en busca de GameObjects con scripts faltantes.
+    /// Permite seleccionar y navegar a los objetos afectados.
+    /// Esencial para mantenimiento y limpieza del proyecto.
+    /// </remarks>
     public class ScriptReferenceFinder : EditorWindow
     {
+        /// <summary>
+        /// Muestra la ventana de búsqueda de scripts faltantes.
+        /// Accesible desde el menú de Unity.
+        /// </summary>
         [MenuItem("ChibiCocina/Herramientas/Buscar Scripts Faltantes")]
         public static void ShowWindow()
         {
             GetWindow<ScriptReferenceFinder>("Scripts Faltantes");
         }
         
+        /// <summary>Posición del scroll</summary>
         private Vector2 scrollPosition;
+        /// <summary>GameObjects con scripts faltantes</summary>
         private List<GameObject> objectsWithMissingScripts = new List<GameObject>();
+        /// <summary>Indica si se ha realizado búsqueda</summary>
         private bool hasSearched = false;
         
+        /// <summary>
+        /// Dibuja la interfaz de usuario de la ventana.
+        /// Muestra botones de búsqueda y resultados.
+        /// </summary>
         private void OnGUI()
         {
             try

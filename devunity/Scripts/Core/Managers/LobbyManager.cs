@@ -13,47 +13,90 @@ using ChibitsLink.Utils;
 
 namespace ChibitsLink.GameSide
 {
+    /// <summary>
+    /// Datos de usuario para el lobby.
+    /// Contiene información básica del jugador.
+    /// </summary>
     public class UserData
     {
+        /// <summary>Nombre del usuario</summary>
         public string username = "Jugador";
+        /// <summary>Nivel del usuario</summary>
         public int level = 1;
     }
 
+    /// <summary>
+    /// Datos de interfaz de red.
+    /// Representa una interfaz de red con su IP.
+    /// </summary>
     public class NetworkInterfaceData
     {
+        /// <summary>Nombre de la interfaz</summary>
         public string Name;
+        /// <summary>Dirección IP de la interfaz</summary>
         public string IpAddress;
+        /// <summary>Representación en string</summary>
         public override string ToString() => $"{Name} ({IpAddress})";
     }
 
     /// <summary>
-    /// This script manages lobby creation and synchronization with the App.
+    /// Gestor principal de lobby y sincronización con la aplicación móvil.
+    /// Maneja creación de salas, votaciones, puntuaciones y comunicación Firebase.
     /// </summary>
-    public class LobbyManager : MonoBehaviour
+    /// <remarks>
+    /// Implementa patrón Singleton para acceso global.
+    /// Coordina entre Unity, Firebase y clientes móviles.
+    /// Gestiona el ciclo de vida completo de las partidas.
+    /// </remarks>
+    /// <seealso cref="https://firebase.google.com/docs/firestore">
+    /// Documentación de Firebase Firestore
+    /// </seealso>
     {
+        /// <summary>Instancia global del LobbyManager (patrón Singleton)</summary>
+        public static LobbyManager Instance { get; private set; }
+        
+        /// <summary>Instancia de Firebase Firestore</summary>
         private FirebaseFirestore _firestore;
+        /// <summary>Indica si Firebase está inicializado</summary>
         private bool _isInitialized = false;
+        /// <summary>Nombre de la colección de parties</summary>
         private const string LOBBY_COLLECTION = "parties";
+        /// <summary>Nombre de la colección de personajes</summary>
         private const string CHARACTERS_COLLECTION = "characters";
+        /// <summary>Nombre de la colección de juegos</summary>
         private const string GAMES_COLLECTION = "games";
+        /// <summary>Generador de números aleatorios</summary>
         private static readonly System.Random _random = new System.Random();
         
-        public PlayerManager playerManager; // Asignar en el inspector
-
+        /// <summary>Gestor de jugadores (asignar en inspector)</summary>
+        public PlayerManager playerManager;
+        /// <summary>Lista de personajes iniciales</summary>
         public List<Character> initialCharacters;
+        /// <summary>Lista de juegos iniciales</summary>
         public List<Game> initialGames;
 
         [Header("Configuración de Red")]
-        public string manualIpOverride = ""; // Si no está vacío, se usará esta IP en lugar de la auto-detectada
+        /// <summary>Override manual de IP (si no está vacío)</summary>
+        public string manualIpOverride = "";
         
+        /// <summary>Puntuaciones de la sesión actual</summary>
         public Dictionary<string, int> SessionScores { get; private set; } = new Dictionary<string, int>();
+        /// <summary>Juegos jugados en la sesión actual</summary>
         public List<string> SessionPlayedGames { get; private set; } = new List<string>();
         
+        /// <summary>Estado actual del juego</summary>
         public string GameState { get; private set; } = "LOBBY";
+        /// <summary>Votos de los jugadores (privado)</summary>
         private Dictionary<string, string> _playerVotes = new Dictionary<string, string>();
+        /// <summary>Código de sala actual</summary>
+        private string _currentRoomCode;
+        /// <summary>Código de sala público</summary>
+        public string RoomCode => _currentRoomCode;
 
-        public static LobbyManager Instance { get; private set; }
-
+        /// <summary>
+        /// Inicializa el LobbyManager y establece el patrón Singleton.
+        /// Configura Firebase y persiste entre escenas.
+        /// </summary>
         async void Awake()
         {
             if (Instance == null)
@@ -70,6 +113,9 @@ namespace ChibitsLink.GameSide
             }
         }
 
+        /// <summary>
+        /// Inicializa Firebase y verifica dependencias.
+        /// </summary>
         private async Task InitializeFirebase()
         {
             var dependencyStatus = await Firebase.FirebaseApp.CheckAndFixDependenciesAsync();
@@ -85,11 +131,20 @@ namespace ChibitsLink.GameSide
             }
         }
 
+        /// <summary>
+        /// Espera a que Firebase esté inicializado.
+        /// </summary>
         private async Task EnsureInitialized()
         {
             while (!_isInitialized) await Task.Delay(100);
         }
 
+        /// <summary>
+        /// Siembra datos iniciales en Firebase (personajes y juegos).
+        /// Evita sobreescribir datos existentes.
+        /// </summary>
+        /// <param name="characters">Lista de personajes a sembrar</param>
+        /// <param name="games">Lista de juegos a sembrar</param>
         public async Task SeedDataAsync(List<Character> characters = null, List<Game> games = null)
         {
             await EnsureInitialized();
@@ -196,8 +251,13 @@ namespace ChibitsLink.GameSide
         public string RoomCode => _currentRoomCode;
 
         /// <summary>
-        /// Genera un código de lobby único y lo registra en la base de datos con la IP local.
+        /// Crea un nuevo lobby y lo registra en Firebase.
+        /// Genera código único y configura IP y puerto.
         /// </summary>
+        /// <param name="lobbyName">Nombre del lobby</param>
+        /// <param name="port">Puerto del servidor</param>
+        /// <param name="overrideIp">IP override (opcional)</param>
+        /// <returns>Party creado</returns>
         public async Task<Party> CreateNewLobbyAsync(string lobbyName, int port = 11000, string overrideIp = null)
         {
             await EnsureInitialized();
@@ -247,6 +307,11 @@ namespace ChibitsLink.GameSide
             }
         }
 
+        /// <summary>
+        /// Obtiene la dirección IP local para el servidor.
+        /// Prioriza interfaces con gateway y excluye virtuales.
+        /// </summary>
+        /// <returns>Dirección IP local</returns>
         private string GetLocalIPAddress()
         {
             try 
@@ -301,6 +366,10 @@ namespace ChibitsLink.GameSide
             return "127.0.0.1";
         }
 
+        /// <summary>
+        /// Genera un código de lobby único de 6 dígitos.
+        /// </summary>
+        /// <returns>Código de lobby</returns>
         private string GenerateRoomCode()
         {
             const string chars = "0123456789";
@@ -309,8 +378,9 @@ namespace ChibitsLink.GameSide
         }
 
         /// <summary>
-        /// Devuelve una lista de todas las interfaces de red activas con sus IPs.
+        /// Obtiene todas las interfaces de red activas con sus IPs.
         /// </summary>
+        /// <returns>Lista de interfaces disponibles</returns>
         public List<NetworkInterfaceData> GetAvailableNetworkInterfaces()
         {
             List<NetworkInterfaceData> interfaces = new List<NetworkInterfaceData>();
@@ -342,6 +412,11 @@ namespace ChibitsLink.GameSide
             return interfaces;
         }
 
+        /// <summary>
+        /// Verifica si un código de lobby ya está en uso.
+        /// </summary>
+        /// <param name="code">Código a verificar</param>
+        /// <returns>True si está tomado</returns>
         private async Task<bool> IsCodeTaken(string code)
         {
             var doc = await _firestore.Collection(LOBBY_COLLECTION).Document(code).GetSnapshotAsync();
@@ -349,9 +424,15 @@ namespace ChibitsLink.GameSide
         }
 
         /// <summary>
-        /// Finaliza un lobby: marca GameState=CLOSED y guarda atomicamente todos los datos
-        /// de participantes. Nunca debe llamarse con datos parciales.
+        /// Cierra un lobby y guarda todos los datos finales.
+        /// Marca como CLOSED y guarda puntuaciones atomicamente.
         /// </summary>
+        /// <param name="roomCode">Código del lobby</param>
+        /// <param name="names">Nombres de participantes</param>
+        /// <param name="chars">Personajes de participantes</param>
+        /// <param name="scores">Puntuaciones</param>
+        /// <param name="levels">Niveles</param>
+        /// <param name="playedGames">Juegos jugados</param>
         public async Task CloseLobbyAsync(
             string roomCode,
             Dictionary<string, string> names = null,
@@ -397,8 +478,14 @@ namespace ChibitsLink.GameSide
         }
 
         /// <summary>
-        /// Actualiza la lista de jugadores en tiempo real para que la App lo vea.
+        /// Actualiza la lista de participantes en tiempo real.
+        /// Sincroniza con la aplicación móvil.
         /// </summary>
+        /// <param name="roomCode">Código del lobby</param>
+        /// <param name="updatedPlayerIds">IDs actualizados</param>
+        /// <param name="names">Nombres</param>
+        /// <param name="chars">Personajes</param>
+        /// <param name="levels">Niveles</param>
         public async Task UpdateParticipantsAsync(string roomCode, List<string> updatedPlayerIds, Dictionary<string, string> names = null, Dictionary<string, string> chars = null, Dictionary<string, int> levels = null)
         {
             await EnsureInitialized();
@@ -435,6 +522,13 @@ namespace ChibitsLink.GameSide
             await docRef.UpdateAsync(updates);
         }
 
+        /// <summary>
+        /// Cambia el estado de listo de un jugador.
+        /// Activa votación cuando >50% están listos.
+        /// </summary>
+        /// <param name="roomCode">Código del lobby</param>
+        /// <param name="userId">ID del jugador</param>
+        /// <param name="isReady">Estado de listo</param>
         public async Task ToggleReadyAsync(string roomCode, string userId, bool isReady)
         {
             await EnsureInitialized();
@@ -472,6 +566,11 @@ namespace ChibitsLink.GameSide
             }
         }
 
+        /// <summary>
+        /// Registra un voto para el juego a jugar.
+        /// </summary>
+        /// <param name="roomCode">Código del lobby</param>
+        /// <param name="gameId">ID del juego votado</param>
         public async Task RegisterVoteAsync(string roomCode, string gameId)
         {
             await EnsureInitialized();
@@ -488,6 +587,11 @@ namespace ChibitsLink.GameSide
             // Pero por ahora, el host (Unity) podría tener un botón de "Empezar" o un timer.
         }
 
+        /// <summary>
+        /// Decide el juego ganador por votación e inicia el juego.
+        /// Cambia a IN_GAME y carga la escena del juego.
+        /// </summary>
+        /// <param name="roomCode">Código del lobby</param>
         public async Task DecideWinnerAndStartGameAsync(string roomCode)
         {
             await EnsureInitialized();
@@ -538,6 +642,11 @@ namespace ChibitsLink.GameSide
             }
         }
 
+        /// <summary>
+        /// Maneja un voto recibido desde un cliente móvil.
+        /// </summary>
+        /// <param name="uid">ID del usuario</param>
+        /// <param name="gameId">ID del juego votado</param>
         public void HandleVote(string uid, string gameId)
         {
             // Permitir votos si estamos en LOBBY (empezando transición) o VOTING
@@ -550,6 +659,12 @@ namespace ChibitsLink.GameSide
             }
         }
 
+        /// <summary>
+        /// Resuelve el juego ganador basado en los votos.
+        /// Si no hay votos, selecciona aleatoriamente.
+        /// </summary>
+        /// <param name="votes">Diccionario de votos</param>
+        /// <returns>ID del juego ganador</returns>
         private string ResolveWinnerGame(Dictionary<string, int> votes)
         {
             Debug.Log($"[LobbyManager] Resolviendo ganador entre {votes?.Count ?? 0} opciones de voto.");
@@ -577,6 +692,13 @@ namespace ChibitsLink.GameSide
             return winner;
         }
 
+        /// <summary>
+        /// Actualiza la puntuación de un jugador en la sala.
+        /// Incrementa puntos en Firestore y cache local.
+        /// </summary>
+        /// <param name="roomCode">Código del lobby</param>
+        /// <param name="userId">ID del jugador</param>
+        /// <param name="pointsToAdd">Puntos a añadir</param>
         public async Task UpdatePlayerScoreAsync(string roomCode, string userId, int pointsToAdd)
         {
             await EnsureInitialized();
@@ -596,7 +718,11 @@ namespace ChibitsLink.GameSide
             Debug.Log($"[LobbyManager] {userId} +{pointsToAdd} pts en sala {roomCode}.");
         }
 
-        /// <summary>Actualiza la cache local de puntos de sesión para la UI del lobby.</summary>
+        /// <summary>
+        /// Actualiza la cache local de puntuaciones para la UI.
+        /// </summary>
+        /// <param name="userId">ID del usuario</param>
+        /// <param name="pointsToAdd">Puntos a añadir</param>
         private void UpdateSessionScoreCache(string userId, int pointsToAdd)
         {
             if (SessionScores.ContainsKey(userId))
@@ -605,6 +731,10 @@ namespace ChibitsLink.GameSide
                 SessionScores[userId] = pointsToAdd;
         }
 
+        /// <summary>
+        /// Regresa al estado de lobby.
+        /// Cambia estado y notifica a clientes móviles.
+        /// </summary>
         public void ReturnToLobby()
         {
             bool hasRoomCode = !string.IsNullOrEmpty(_currentRoomCode);
@@ -614,6 +744,11 @@ namespace ChibitsLink.GameSide
             }
         }
 
+        /// <summary>
+        /// Regresa al lobby de forma asíncrona.
+        /// Actualiza Firestore y carga escena del menú.
+        /// </summary>
+        /// <param name="roomCode">Código del lobby</param>
         public async Task ReturnToLobbyAsync(string roomCode)
         {
             await EnsureInitialized();
@@ -663,6 +798,11 @@ namespace ChibitsLink.GameSide
         {
             await Task.CompletedTask;
         }
+        /// <summary>
+        /// Obtiene los datos de un usuario desde Firebase.
+        /// </summary>
+        /// <param name="userId">ID del usuario</param>
+        /// <returns>Datos del usuario</returns>
         public async Task<UserData> FetchUserDataAsync(string userId)
         {
             var data = new UserData();
@@ -694,9 +834,11 @@ namespace ChibitsLink.GameSide
         }
 
         /// <summary>
-        /// Suma XP al perfil persistente del usuario y recalcula su nivel.
-        /// Regla de nivel: 1 nivel cada 100 XP.
+        /// Añade experiencia al perfil del usuario y recalcula nivel.
+        /// Regla: 1 nivel cada 100 XP.
         /// </summary>
+        /// <param name="userId">ID del usuario</param>
+        /// <param name="xpToAdd">XP a añadir</param>
         public async Task AddUserExperienceAsync(string userId, int xpToAdd)
         {
             bool canUpdateExperience = !string.IsNullOrWhiteSpace(userId) && !userId.StartsWith("BOT_");

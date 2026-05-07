@@ -8,17 +8,31 @@ namespace ChibitsLink.GameSide.Models
     /// Preserva la compatibilidad del motor de Serialización de Unity usando los
     /// mismos nombres de variables para no corromper los prefabs de Moneda.
     /// </summary>
+    /// <remarks>
+    /// Proporciona funcionalidad común para todos los objetos recolectables.
+    /// Maneja rotación visual, efectos y sonido de recolección.
+    /// Las subclases deben implementar la lógica específica de recolección.
+    /// </remarks>
     public abstract class BaseCollectible : MonoBehaviour
     {
         [Header("Efectos")]
+        /// <summary>Efecto visual al recolectar</summary>
         public GameObject efectoColeccion;
+        /// <summary>Tiempo de vida del efecto</summary>
         public float tiempoVidaEfecto = 2f;
+        /// <summary>Sonido al recolectar</summary>
         public AudioClip sonidoColeccion;
+        /// <summary>Velocidad de rotación visual</summary>
         public float rotacionVelocidad = 100f;
 
         [Header("Puntuación")]
+        /// <summary>Valor en puntos del objeto</summary>
         public int valor = 1;
 
+        /// <summary>
+        /// Actualización del objeto cada frame.
+        /// Maneja la rotación visual generalizada.
+        /// </summary>
         protected virtual void Update()
         {
             // Rotación visual generalizada
@@ -28,6 +42,11 @@ namespace ChibitsLink.GameSide.Models
             }
         }
 
+        /// <summary>
+        /// Maneja la colisión con otros objetos.
+        /// Procesa la recolección cuando un jugador entra en contacto.
+        /// </summary>
+        /// <param name="other">Collider del objeto que colisionó</param>
         protected virtual void OnTriggerEnter(Collider other)
         {
             // Si el GameManager actual no deja coger o ya se cogió, no seguimos
@@ -49,6 +68,10 @@ namespace ChibitsLink.GameSide.Models
             }
         }
 
+        /// <summary>
+        /// Dispara los efectos visuales y de sonido de recolección.
+        /// Crea efectos temporales y reproduce sonido en la posición.
+        /// </summary>
         protected virtual void TriggerVisualEffects()
         {
             if (efectoColeccion != null)
@@ -64,13 +87,17 @@ namespace ChibitsLink.GameSide.Models
         }
 
         /// <summary>
-        /// Comprueba si el estado actual de la partida (dependiendo del minijuego) permite recoger el item.
+        /// Comprueba si el estado actual de la partida permite recoger el objeto.
+        /// Depende de las reglas específicas de cada minijuego.
         /// </summary>
+        /// <returns>True si el objeto puede ser recolectado</returns>
         protected abstract bool CanBeCollected();
 
         /// <summary>
-        /// Sincroniza la recogida con el Manager de su minijuego particular.
+        /// Sincroniza la recolección con el gestor del minijuego.
+        /// Notifica al gestor correspondiente sobre la recolección.
         /// </summary>
+        /// <param name="userId">ID del usuario que recolectó</param>
         protected abstract void OnCollect(string userId);
     }
 }

@@ -7,47 +7,72 @@ using ChibitsLink.Core.Exceptions;
 namespace ChibitsLink.Core.Systems
 {
     /// <summary>
-    /// Main debug controller - refactored with SOLID and single responsibility.
-    /// Now delegates to specialized services.
+    /// Controlador principal de depuración - refactorizado con SOLID y responsabilidad única.
+    /// Delega a servicios especializados para diferentes áreas.
+    /// Implementa patrón Singleton para acceso global.
     /// </summary>
+    /// <remarks>
+    /// Centraliza todas las funciones de depuración del proyecto.
+    /// Permite control de logs, bots y transiciones de escena.
+    /// Deshabilitable completamente para producción.
+    /// </remarks>
     public class DebugManager : MonoBehaviour
     {
+        /// <summary>Instancia global del DebugManager (patrón Singleton)</summary>
         public static DebugManager Instance { get; private set; }
         
-        [Header("Main Control")]
-        [Tooltip("If unchecked, ALL DEBUGGING IS DISABLED (no logs, no bots, no scenes).")]
+        [Header("Control Principal")]
+        /// <summary>Si está desmarcado, TODA LA DEPURACIÓN ESTÁ DESHABILITADA</summary>
+        [Tooltip("Si está desmarcado, TODA LA DEPURACIÓN ESTÁ DESHABILITADA (sin logs, sin bots, sin escenas).")]
         public bool isDebugModeActive = true;
 
-        [Header("Scene Transition")]
-        [Tooltip("Name of the scene to load (e.g., Minigame_Coins, Minigame_HookParty, menu)")]
+        [Header("Transición de Escena")]
+        /// <summary>Nombre de la escena a cargar</summary>
+        [Tooltip("Nombre de la escena a cargar (ej: Minigame_Coins, Minigame_HookParty, menu)")]
         public string sceneToLoad = "Minigame_Coins";
         
-        [Tooltip("Check this box to load the scene immediately.")]
+        /// <summary>Forzar carga inmediata de escena</summary>
+        [Tooltip("Marcar esta casilla para cargar la escena inmediatamente.")]
         public bool forceLoadScene = false;
 
-        [Header("Bot System (Player Simulation)")]
-        [Tooltip("Number of bots to add when button is pressed.")]
+        [Header("Sistema de Bots (Simulación de Jugadores)")]
+        /// <summary>Número de bots a añadir</summary>
+        [Tooltip("Número de bots a añadir cuando se presiona el botón.")]
         public int numberOfBotsToAdd = 1;
         
-        [Tooltip("Check this box to generate bots now.")]
+        /// <summary>Generar bots ahora</summary>
+        [Tooltip("Marcar esta casilla para generar bots ahora.")]
         public bool spawnBotsNow = false;
         
-        [Header("Log Filter")]
-        [Tooltip("Expand this list to select WHICH modules will print logs to console.")]
+        [Header("Filtro de Logs")]
+        /// <summary>Módulos de log activos</summary>
+        [Tooltip("Expandir esta lista para seleccionar QUÉ módulos imprimirán logs en la consola.")]
         public DebugModule activeLogModules = DebugModule.All;
 
-        // Services
+        // Servicios
+        /// <summary>Servicio de gestión de logs</summary>
         private DebugLogService _logService;
+        /// <summary>Servicio de carga de escenas</summary>
         private SceneLoaderService _sceneService;
+        /// <summary>Servicio de gestión de bots</summary>
         private BotService _botService;
         
+        /// <summary>Indica si está inicializado</summary>
         private bool _isInitialized;
 
+        /// <summary>
+        /// Inicialización del gestor de depuración.
+        /// Establece el patrón Singleton y configura servicios.
+        /// </summary>
         private void Awake()
         {
             InitializeDebugManager();
         }
         
+        /// <summary>
+        /// Inicializa el gestor de depuración.
+        /// Configura servicios y persistencia entre escenas.
+        /// </summary>
         private void InitializeDebugManager()
         {
             if (Instance == null)

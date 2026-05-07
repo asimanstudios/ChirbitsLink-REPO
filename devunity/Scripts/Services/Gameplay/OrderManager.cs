@@ -5,28 +5,55 @@ using System.Collections.Generic;
 
 namespace ChibitsLink.Services.Gameplay
 {
+    /// <summary>
+    /// Gestor de pedidos para el sistema de gameplay.
+    /// Maneja creación, seguimiento y finalización de pedidos.
+    /// Implementa patrón Singleton para acceso global.
+    /// </summary>
+    /// <remarks>
+    /// Controla el flujo de pedidos automáticos.
+    /// Gestiona puntos de entrega y prefabs de ingredientes.
+    /// Proporciona eventos para sincronización con UI.
+    /// </remarks>
     public class OrderManager : MonoBehaviour
     {
+        /// <summary>Instancia global del gestor (patrón Singleton)</summary>
         public static OrderManager Instance { get; private set; }
         
-        [Header("Order Configuration")]
+        [Header("Configuración de Pedidos")]
+        /// <summary>Prefabs de ingredientes disponibles</summary>
         public GameObject[] ingredientPrefabs;
+        /// <summary>Puntos de entrega de pedidos</summary>
         public Transform[] deliveryPoints;
+        /// <summary>Tiempo entre generación de pedidos</summary>
         public float timeBetweenOrders = 30f;
+        /// <summary>Número máximo de pedidos activos</summary>
         public int maxActiveOrders = 5;
         
-        // Order state
+        // Estado de pedidos
+        /// <summary>Lista de pedidos activos</summary>
         private List<Pedido> _activeOrders;
+        /// <summary>Lista de pedidos completados</summary>
         private List<Pedido> _completedOrders;
+        /// <summary>Tiempo para siguiente pedido</summary>
         private float _nextOrderTime;
+        /// <summary>ID actual para nuevos pedidos</summary>
         private int _currentOrderId;
         
-        // Events
+        // Eventos
+        /// <summary>Evento cuando se crea un pedido</summary>
         public System.Action<Pedido> OnOrderCreated;
+        /// <summary>Evento cuando se completa un pedido</summary>
         public System.Action<Pedido> OnOrderCompleted;
+        /// <summary>Evento cuando se cancela un pedido</summary>
         public System.Action<Pedido> OnOrderCancelled;
+        /// <summary>Evento cuando se actualiza el número de pedidos</summary>
         public System.Action<int> OnOrdersUpdated;
         
+        /// <summary>
+        /// Inicialización del gestor de pedidos.
+        /// Establece el patrón Singleton y configura estado inicial.
+        /// </summary>
         private void Awake()
         {
             if (Instance == null)
@@ -41,6 +68,10 @@ namespace ChibitsLink.Services.Gameplay
             }
         }
         
+        /// <summary>
+        /// Inicializa el sistema de pedidos.
+        /// Prepara listas y configura valores iniciales.
+        /// </summary>
         private void InitializeOrders()
         {
             _activeOrders = new List<Pedido>();

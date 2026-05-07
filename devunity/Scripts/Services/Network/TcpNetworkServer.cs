@@ -12,41 +12,66 @@ using ChibitsLink.Core.Networking;
 namespace ChibitsLink.Services.Network
 {
     /// <summary>
-    /// TCP Network Server for mobile client connections.
-    /// Handles client connections and message routing with proper error handling.
+    /// Servidor de red TCP para conexiones de clientes móviles.
+    /// Maneja conexiones de clientes y enrutamiento de mensajes con manejo de errores.
+    /// Implementa patrón Singleton para acceso global.
     /// </summary>
+    /// <remarks>
+    /// Gestiona múltiples clientes simultáneamente.
+    /// Proporciona persistencia de sesión entre escenas.
+    /// Maneja desconexiones y reconexiones automáticas.
+    /// </remarks>
     public class TcpNetworkServer : MonoBehaviour
     {
+        /// <summary>Instancia global del servidor (patrón Singleton)</summary>
         public static TcpNetworkServer Instance { get; private set; }
         
-        [Header("Network Configuration")]
+        [Header("Configuración de Red")]
+        /// <summary>Puerto del servidor</summary>
         public int port = DEFAULT_PORT;
+        /// <summary>Referencia a la UI del lobby</summary>
         public ChibitsLink.UI.LobbyUI lobbyUI;
         
-        [Header("Connection Settings")]
+        [Header("Configuración de Conexión")]
+        /// <summary>Número máximo de conexiones</summary>
         public int maxConnections = DEFAULT_MAX_CONNECTIONS;
+        /// <summary>Timeout de conexión</summary>
         public float connectionTimeout = DEFAULT_CONNECTION_TIMEOUT;
+        /// <summary>Tamaño del buffer</summary>
         public int bufferSize = DEFAULT_BUFFER_SIZE;
         
-        // Network components
+        // Componentes de red
+        /// <summary>Listener TCP para aceptar conexiones</summary>
         private TcpListener _listener;
+        /// <summary>Lista de clientes conectados</summary>
         private readonly List<TcpClient> _connectedClients = new List<TcpClient>();
+        /// <summary>Mapeo de ID de usuario a cliente</summary>
         private readonly Dictionary<string, TcpClient> _userIdToClient = new Dictionary<string, TcpClient>();
+        /// <summary>Buffers de mensajes por cliente</summary>
         private readonly Dictionary<TcpClient, StringBuilder> _clientBuffers = new Dictionary<TcpClient, StringBuilder>();
         
-        // Player data
+        // Datos de jugadores
+        /// <summary>Mapeo de ID a nombre</summary>
         private readonly Dictionary<string, string> _idToName = new Dictionary<string, string>();
+        /// <summary>Mapeo de ID a personaje</summary>
         private readonly Dictionary<string, string> _idToCharacterId = new Dictionary<string, string>();
+        /// <summary>Mapeo de ID a nivel</summary>
         private readonly Dictionary<string, int> _idToLevel = new Dictionary<string, int>();
         
-        // Session persistence
+        // Persistencia de sesión
+        /// <summary>Nombres de sesión persistente</summary>
         private readonly Dictionary<string, string> _sessionNames = new Dictionary<string, string>();
+        /// <summary>Personajes de sesión persistente</summary>
         private readonly Dictionary<string, string> _sessionCharacters = new Dictionary<string, string>();
+        /// <summary>Niveles de sesión persistente</summary>
         private readonly Dictionary<string, int> _sessionLevels = new Dictionary<string, int>();
         
-        // State
+        // Estado
+        /// <summary>IDs de jugadores activos</summary>
         private readonly List<string> _activePlayerIds = new List<string>();
+        /// <summary>Código de sala actual</summary>
         private string _currentRoomCode;
+        /// <summary>Indica si el servidor está en ejecución</summary>
         private bool _isRunning;
         private bool _isInitialized;
         

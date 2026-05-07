@@ -8,38 +8,69 @@ using UnityEngine.SceneManagement;
 namespace ChibitsLink.GameSide
 {
     /// <summary>
-    /// Versión FINAL con 2 LISTAS (Lobby y Juego), Singleton y Persistencia.
+    /// Gestor principal de jugadores con persistencia entre escenas.
+    /// Maneja spawn, personajes, niveles y conexión de jugadores.
+    /// Implementa patrón Singleton para acceso global.
     /// </summary>
+    /// <remarks>
+    /// Versión final con 2 listas (Lobby y Juego).
+    /// Persiste datos entre escenas y gestiona spawn ordenado.
+    /// Soporta bots y limpieza automática.
+    /// </remarks>
     public class PlayerManager : MonoBehaviour
     {
+        /// <summary>Instancia global del PlayerManager (patrón Singleton)</summary>
         public static PlayerManager Instance { get; private set; }
 
         [Header("Configuración de Spawn")]
+        /// <summary>Puntos de spawn para jugadores</summary>
         public List<Transform> spawnPoints; 
+        /// <summary>Sistema de notificaciones del lobby</summary>
         public ChibitsLink.UI.LobbyNotifications notifications; 
         
         [Header("Prefabs de Personajes")]
+        /// <summary>Prefabs de personajes para el lobby</summary>
         public List<CharacterPrefabMap> lobbyCharacterPrefabs; 
+        /// <summary>Prefabs de personajes para el juego</summary>
         [FormerlySerializedAs("characterPrefabs")]
         public List<CharacterPrefabMap> gameCharacterPrefabs;
 
+        /// <summary>
+        /// Mapeo de ID de personaje a prefab.
+        /// Define posición, rotación y escala para cada personaje.
+        /// </summary>
         [Serializable]
         public struct CharacterPrefabMap
         {
+            /// <summary>ID del personaje</summary>
             public string characterId;
+            /// <summary>Prefab del personaje</summary>
             public GameObject prefab;
+            /// <summary>Offset de posición</summary>
             public Vector3 positionOffset; 
+            /// <summary>Offset de rotación</summary>
             public Vector3 rotationOffset; 
+            /// <summary>Escala local</summary>
             public Vector3 localScale;     
         }
 
+        /// <summary>Objetos de jugadores instanciados</summary>
         private Dictionary<string, GameObject> _playerObjects = new Dictionary<string, GameObject>();
+        /// <summary>Nombres de jugadores conectados</summary>
         private Dictionary<string, string> _playerNames = new Dictionary<string, string>();
-        private Dictionary<string, int> _playerLevels = new Dictionary<string, int>(); // Nuevo sistema de niveles
+        /// <summary>Niveles de jugadores</summary>
+        private Dictionary<string, int> _playerLevels = new Dictionary<string, int>();
+        /// <summary>Último personaje seleccionado por jugador</summary>
         private Dictionary<string, string> _playerLastCharId = new Dictionary<string, string>();
+        /// <summary>Orden de conexión de jugadores</summary>
         private List<string> _connectionOrder = new List<string>(); 
+        /// <summary>Indica si hay transición de escena en curso</summary>
         private bool isTransitioning = false;
 
+        /// <summary>
+        /// Inicializa el PlayerManager y establece el patrón Singleton.
+        /// Configura persistencia entre escenas y spawn points.
+        /// </summary>
         private void Awake()
         {
             if (Instance == null)
@@ -52,6 +83,10 @@ namespace ChibitsLink.GameSide
             else Destroy(gameObject);
         }
 
+        /// <summary>
+        /// Limpia recursos al destruir el objeto.
+        /// Remueve listeners y limpia bots.
+        /// </summary>
         private void OnDestroy()
         {
             if (Instance == this) 
@@ -61,6 +96,12 @@ namespace ChibitsLink.GameSide
             }
         }
 
+        /// <summary>
+        /// Maneja el evento de carga de escena.
+        /// Prepara spawn ordenado de jugadores.
+        /// </summary>
+        /// <param name="scene">Escena cargada</param>
+        /// <param name="mode">Modo de carga</param>
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             Debug.Log($"[PlayerManager] Escena '{scene.name}' cargada. Preparando spawn ordenado...");
@@ -71,6 +112,11 @@ namespace ChibitsLink.GameSide
             StartCoroutine(DelayedSpawnRoutine());
         }
 
+        /// <summary>
+        /// Rutina de spawn con retraso.
+        /// Limpia residuos y spawnea jugadores ordenadamente.
+        /// </summary>
+        /// <returns>IEnumerator para la corrutina</returns>
         private System.Collections.IEnumerator DelayedSpawnRoutine()
         {
             // Esperar un frame para que los objetos marcados para Destroy de la escena anterior desaparezcan

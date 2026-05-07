@@ -4,26 +4,54 @@ using ChibitsLink.Models;
 
 namespace ChibitsLink.Core
 {
+    /// <summary>
+    /// Servidor para control de mandos móviles.
+    /// Gestiona conexiones de clientes y comunicación de red.
+    /// Implementa patrón Singleton para acceso global.
+    /// </summary>
+    /// <remarks>
+    /// Utiliza Unity Netcode para GameObjects.
+    /// Maneja eventos de conexión y desconexión.
+    /// Proporciona API para gestión de clientes.
+    /// </remarks>
+    /// <seealso cref="https://docs-multiplayer.unity3d.com/">
+    /// Documentación de Unity Netcode
+    /// </seealso>
     public class ServidorControlMando : MonoBehaviour
     {
+        /// <summary>Instancia global del servidor (patrón Singleton)</summary>
         public static ServidorControlMando Instance { get; private set; }
         
-        [Header("Server Configuration")]
+        [Header("Configuración del Servidor")]
+        /// <summary>Puerto del servidor</summary>
         public int port = 7777;
+        /// <summary>Número máximo de conexiones</summary>
         public int maxConnections = 8;
+        /// <summary>Timeout para conexiones</summary>
         public float connectionTimeout = 10f;
         
-        // Server state
+        // Estado del servidor
+        /// <summary>Indica si el servidor está activo</summary>
         private bool _isServerActive;
+        /// <summary>Número de clientes conectados</summary>
         private int _connectedClients;
+        /// <summary>Información de clientes conectados</summary>
         private System.Collections.Generic.Dictionary<ulong, ClientInfo> _clients;
         
-        // Events
+        // Eventos
+        /// <summary>Evento cuando se actualiza el número de clientes</summary>
         public System.Action<int> OnClientsUpdated;
+        /// <summary>Evento cuando un cliente se conecta</summary>
         public System.Action<ulong> OnClientConnected;
+        /// <summary>Evento cuando un cliente se desconecta</summary>
         public System.Action<ulong> OnClientDisconnected;
+        /// <summary>Evento cuando se recibe un mensaje</summary>
         public System.Action<string> OnMessageReceived;
         
+        /// <summary>
+        /// Inicializa el servidor y establece el patrón Singleton.
+        /// Configura NetworkManager y persiste entre escenas.
+        /// </summary>
         private void Awake()
         {
             if (Instance == null)
@@ -38,6 +66,10 @@ namespace ChibitsLink.Core
             }
         }
         
+        /// <summary>
+        /// Inicializa los componentes del servidor.
+        /// Configura NetworkManager y eventos.
+        /// </summary>
         private void InitializeServer()
         {
             _clients = new System.Collections.Generic.Dictionary<ulong, ClientInfo>();
@@ -54,6 +86,10 @@ namespace ChibitsLink.Core
             Debug.Log("[ServidorControlMando] Server initialized");
         }
         
+        /// <summary>
+        /// Limpia recursos al destruir el objeto.
+        /// Remueve listeners de NetworkManager.
+        /// </summary>
         private void OnDestroy()
         {
             if (NetworkManager.Singleton != null)
@@ -63,6 +99,11 @@ namespace ChibitsLink.Core
             }
         }
         
+        /// <summary>
+        /// Inicia el servidor de red.
+        /// Configura transporte y comienza a escuchar conexiones.
+        /// </summary>
+        /// <returns>True si el servidor se inició correctamente</returns>
         public bool StartServer()
         {
             if (_isServerActive)

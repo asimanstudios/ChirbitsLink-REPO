@@ -5,17 +5,38 @@ using ChibitsLink.GameSide;
 
 namespace ChibitsLink.Minigames.BombTag
 {
+    /// <summary>
+    /// Sistema de puntuación para el minijuego BombTag.
+    /// Gestiona el orden de eliminación y calcula puntuaciones finales.
+    /// </summary>
+    /// <remarks>
+    /// Asigna puntos basados en el orden de eliminación.
+    /// Los supervivientes obtienen mejores puntuaciones.
+    /// Proporciona callback para reportar puntuaciones al lobby.
+    /// </remarks>
     public class BombTagScoring : MonoBehaviour
     {
+        /// <summary>Orden de eliminación de jugadores</summary>
         private List<GameObject> _eliminationOrder = new List<GameObject>();
+        /// <summary>Identidades de jugadores para obtener IDs</summary>
         private Dictionary<GameObject, PlayerIdentity> _playerIdentities = new Dictionary<GameObject, PlayerIdentity>();
         
+        /// <summary>
+        /// Inicializa el sistema de puntuación.
+        /// Configura identidades de jugadores y limpia estado anterior.
+        /// </summary>
+        /// <param name="playerIdentities">Diccionario de identidades de jugadores</param>
         public void Initialize(Dictionary<GameObject, PlayerIdentity> playerIdentities)
         {
             _playerIdentities = playerIdentities ?? new Dictionary<GameObject, PlayerIdentity>();
             _eliminationOrder.Clear();
         }
         
+        /// <summary>
+        /// Registra la eliminación de un jugador.
+        /// Añade al orden de eliminación si no está ya presente.
+        /// </summary>
+        /// <param name="player">GameObject del jugador eliminado</param>
         public void AddElimination(GameObject player)
         {
             if (player != null && !_eliminationOrder.Contains(player))
@@ -25,6 +46,11 @@ namespace ChibitsLink.Minigames.BombTag
             }
         }
         
+        /// <summary>
+        /// Procesa las puntuaciones finales del juego.
+        /// Calcula puntos para todos los jugadores y ejecuta callback.
+        /// </summary>
+        /// <param name="scoreCallback">Callback para reportar puntuaciones (userId, score)</param>
         public void ProcessFinalScoring(System.Action<string, int> scoreCallback)
         {
             var survivors = GetAlivePlayers();

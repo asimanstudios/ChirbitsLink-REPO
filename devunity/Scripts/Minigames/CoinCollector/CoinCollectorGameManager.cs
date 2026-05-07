@@ -6,19 +6,42 @@ using Chirbits.Core;
 
 namespace ChibitsLink.Minigames.CoinCollector
 {
+    /// <summary>
+    /// Estados específicos del minijuego CoinCollector.
+    /// Extiende los estados base del minijuego.
+    /// </summary>
     public enum CoinCollectorState
     {
+        /// <summary>Fase de preparación inicial</summary>
         Preparing,
+        /// <summary>Fase de cuenta regresiva</summary>
         Countdown,
+        /// <summary>Fase de juego activo</summary>
         InGame,
+        /// <summary>Fase finalizada</summary>
         Finished,
+        /// <summary>Fase de transición al lobby</summary>
         TransitioningToLobby
     }
 
+    /// <summary>
+    /// Gestor del minijuego Coin Collector.
+    /// Hereda de BaseMinigameManager e implementa lógica específica.
+    /// </summary>
+    /// <remarks>
+    /// Maneja la recolección de monedas y puntuación.
+    /// Implementa temporizador y estados específicos.
+    /// Proporciona Singleton para acceso global.
+    /// </remarks>
     public class CoinCollectorGameManager : BaseMinigameManager
     {
+        /// <summary>Instancia global del gestor (patrón Singleton)</summary>
         public static CoinCollectorGameManager Instance { get; private set; }
 
+        /// <summary>
+        /// Estado actual del minijuego específico.
+        /// Convierte del estado base al estado específico.
+        /// </summary>
         public CoinCollectorState CurrentState 
         {
             get
@@ -35,12 +58,20 @@ namespace ChibitsLink.Minigames.CoinCollector
             }
         }
 
+        /// <summary>Tiempo restante del juego</summary>
         public float remainingTime { get; private set; }
+        /// <summary>Valor actual de la cuenta regresiva</summary>
         public int countdownValue { get; private set; }
+        /// <summary>Tiempo restante para regresar al lobby</summary>
         public float returnTimeRemaining { get; private set; }
 
+        /// <summary>Puntuaciones de jugadores por ID</summary>
         private Dictionary<string, int> _scores = new Dictionary<string, int>();
 
+        /// <summary>
+        /// Inicialización del gestor del minijuego.
+        /// Establece el patrón Singleton y llama a la base.
+        /// </summary>
         protected override void Awake()
         {
             base.Awake();

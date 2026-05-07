@@ -5,35 +5,71 @@ using System.Collections.Generic;
 
 namespace ChibiCocina.Editor
 {
+    /// <summary>
+    /// Ventana de editor para inspección y análisis de scripts.
+    /// Proporciona información detallada sobre todos los scripts del proyecto.
+    /// </summary>
+    /// <remarks>
+    /// Muestra categorías, componentes requeridos y variables públicas.
+    /// Facilita la identificación visual de scripts y su propósito.
+    /// Útil para documentación y organización del proyecto.
+    /// </remarks>
     public class ScriptInspector : EditorWindow
     {
+        /// <summary>
+        /// Muestra la ventana del inspector de scripts.
+        /// Accesible desde el menú de Unity.
+        /// </summary>
         [MenuItem("ChibiCocina/Herramientas/Inspector de Scripts")]
         public static void ShowWindow()
         {
             GetWindow<ScriptInspector>("Inspector de Scripts");
         }
         
+        /// <summary>Posición del scroll</summary>
         private Vector2 scrollPosition;
+        /// <summary>Información de scripts cargada</summary>
         private Dictionary<string, ScriptInfo> scriptInfos = new Dictionary<string, ScriptInfo>();
         
+        /// <summary>
+        /// Clase que contiene información sobre un script.
+        /// Almacena metadatos para análisis y categorización.
+        /// </summary>
         private class ScriptInfo
         {
+            /// <summary>Nombre del script</summary>
             public string Name;
+            /// <summary>Ruta del archivo</summary>
             public string Path;
+            /// <summary>Descripción del script</summary>
             public string Description;
+            /// <summary>Componentes requeridos</summary>
             public string[] RequiredComponents;
+            /// <summary>Variables públicas</summary>
             public string[] PublicVariables;
+            /// <summary>Categoría del script</summary>
             public string Category;
+            /// <summary>Es un gestor</summary>
             public bool IsManager;
+            /// <summary>Es de red</summary>
             public bool IsNetwork;
+            /// <summary>Es de depuración</summary>
             public bool IsDebug;
         }
         
+        /// <summary>
+        /// Se ejecuta al habilitar la ventana.
+        /// Carga la información de todos los scripts.
+        /// </summary>
         private void OnEnable()
         {
             LoadScriptInformation();
         }
         
+        /// <summary>
+        /// Dibuja la interfaz de usuario de la ventana.
+        /// Muestra filtros y lista de scripts.
+        /// </summary>
         private void OnGUI()
         {
             GUILayout.Label("🔍 Inspector de Scripts - Identificación Visual", EditorStyles.boldLabel);

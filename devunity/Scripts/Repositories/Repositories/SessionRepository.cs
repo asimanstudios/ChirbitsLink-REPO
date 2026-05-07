@@ -8,21 +8,43 @@ using ChibitsLink.Core.Exceptions;
 namespace ChibitsLink.Repositories
 {
     /// <summary>
-    /// Repository for Game Session database operations.
-    /// Handles all CRUD operations for game sessions without business logic.
+    /// Repositorio para operaciones de base de datos de sesiones de juego.
+    /// Maneja todas las operaciones CRUD para sesiones sin lógica de negocio.
     /// </summary>
+    /// <remarks>
+    /// Se centra únicamente en operaciones de base de datos.
+    /// Proporciona validación de datos y manejo de errores.
+    /// Utiliza Firebase Firestore para persistencia.
+    /// </remarks>
     public class SessionRepository
     {
+        /// <summary>Instancia de Firebase Firestore</summary>
         private readonly FirebaseFirestore _database;
+        /// <summary>Nombre de la colección</summary>
         private readonly string _collectionName = "game_sessions";
+        /// <summary>Indica si está inicializado</summary>
         private bool _isInitialized;
 
+        /// <summary>
+        /// Constructor del repositorio.
+        /// Inicializa la instancia de Firebase Firestore.
+        /// </summary>
+        /// <param name="database">Instancia de Firebase Firestore</param>
+        /// <exception cref="ArgumentNullException">Si database es null</exception>
         public SessionRepository(FirebaseFirestore database)
         {
             _database = database ?? throw new ArgumentNullException(nameof(database));
             _isInitialized = true;
         }
 
+        /// <summary>
+        /// Actualiza una sesión de juego de forma asíncrona.
+        /// Actualiza jugadores activos y puntos totales.
+        /// </summary>
+        /// <param name="hostId">ID del host de la sesión</param>
+        /// <param name="activePlayers">Número de jugadores activos</param>
+        /// <param name="totalPoints">Puntos totales de la sesión</param>
+        /// <exception cref="SessionUpdateException">Si falla la actualización</exception>
         public async Task UpdateGameSessionAsync(string hostId, int activePlayers, int totalPoints)
         {
             ValidateRepositoryInitialized();

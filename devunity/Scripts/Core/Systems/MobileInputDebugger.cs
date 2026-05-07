@@ -6,27 +6,38 @@ using ChibitsLink.GameSide;
 namespace ChibitsLink.Core.Systems
 {
     /// <summary>
-    /// Mobile input diagnostic tool.
-    /// Displays real-time status in OnGUI of:
-    ///  - TCP server (active / port)
-    ///  - Each player: userId, associated GameObject, found IChibitsController
-    ///
-    /// ONLY active in Editor or Development Builds. Auto-deactivates in Release.
-    /// Add this component to the same GameObject as TcpServer or to an empty Manager.
+    /// Herramienta de diagnóstico para input móvil.
+    /// Muestra estado en tiempo real de:
+    ///  - Servidor TCP (activo / puerto)
+    ///  - Cada jugador: userId, GameObject asociado, IChibitsController encontrado
     /// </summary>
+    /// <remarks>
+    /// SOLO activo en Editor o Builds de Desarrollo.
+    /// Se desactiva automáticamente en Release.
+    /// Añadir este componente al mismo GameObject que TcpServer o a un Manager vacío.
+    /// </remarks>
     public class MobileInputDebugger : MonoBehaviour
     {
-        [Header("Display Configuration")]
-        [Tooltip("Screen corner where debug HUD panel appears")]
+        [Header("Configuración de Visualización")]
+        /// <summary>Mostrar en pantalla</summary>
+        [Tooltip("Esquina de pantalla donde aparece el panel HUD de depuración")]
         public bool showOnScreen = true;
 
-        [Tooltip("Font size for debug panel")]
+        /// <summary>Tamaño de fuente para el panel</summary>
+        [Tooltip("Tamaño de fuente para el panel de depuración")]
         public int fontSize = 14;
 
+        /// <summary>Estilo del panel</summary>
         private GUIStyle _panelStyle;
+        /// <summary>Estilo del texto</summary>
         private GUIStyle _textStyle;
+        /// <summary>Indica si los estilos están listos</summary>
         private bool _stylesReady;
 
+        /// <summary>
+        /// Inicialización del depurador.
+        /// Se destruye automáticamente en builds de release.
+        /// </summary>
         private void Awake()
         {
 #if !UNITY_EDITOR && !DEVELOPMENT_BUILD
@@ -37,6 +48,9 @@ namespace ChibitsLink.Core.Systems
 #endif
         }
 
+        /// <summary>
+        /// Inicializa los estilos GUI para el panel de depuración.
+        /// </summary>
         private void InitStyles()
         {
             if (!_stylesReady)

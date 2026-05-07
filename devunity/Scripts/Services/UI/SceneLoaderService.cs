@@ -4,16 +4,34 @@ using ChibiCocina.Core.Exceptions;
 
 namespace ChibiCocina.Services
 {
+    /// <summary>
+    /// Servicio para carga asíncrona de escenas.
+    /// Proporciona carga segura con manejo de errores.
+    /// Implementa patrón Singleton para acceso global.
+    /// </summary>
+    /// <remarks>
+    /// Previene cargas múltiples simultáneas.
+    /// Verifica existencia de escenas antes de cargar.
+    /// Proporciona timeout para evitar bloqueos.
+    /// </remarks>
     public class SceneLoaderService : MonoBehaviour
     {
+        /// <summary>Instancia global del servicio (patrón Singleton)</summary>
         public static SceneLoaderService Instance { get; private set; }
         
         [Header("Configuración de Escenas")]
+        /// <summary>Escena por defecto</summary>
         public string defaultScene = "menu";
+        /// <summary>Timeout para carga de escenas</summary>
         public float loadingTimeout = 10f;
         
+        /// <summary>Indica si hay una escena cargando actualmente</summary>
         private bool isLoading;
         
+        /// <summary>
+        /// Inicialización del servicio.
+        /// Establece el patrón Singleton y persistencia.
+        /// </summary>
         private void Awake()
         {
             if (Instance == null)
@@ -27,6 +45,12 @@ namespace ChibiCocina.Services
             }
         }
         
+        /// <summary>
+        /// Carga una escena de forma asíncrona y segura.
+        /// Verifica existencia y previene cargas múltiples.
+        /// </summary>
+        /// <param name="sceneName">Nombre de la escena a cargar</param>
+        /// <exception cref="SceneLoaderException">Si hay errores en la carga</exception>
         public void LoadScene(string sceneName)
         {
             if (!isLoading)
