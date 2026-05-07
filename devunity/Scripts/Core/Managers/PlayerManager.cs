@@ -137,6 +137,10 @@ namespace ChibitsLink.GameSide
                     SpawnPlayer(userId, charId, originalIndex);
                     ConfigureCameras();
                 }
+                else
+                {
+                    Debug.LogWarning($"[PlayerManager] Cannot spawn player {userId} - transition in progress");
+                }
                 return;
             }
 
@@ -281,60 +285,87 @@ namespace ChibitsLink.GameSide
         {
             if (_playerObjects.TryGetValue(userId, out GameObject obj))
             {
-                // GetComponentInChildren busca en la raíz Y en todos los hijos (incluidos inactivos)
-                // Necesario porque MovimientoPersonaje suele estar en un nodo hijo del prefab
-                var controller = obj.GetComponentInChildren<IChibitsController>(true);
+                var controller = GetPlayerController(obj, userId);
                 if (controller != null)
                 {
-                    var input = JsonUtility.FromJson<TcpServer.ControllerInput>(json);
-                    if (input == null)
-                    {
-                        Debug.LogWarning($"[PlayerManager] JSON inválido para {userId}: {json}");
-                    }
-                    else
-                    {
-                        bool isJoystickInput = input.type == "joystick";
-                        bool isButtonInput = input.type == "button";
-
-                        if (isJoystickInput)
-                        {
-                            controller.ProcessJoystick(input.x, input.y);
-                        }
-
-                        if (isButtonInput)
-                        {
-                            controller.ProcessButton(input.id, input.state);
-                        }
-
-                        bool isUnknownInput = !isJoystickInput && !isButtonInput;
-                        if (isUnknownInput)
-                        {
-                            Debug.LogWarning($"[PlayerManager] Tipo de input desconocido: '{input.type}'");
-                        }
-                    }
-                }
-                else
-                {
-                    Debug.LogWarning($"[PlayerManager] El GameObject '{obj.name}' (userId={userId}) " +
-                                     "no tiene ningún componente IChibitsController en su jerarquía. " +
-                                     "Comprueba que MovimientoPersonaje o ControladorLegacy está en el prefab.");
+                    ProcessInputForController(controller, userId, json);
                 }
             }
             else
             {
-                string availableIds = _playerObjects.Count == 0 
-                    ? "(ninguno registrado)" 
-                    : string.Join(" | ", _playerObjects.Keys);
-                Debug.LogWarning($"[PlayerManager] Input ignorado. UID de la App: '{userId}' — " +
-                                 $"UIDs registrados: {availableIds}");
+                LogUnknownPlayer(userId);
             }
+        }
+        
+        private IChibitsController GetPlayerController(GameObject obj, string userId)
+        {
+            // GetComponentInChildren busca en la raíz Y en todos los hijos (incluidos inactivos)
+            // Necesario porque el controller suele estar en un nodo hijo del prefab
+            var controller = obj.GetComponentInChildren<IChibitsController>(true);
+            if (controller == null)
+            {
+                Debug.LogWarning($"[PlayerManager] El GameObject '{obj.name}' (userId={userId}) " +
+                                 "no tiene ningún componente IChibitsController en su jerarquía. " +
+                                 "Comprueba que el controller está en el prefab.");
+            }
+            return controller;
+        }
+        
+        private void ProcessInputForController(IChibitsController controller, string userId, string json)
+        {
+            var input = JsonUtility.FromJson<TcpServer.ControllerInput>(json);
+            if (input == null)
+            {
+                Debug.LogWarning($"[PlayerManager] JSON inválido para {userId}: {json}");
+                return;
+            }
+            
+            ProcessInputType(controller, input);
+        }
+        
+        private void ProcessInputType(IChibitsController controller, TcpServer.ControllerInput input)
+        {
+            bool isJoystickInput = input.type == "joystick";
+            bool isButtonInput = input.type == "button";
+
+            if (isJoystickInput)
+            {
+                controller.ProcessJoystick(input.x, input.y);
+            }
+            else if (isButtonInput)
+            {
+                controller.ProcessButton(input.id, input.state);
+            }
+            else
+            {
+                Debug.LogWarning($"[PlayerManager] Tipo de input desconocido: '{input.type}'");
+            }
+        }
+        
+        private void LogUnknownPlayer(string userId)
+        {
+            string availableIds = _playerObjects.Count == 0 
+                ? "(ninguno registrado)" 
+                : string.Join(" | ", _playerObjects.Keys);
+            Debug.LogWarning($"[PlayerManager] Input ignorado. UID de la App: '{userId}' — " +
+                             $"UIDs registrados: {availableIds}");
         }
 
         public void HandlePlayerDisconnect(string userId)
         {
             Debug.Log($"[PlayerManager] Iniciando desconexión robusta para UID: {userId}");
 
-            // 1. Limpiar rastro de IDENTIDAD (pero mantener posición en _connectionOrder para spawn consistente)
+            CleanupPlayerIdentity(userId);
+            DestroyPlayerObject(userId);
+            CleanupOrphanedIdentities(userId);
+            
+            ConfigureCameras();
+            Debug.Log($"[PlayerManager] Desconexión completada para UID: {userId}");
+        }
+        
+        private void CleanupPlayerIdentity(string userId)
+        {
+            // Limpiar rastro de IDENTIDAD (pero mantener posición en _connectionOrder para spawn consistente)
             if (_playerNames.TryGetValue(userId, out string name))
             {
                 if (notifications != null) notifications.ShowNotification($"{name} ha salido");
@@ -342,8 +373,11 @@ namespace ChibitsLink.GameSide
             }
             _playerLastCharId.Remove(userId);
             // NO eliminar de _connectionOrder para mantener spawn consistente al reconectar
-
-            // 2. Destruir el objeto físico trackeado
+        }
+        
+        private void DestroyPlayerObject(string userId)
+        {
+            // Destruir el objeto físico trackeado
             if (_playerObjects.TryGetValue(userId, out GameObject trackedObj))
             {
                 if (trackedObj != null) 
@@ -353,11 +387,15 @@ namespace ChibitsLink.GameSide
                 }
                 _playerObjects.Remove(userId);
             }
-
-            // 3. BUSQUEDA AGRESIVA DE HUÉRFANOS (Siempre, por seguridad)
+        }
+        
+        private void CleanupOrphanedIdentities(string userId)
+        {
+            // BUSQUEDA AGRESIVA DE HUÉRFANOS (Siempre, por seguridad)
             // Esto limpia personajes que se hayan quedado "sueltos" por cambios de escena o wipes parciales
             var allIdentities = GameObject.FindObjectsByType<PlayerIdentity>(FindObjectsSortMode.None);
             int orphansFound = 0;
+            
             foreach (var identity in allIdentities)
             {
                 if (identity.userId == userId)
@@ -368,8 +406,10 @@ namespace ChibitsLink.GameSide
                 }
             }
             
-            ConfigureCameras();
-            Debug.Log($"[PlayerManager] Cleanup completado para UID: {userId}. (Objetos extra eliminados: {orphansFound})");
+            if (orphansFound > 0)
+            {
+                Debug.Log($"[PlayerManager] Objetos extra eliminados: {orphansFound}");
+            }
         }
 
         public List<string> GetAllCharacterIds()

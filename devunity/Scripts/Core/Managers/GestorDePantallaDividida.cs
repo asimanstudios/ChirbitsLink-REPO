@@ -2,33 +2,66 @@ using UnityEngine;
 using Unity.Netcode;
 using ChibiCocina.Models;
 
-namespace ChibiCocina.Nucleo
+namespace ChibitsLink.Core
 {
-    public class GestorDePantallaDividida : MonoBehaviour
+    /// <summary>
+    /// Gestor de configuración de pantalla dividida para multijugador local.
+    /// Ajusta cámaras y viewport según la cantidad de jugadores conectados.
+    /// Implementa patrón Singleton para acceso global al sistema de pantalla.
+    /// </summary>
+    /// <remarks>
+    /// Soporta configuraciones para 1-4 jugadores con diferentes distribuciones.
+    /// Permite cambiar dinámicamente entre modos de pantalla.
+    /// </remarks>
+    public class SplitScreenManager : MonoBehaviour
     {
-        public static GestorDePantallaDividida Instancia { get; private set; }
+        /// <summary>Instancia global del gestor de pantalla dividida (patrón Singleton)</summary>
+        public static SplitScreenManager Instance { get; private set; }
         
-        [Header("Configuración de Pantalla Dividida")]
-        public Camera[] camaras;
-        public RectTransform[] areasJugador;
-        public bool pantallaDivididaActiva;
-        public ModoPantallaDividida modoActual;
+        [Header("Split Screen Configuration")]
+        /// <summary>Array de cámaras para cada jugador (máximo 4)</summary>
+        public Camera[] cameras;
+        /// <summary>Áreas de UI para cada jugador (opcional)</summary>
+        public RectTransform[] playerAreas;
+        /// <summary>Indica si la pantalla dividida está activa</summary>
+        public bool splitScreenActive;
+        /// <summary>Modo actual de configuración de pantalla</summary>
+        public SplitScreenMode currentMode;
         
-        // Estado de la configuración
-        private int jugadoresActivos;
-        private ConfiguracionPantalla[] configuraciones;
+        /// <summary>Número de jugadores actualmente activos</summary>
+        private int _activePlayers;
+        /// <summary>Configuraciones predefinidas para cada modo de pantalla</summary>
+        private ScreenConfiguration[] _configurations;
         
-        // Eventos
-        public System.Action<ModoPantallaDividida> OnModoCambiado;
-        public System.Action<int> OnJugadoresActualizados;
+        /// <summary>Evento disparado cuando cambia el modo de pantalla</summary>
+        public System.Action<SplitScreenMode> OnModeChanged;
+        /// <summary>Evento disparado cuando se actualiza la cantidad de jugadores</summary>
+        public System.Action<int> OnPlayersUpdated;
         
+        /// <summary>
+        /// Inicializa el gestor y establece el patrón Singleton.
+        /// Configura la pantalla dividida con valores iniciales.
+        /// </summary>
         private void Awake()
         {
-            if (Instancia == null)
+            InitializeSingleton();
+        }
+        
+        /// <summary>
+        /// Inicializa el patrón Singleton y configura el sistema.
+        /// Asegura que solo exista una instancia del gestor.
+        /// </summary>
+        /// <remarks>
+        /// Utiliza DontDestroyOnLoad para persistir entre escenas.
+        /// Destruye instancias duplicadas automáticamente.
+        /// </remarks>
+        private void InitializeSingleton()
+        {
+            if (Instance == null)
             {
-                Instancia = this;
+                Instance = this;
                 DontDestroyOnLoad(gameObject);
-                InicializarPantallaDividida();
+                InitializeSplitScreen();
             }
             else
             {
@@ -36,227 +69,439 @@ namespace ChibiCocina.Nucleo
             }
         }
         
-        private void InicializarPantallaDividida()
+        /// <summary>
+        /// Inicializa el sistema de pantalla dividida.
+        /// Establece configuración inicial y prepara modos disponibles.
+        /// </summary>
+        private void InitializeSplitScreen()
         {
-            jugadoresActivos = 1;
-            modoActual = ModoPantallaDividida.UnJugador;
-            pantallaDivididaActiva = false;
+            _activePlayers = 1;
+            currentMode = SplitScreenMode.SinglePlayer;
+            splitScreenActive = false;
             
-            InicializarConfiguraciones();
-            AplicarConfiguracion(modoActual);
+            InitializeConfigurations();
+            ApplyConfiguration(currentMode);
             
-            Debug.Log("[GestorDePantallaDividida] Inicializado");
+            Debug.Log("[SplitScreenManager] Initialized");
         }
         
-        private void InicializarConfiguraciones()
+        /// <summary>
+        /// Inicializa todas las configuraciones de pantalla disponibles.
+        /// Crea configuraciones para 1, 2, 3 y 4 jugadores.
+        /// </summary>
+        private void InitializeConfigurations()
         {
-            configuraciones = new ConfiguracionPantalla[4];
+            _configurations = new ScreenConfiguration[4];
             
-            // Configuración para 1 jugador
-            configuraciones[0] = new ConfiguracionPantalla
+            _configurations[0] = CreateSinglePlayerConfig();
+            _configurations[1] = CreateTwoPlayerConfig();
+            _configurations[2] = CreateThreePlayerConfig();
+            _configurations[3] = CreateFourPlayerConfig();
+        }
+        
+        /// <summary>
+        /// Crea la configuración para modo de un solo jugador.
+        /// </summary>
+        /// <returns>Configuración de pantalla completa para un jugador</returns>
+        private ScreenConfiguration CreateSinglePlayerConfig()
+        {
+            return new ScreenConfiguration
             {
-                modo = ModoPantallaDividida.UnJugador,
-                rectangulos = new Rect[] { new Rect(0, 0, 1, 1) },
-                camarasActivas = new int[] { 0 }
+                mode = SplitScreenMode.SinglePlayer,
+                rectangles = new Rect[] { new Rect(0, 0, 1, 1) },
+                activeCameras = new int[] { 0 }
             };
-            
-            // Configuración para 2 jugadores (horizontal)
-            configuraciones[1] = new ConfiguracionPantalla
+        }
+        
+        /// <summary>
+        /// Crea la configuración para modo de dos jugadores horizontal.
+        /// Divide la pantalla en dos mitades verticales.
+        /// </summary>
+        /// <returns>Configuración para dos jugadores en disposición horizontal</returns>
+        private ScreenConfiguration CreateTwoPlayerConfig()
+        {
+            return new ScreenConfiguration
             {
-                modo = ModoPantallaDividida.DosJugadoresHorizontal,
-                rectangulos = new Rect[] { 
+                mode = SplitScreenMode.TwoPlayerHorizontal,
+                rectangles = new Rect[] { 
                     new Rect(0, 0, 0.5f, 1), 
                     new Rect(0.5f, 0, 0.5f, 1) 
                 },
-                camarasActivas = new int[] { 0, 1 }
+                activeCameras = new int[] { 0, 1 }
             };
-            
-            // Configuración para 3 jugadores
-            configuraciones[2] = new ConfiguracionPantalla
+        }
+        
+        /// <summary>
+        /// Crea la configuración para modo de tres jugadores.
+        /// Dos jugadores en la parte superior, uno en la inferior central.
+        /// </summary>
+        /// <returns>Configuración para tres jugadores</returns>
+        private ScreenConfiguration CreateThreePlayerConfig()
+        {
+            return new ScreenConfiguration
             {
-                modo = ModoPantallaDividida.TresJugadores,
-                rectangulos = new Rect[] { 
+                mode = SplitScreenMode.ThreePlayer,
+                rectangles = new Rect[] { 
                     new Rect(0, 0.5f, 0.5f, 0.5f), 
                     new Rect(0.5f, 0.5f, 0.5f, 0.5f),
                     new Rect(0.25f, 0, 0.5f, 0.5f)
                 },
-                camarasActivas = new int[] { 0, 1, 2 }
+                activeCameras = new int[] { 0, 1, 2 }
             };
-            
-            // Configuración para 4 jugadores
-            configuraciones[3] = new ConfiguracionPantalla
+        }
+        
+        /// <summary>
+        /// Crea la configuración para modo de cuatro jugadores.
+        /// Divide la pantalla en cuatro cuadrantes iguales.
+        /// </summary>
+        /// <returns>Configuración para cuatro jugadores en cuadrantes</returns>
+        private ScreenConfiguration CreateFourPlayerConfig()
+        {
+            return new ScreenConfiguration
             {
-                modo = ModoPantallaDividida.CuatroJugadores,
-                rectangulos = new Rect[] { 
+                mode = SplitScreenMode.FourPlayer,
+                rectangles = new Rect[] { 
                     new Rect(0, 0.5f, 0.5f, 0.5f), 
                     new Rect(0.5f, 0.5f, 0.5f, 0.5f),
                     new Rect(0, 0, 0.5f, 0.5f),
                     new Rect(0.5f, 0, 0.5f, 0.5f)
                 },
-                camarasActivas = new int[] { 0, 1, 2, 3 }
+                activeCameras = new int[] { 0, 1, 2, 3 }
             };
         }
         
-        public void ActualizarJugadores(int cantidadJugadores)
+        /// <summary>
+        /// Actualiza la configuración de pantalla según la cantidad de jugadores.
+        /// Cambia el modo si es necesario y aplica la configuración apropiada.
+        /// </summary>
+        /// <param name="playerCount">Cantidad de jugadores (1-4)</param>
+        /// <remarks>
+        /// Solo permite valores entre 1 y 4 jugadores.
+        /// Dispara evento OnPlayersUpdated al finalizar.
+        /// </remarks>
+        public void UpdatePlayers(int playerCount)
         {
-            if (cantidadJugadores < 1 || cantidadJugadores > 4) return;
-            
-            jugadoresActivos = cantidadJugadores;
-            ModoPantallaDividida nuevoModo = ObtenerModoParaJugadores(cantidadJugadores);
-            
-            if (nuevoModo != modoActual)
+            bool isValidPlayerCount = playerCount >= 1 && playerCount <= 4;
+            if (isValidPlayerCount)
             {
-                CambiarModo(nuevoModo);
-            }
-            
-            OnJugadoresActualizados?.Invoke(jugadoresActivos);
-            Debug.Log($"[GestorDePantallaDividida] Actualizado a {cantidadJugadores} jugadores");
-        }
-        
-        private ModoPantallaDividida ObtenerModoParaJugadores(int jugadores)
-        {
-            return jugadores switch
-            {
-                1 => ModoPantallaDividida.UnJugador,
-                2 => ModoPantallaDividida.DosJugadoresHorizontal,
-                3 => ModoPantallaDividida.TresJugadores,
-                4 => ModoPantallaDividida.CuatroJugadores,
-                _ => ModoPantallaDividida.UnJugador
-            };
-        }
-        
-        private void CambiarModo(ModoPantallaDividida nuevoModo)
-        {
-            modoActual = nuevoModo;
-            AplicarConfiguracion(nuevoModo);
-            OnModoCambiado?.Invoke(nuevoModo);
-            
-            Debug.Log($"[GestorDePantallaDividida] Modo cambiado a: {nuevoModo}");
-        }
-        
-        private void AplicarConfiguracion(ModoPantallaDividida modo)
-        {
-            ConfiguracionPantalla config = ObtenerConfiguracion(modo);
-            if (config == null) return;
-            
-            // Desactivar todas las cámaras primero
-            DesactivarTodasLasCamaras();
-            
-            // Activar cámaras necesarias y configurar sus viewports
-            for (int i = 0; i < config.camarasActivas.Length && i < config.rectangulos.Length; i++)
-            {
-                int indiceCamara = config.camarasActivas[i];
-                Rect viewport = config.rectangulos[i];
+                _activePlayers = playerCount;
+                SplitScreenMode newMode = GetModeForPlayers(playerCount);
                 
-                if (indiceCamara < camaras.Length && camaras[indiceCamara] != null)
+                bool modeChanged = newMode != currentMode;
+                if (modeChanged)
                 {
-                    camaras[indiceCamara].rect = viewport;
-                    camaras[indiceCamara].enabled = true;
+                    ChangeMode(newMode);
+                }
+                else
+                {
+                    ApplySplitScreenConfiguration(newMode);
                 }
             }
             
-            pantallaDivididaActiva = modo != ModoPantallaDividida.UnJugador;
+            OnPlayersUpdated?.Invoke(_activePlayers);
+            Debug.Log($"[SplitScreenManager] Updated to {playerCount} players");
         }
         
-        private void DesactivarTodasLasCamaras()
+        /// <summary>
+        /// Determina el modo de pantalla apropiado según la cantidad de jugadores.
+        /// </summary>
+        /// <param name="players">Cantidad de jugadores</param>
+        /// <returns>Modo de pantalla correspondiente</returns>
+        /// <remarks>
+        /// Utiliza expresión switch para mapeo directo.
+        /// Por defecto retorna SinglePlayer para valores inválidos.
+        /// </remarks>
+        private SplitScreenMode GetModeForPlayers(int players)
         {
-            if (camaras == null) return;
-            
-            for (int i = 0; i < camaras.Length; i++)
+            return players switch
             {
-                if (camaras[i] != null)
+                1 => SplitScreenMode.SinglePlayer,
+                2 => SplitScreenMode.TwoPlayerHorizontal,
+                3 => SplitScreenMode.ThreePlayer,
+                4 => SplitScreenMode.FourPlayer,
+                _ => SplitScreenMode.SinglePlayer
+            };
+        }
+        
+        /// <summary>
+        /// Realiza el cambio de modo de pantalla.
+        /// Aplica nueva configuración y dispara evento de cambio.
+        /// </summary>
+        /// <param name="newMode">Nuevo modo de pantalla a aplicar</param>
+        private void ChangeMode(SplitScreenMode newMode)
+        {
+            currentMode = newMode;
+            ApplyConfiguration(newMode);
+            OnModeChanged?.Invoke(newMode);
+            
+            Debug.Log($"[SplitScreenManager] Mode changed to: {newMode}");
+        }
+        
+        /// <summary>
+        /// Aplica la configuración de pantalla para el modo especificado.
+        /// Configura cámaras y viewports según el modo seleccionado.
+        /// </summary>
+        /// <param name="mode">Modo de pantalla a aplicar</param>
+        /// <remarks>
+        /// Deshabilita todas las cámaras antes de configurar las activas.
+        /// Maneja errores si no se encuentra configuración válida.
+        /// </remarks>
+        private void ApplyConfiguration(SplitScreenMode mode)
+        {
+            ScreenConfiguration config;
+            try
+            {
+                config = GetConfiguration(mode);
+            }
+            catch (System.ArgumentException ex)
+            {
+                Debug.LogError($"[SplitScreenManager] Failed to apply configuration: {ex.Message}");
+            }
+            
+            DisableAllCameras();
+            ConfigureActiveCameras(config);
+            
+            splitScreenActive = mode != SplitScreenMode.SinglePlayer;
+        }
+        
+        /// <summary>
+        /// Configura las cámaras activas según la configuración especificada.
+        /// Establece viewport y habilita las cámaras necesarias.
+        /// </summary>
+        /// <param name="config">Configuración de pantalla a aplicar</param>
+        /// <remarks>
+        /// Valida que los índices de cámara estén dentro del rango.
+        /// Solo configura cámaras que existan en el array.
+        /// </remarks>
+        private void ConfigureActiveCameras(ScreenConfiguration config)
+        {
+            int cameraCount = Mathf.Min(config.activeCameras.Length, config.rectangles.Length);
+            
+            for (int i = 0; i < cameraCount; i++)
+            {
+                int cameraIndex = config.activeCameras[i];
+                Rect viewport = config.rectangles[i];
+                
+                bool isValidCamera = cameraIndex < cameras.Length && cameras[cameraIndex] != null;
+                if (isValidCamera)
                 {
-                    camaras[i].enabled = false;
+                    cameras[cameraIndex].rect = viewport;
+                    cameras[cameraIndex].enabled = true;
                 }
             }
         }
         
-        private ConfiguracionPantalla ObtenerConfiguracion(ModoPantallaDividida modo)
+        /// <summary>
+        /// Deshabilita todas las cámaras del array.
+        /// Utilizado antes de aplicar una nueva configuración.
+        /// </summary>
+        /// <remarks>
+        /// Verifica nulidad del array antes de iterar.
+        /// Solo deshabilita cámaras que no sean null.
+        /// </remarks>
+        private void DisableAllCameras()
         {
-            foreach (var config in configuraciones)
+            if (cameras != null)
             {
-                if (config.modo == modo)
+            
+            for (int i = 0; i < cameras.Length; i++)
+            {
+                if (cameras[i] != null)
+                {
+                    cameras[i].enabled = false;
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Obtiene la configuración de pantalla para el modo especificado.
+        /// </summary>
+        /// <param name="mode">Modo de pantalla buscado</param>
+        /// <returns>Configuración de pantalla correspondiente</returns>
+        /// <exception cref="System.ArgumentException">Si no se encuentra configuración para el modo</exception>
+        private ScreenConfiguration GetConfiguration(SplitScreenMode mode)
+        {
+            foreach (var config in _configurations)
+            {
+                if (config.mode == mode)
                     return config;
             }
-            return null;
+            
+            throw new System.ArgumentException($"No configuration found for mode: {mode}", nameof(mode));
         }
         
-        public void ActivarPantallaDividida(bool activar)
+        /// <summary>
+        /// Activa o desactiva el modo de pantalla dividida.
+        /// Permite cambiar entre modo single y multijugador.
+        /// </summary>
+        /// <param name="enable">True para activar pantalla dividida</param>
+        /// <remarks>
+        /// Solo activa multijugador si hay más de un jugador.
+        /// Si se desactiva, fuerza modo SinglePlayer.
+        /// </remarks>
+        public void SetSplitScreen(bool enable)
         {
-            if (activar && jugadoresActivos > 1)
+            bool shouldEnableMultiplayer = enable && _activePlayers > 1;
+            if (shouldEnableMultiplayer)
             {
-                CambiarModo(ObtenerModoParaJugadores(jugadoresActivos));
+                ChangeMode(GetModeForPlayers(_activePlayers));
             }
-            else if (!activar)
+            else if (!enable)
             {
-                CambiarModo(ModoPantallaDividida.UnJugador);
+                ChangeMode(SplitScreenMode.SinglePlayer);
             }
         }
         
-        public void ConfigurarCamara(int indiceJugador, Camera camara)
+        /// <summary>
+        /// Configura una cámara para un jugador específico.
+        /// </summary>
+        /// <param name="playerIndex">Índice del jugador (0-3)</param>
+        /// <param name="camera">Cámara a asignar</param>
+        /// <remarks>
+        /// Valida que el índice esté dentro del rango del array.
+        /// </remarks>
+        public void ConfigureCamera(int playerIndex, Camera camera)
         {
-            if (indiceJugador >= 0 && indiceJugador < camaras.Length)
+            bool isValidIndex = playerIndex >= 0 && playerIndex < cameras.Length;
+            if (isValidIndex)
             {
-                camaras[indiceJugador] = camara;
-                Debug.Log($"[GestorDePantallaDividida] Cámara configurada para jugador {indiceJugador}");
+                cameras[playerIndex] = camera;
+                Debug.Log($"[SplitScreenManager] Camera configured for player {playerIndex}");
             }
         }
         
-        public Camera ObtenerCamaraJugador(int indiceJugador)
+        /// <summary>
+        /// Obtiene la cámara configurada para un jugador específico.
+        /// </summary>
+        /// <param name="playerIndex">Índice del jugador (0-3)</param>
+        /// <returns>Cámara configurada para el jugador</returns>
+        /// <exception cref="System.ArgumentOutOfRangeException">Si el índice está fuera de rango</exception>
+        /// <exception cref="System.InvalidOperationException">Si la cámara no está configurada</exception>
+        public Camera GetPlayerCamera(int playerIndex)
         {
-            if (indiceJugador >= 0 && indiceJugador < camaras.Length)
+            bool isValidIndex = playerIndex >= 0 && playerIndex < cameras.Length;
+            if (!isValidIndex)
             {
-                return camaras[indiceJugador];
+                throw new System.ArgumentOutOfRangeException(nameof(playerIndex), $"Player index {playerIndex} is out of range");
             }
-            return null;
+            
+            Camera camera = cameras[playerIndex];
+            if (camera == null)
+            {
+                throw new System.InvalidOperationException($"Camera at index {playerIndex} is not configured");
+            }
+            
+            return camera;
         }
         
-        public ModoPantallaDividida ObtenerModoActual()
+        /// <summary>
+        /// Obtiene el modo actual de configuración de pantalla.
+        /// </summary>
+        /// <returns>Modo de pantalla actual</returns>
+        public SplitScreenMode GetCurrentMode()
         {
-            return modoActual;
+            return currentMode;
         }
         
-        public int ObtenerJugadoresActivos()
+        /// <summary>
+        /// Obtiene la cantidad de jugadores actualmente activos.
+        /// </summary>
+        /// <returns>Número de jugadores activos</returns>
+        public int GetActivePlayers()
         {
-            return jugadoresActivos;
+            return _activePlayers;
         }
         
-        public bool EstaPantallaDivididaActiva()
+        /// <summary>
+        /// Verifica si la pantalla dividida está actualmente activa.
+        /// </summary>
+        /// <returns>True si la pantalla dividida está activa</returns>
+        public bool IsSplitScreenActive()
         {
-            return pantallaDivididaActiva;
+            return splitScreenActive;
         }
         
+        /// <summary>
+        /// Dibuja la interfaz de depuración en pantalla.
+        /// Muestra información actual del sistema de pantalla dividida.
+        /// </summary>
+        /// <remarks>
+        /// OnGUI es llamado automáticamente por Unity cada frame.
+        /// </remarks>
         private void OnGUI()
         {
+            DrawDebugUI();
+        }
+        
+        /// <summary>
+        /// Dibuja los elementos de la UI de depuración.
+        /// Muestra estado actual y permite cambiar modos manualmente.
+        /// </summary>
+        /// <remarks>
+        /// Solo visible durante desarrollo para facilitar pruebas.
+        /// </remarks>
+        private void DrawDebugUI()
+        {
             GUILayout.BeginArea(new Rect(Screen.width - 200, 10, 190, 150));
-            GUILayout.Label($"Pantalla Dividida: {(pantallaDivididaActiva ? "Activa" : "Inactiva")}");
-            GUILayout.Label($"Modo: {modoActual}");
-            GUILayout.Label($"Jugadores: {jugadoresActivos}");
+            GUILayout.Label($"Split Screen: {(splitScreenActive ? "Active" : "Inactive")}");
+            GUILayout.Label($"Mode: {currentMode}");
+            GUILayout.Label($"Players: {_activePlayers}");
             
-            if (GUILayout.Button("Cambiar Modo"))
+            if (GUILayout.Button("Change Mode"))
             {
-                int siguienteModo = ((int)modoActual + 1) % 4;
-                ActualizarJugadores(siguienteModo + 1);
+                HandleModeChangeButton();
             }
             
             GUILayout.EndArea();
         }
+        
+        /// <summary>
+        /// Maneja el evento del botón de cambio de modo en la UI de depuración.
+        /// Cicla through los modos disponibles de pantalla.
+        /// </summary>
+        /// <remarks>
+        /// Utiliza aritmética modular para ciclar entre 0-3.
+        /// </remarks>
+        private void HandleModeChangeButton()
+        {
+            int nextMode = ((int)currentMode + 1) % 4;
+            UpdatePlayers(nextMode + 1);
+        }
     }
     
-    public enum ModoPantallaDividida
+    /// <summary>
+    /// Enumeración que representa los modos de configuración de pantalla dividida.
+    /// Define cómo se distribuye la pantalla entre múltiples jugadores.
+    /// </summary>
+    public enum SplitScreenMode
     {
-        UnJugador,
-        DosJugadoresHorizontal,
-        DosJugadoresVertical,
-        TresJugadores,
-        CuatroJugadores
+        /// <summary>Pantalla completa para un solo jugador</summary>
+        SinglePlayer,
+        /// <summary>Dos jugadores en división horizontal</summary>
+        TwoPlayerHorizontal,
+        /// <summary>Dos jugadores en división vertical</summary>
+        TwoPlayerVertical,
+        /// <summary>Tres jugadores en configuración especial</summary>
+        ThreePlayer,
+        /// <summary>Cuatro jugadores en cuadrantes</summary>
+        FourPlayer
     }
     
+    /// <summary>
+    /// Clase que representa una configuración de pantalla específica.
+    /// Almacena los rectángulos de viewport y cámaras activas.
+    /// </summary>
+    /// <remarks>
+    /// Marcada como Serializable para poder editar en el inspector de Unity.
+    /// </remarks>
     [System.Serializable]
-    public class ConfiguracionPantalla
+    public class ScreenConfiguration
     {
-        public ModoPantallaDividida modo;
-        public Rect[] rectangulos;
-        public int[] camarasActivas;
+        /// <summary>Modo de pantalla al que corresponde esta configuración</summary>
+        public SplitScreenMode mode;
+        /// <summary>Rectángulos de viewport para cada cámara activa</summary>
+        public Rect[] rectangles;
+        /// <summary>Índices de cámaras que deben estar activas</summary>
+        public int[] activeCameras;
     }
 }

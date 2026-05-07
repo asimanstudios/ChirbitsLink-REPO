@@ -5,37 +5,78 @@ using System.Linq;
 
 namespace ChibiCocina.Editor
 {
+    /// <summary>
+    /// Herramienta de Unity Editor para auto-reasignar scripts faltantes.
+    /// Detecta GameObjects con scripts perdidos y sugiere reemplazos automáticos.
+    /// Facilita la recuperación de escenas con referencias rotas.
+    /// </summary>
+    /// <remarks>
+    /// Utiliza análisis de nombres y componentes para determinar scripts necesarios.
+    /// Implementa sistema de confianza para evitar asignaciones incorrectas.
+    /// </remarks>
     public class AutoScriptReassigner : EditorWindow
     {
+        /// <summary>
+        /// Muestra la ventana de auto-reasignación de scripts.
+        /// Agregada al menú de Unity bajo ChibiCocina/Herramientas.
+        /// </summary>
         [MenuItem("ChibiCocina/Herramientas/Auto-Reasignar Scripts")]
         public static void ShowWindow()
         {
             GetWindow<AutoScriptReassigner>("Auto-Reasignar Scripts");
         }
         
+        /// <summary>Posición de scroll para la vista detallada</summary>
         private Vector2 scrollPosition;
+        /// <summary>Mapa de GameObjects con scripts faltantes</summary>
         private Dictionary<GameObject, List<ScriptMatch>> missingScriptsMap = new Dictionary<GameObject, List<ScriptMatch>>();
+        /// <summary>Indica si se ha realizado el escaneo</summary>
         private bool hasScanned = false;
+        /// <summary>Total de scripts corregidos</summary>
         private int totalFixed = 0;
+        /// <summary>Control de visibilidad de detalles</summary>
+        private bool ShowDetails = true;
         
+        /// <summary>
+        /// Representa una posible coincidencia de script para un GameObject.
+        /// Contiene información sobre el script sugerido y nivel de confianza.
+        /// </summary>
         private class ScriptMatch
         {
+            /// <summary>Nombre del script sugerido</summary>
             public string ScriptName;
+            /// <summary>Ruta del archivo del script</summary>
             public string ScriptPath;
+            /// <summary>Descripción del propósito del script</summary>
             public string Description;
+            /// <summary>Nivel de confianza de la coincidencia (0-1)</summary>
             public float Confidence;
+            /// <summary>Indica si puede ser corregido automáticamente</summary>
             public bool IsAutoFixable;
+            /// <summary>Razón de la sugerencia</summary>
             public string Reason;
         }
         
+        /// <summary>
+        /// Define patrones de mapeo para detección automática de scripts.
+        /// Utilizado para configurar reglas de coincidencia basadas en nombres.
+        /// </summary>
         private struct GameObjectMapping
         {
+            /// <summary>Patrón de nombre a buscar</summary>
             public string Pattern;
+            /// <summary>Scripts requeridos para este patrón</summary>
             public string[] RequiredScripts;
+            /// <summary>Scripts a excluir para este patrón</summary>
             public string[] ExcludedScripts;
+            /// <summary>Componentes requeridos para este patrón</summary>
             public string[] RequiredComponents;
         }
         
+        /// <summary>
+        /// Dibuja la interfaz de usuario de la ventana.
+        /// Muestra controles y resultados del análisis de scripts.
+        /// </summary>
         private void OnGUI()
         {
             GUILayout.Label("🔧 Auto-Reasignador de Scripts", EditorStyles.boldLabel);
@@ -100,6 +141,10 @@ namespace ChibiCocina.Editor
         
         private bool ShowDetails = true;
         
+        /// <summary>
+        /// Escanea todos los GameObjects en busca de scripts faltantes.
+        /// Analiza componentes nulos y genera mapa de problemas encontrados.
+        /// </summary>
         private void ScanForMissingScripts()
         {
             missingScriptsMap.Clear();
@@ -124,6 +169,12 @@ namespace ChibiCocina.Editor
             );
         }
         
+        /// <summary>
+        /// Busca scripts faltantes para un GameObject específico.
+        /// Analiza componentes nulos y genera lista de coincidencias.
+        /// </summary>
+        /// <param name="obj">GameObject a analizar</param>
+        /// <returns>Lista de scripts faltantes con sus coincidencias</returns>
         private List<ScriptMatch> FindMissingScriptsForGameObject(GameObject obj)
         {
             var matches = new List<ScriptMatch>();
@@ -141,6 +192,12 @@ namespace ChibiCocina.Editor
             return matches;
         }
         
+        /// <summary>
+        /// Detecta scripts requeridos basándose en el nombre y componentes del GameObject.
+        /// Utiliza heurísticas para determinar qué scripts podrían faltar.
+        /// </summary>
+        /// <param name="obj">GameObject a analizar</param>
+        /// <returns>Lista de coincidencias de scripts ordenadas por confianza</returns>
         private List<ScriptMatch> DetectRequiredScripts(GameObject obj)
         {
             var matches = new List<ScriptMatch>();
@@ -249,6 +306,12 @@ namespace ChibiCocina.Editor
             return matches.OrderByDescending(m => m.Confidence).ToList();
         }
         
+        /// <summary>
+        /// Dibuja una tarjeta para un GameObject específico con sus scripts faltantes.
+        /// Muestra información detallada y opciones de corrección.
+        /// </summary>
+        /// <param name="obj">GameObject a mostrar</param>
+        /// <param name="matches">Lista de coincidencias de scripts</param>
         private void DrawGameObjectCard(GameObject obj, List<ScriptMatch> matches)
         {
             EditorGUILayout.BeginVertical("box");
@@ -308,6 +371,10 @@ namespace ChibiCocina.Editor
             GUILayout.Space(10);
         }
         
+        /// <summary>
+        /// Auto-reasigna todos los scripts con alta confianza.
+        /// Procesa todos los GameObjects y aplica correcciones automáticas.
+        /// </summary>
         private void AutoReassignAll()
         {
             int fixedCount = 0;
@@ -346,6 +413,13 @@ namespace ChibiCocina.Editor
             );
         }
         
+        /// <summary>
+        /// Añade un script a un GameObject específico.
+        /// Carga el script y lo añade si no existe ya.
+        /// </summary>
+        /// <param name="obj">GameObject destino</param>
+        /// <param name="match">Información del script a añadir</param>
+        /// <returns>True si se añadió correctamente</returns>
         private bool AddScriptToGameObject(GameObject obj, ScriptMatch match)
         {
             try
@@ -378,6 +452,12 @@ namespace ChibiCocina.Editor
             }
         }
         
+        /// <summary>
+        /// Obtiene el tipo de un script desde su ruta de archivo.
+        /// Carga el MonoScript y extrae la clase del componente.
+        /// </summary>
+        /// <param name="scriptPath">Ruta del archivo del script</param>
+        /// <returns>Tipo del script o null si no se encuentra</returns>
         private System.Type GetScriptType(string scriptPath)
         {
             // Cargar el asset del script
@@ -400,6 +480,10 @@ namespace ChibiCocina.Editor
             return scriptAsset?.GetClass();
         }
         
+        /// <summary>
+        /// Realiza backup de la escena y ejecuta auto-reasignación.
+        /// Función combinada para mayor seguridad del usuario.
+        /// </summary>
         [MenuItem("ChibiCocina/Herramientas/Backup y Auto-Reasignar")]
         public static void BackupAndAutoReassign()
         {

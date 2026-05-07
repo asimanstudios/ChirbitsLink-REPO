@@ -1,14 +1,14 @@
 using UnityEngine;
 using TMPro;
 
-namespace ChibiCocina.BombTag
+namespace ChibitsLink.UI.Minigames
 {
     /// <summary>
     /// World-space floating HUD showing the remaining bomb time above the carrier.
     /// Lives as a child of the Bomb Prefab, so it follows the player automatically.
     /// Handles billboard orientation and text updates.
     /// </summary>
-    public class HUDEncimaBomba : MonoBehaviour
+    public class BombFloatingHUD : MonoBehaviour
     {
         [Header("Texts")]
         public TextMeshPro timeText;   // Ej: "12"
@@ -27,27 +27,29 @@ namespace ChibiCocina.BombTag
         [Header("Positioning")]
         public float heightAboveBomb = 0.6f;
 
-        private Camera mainCam;
-        private Vector3 originalScale;
-        private float appearanceTimer = 0f;
-        private bool isAnimating = false;
+        private Camera _mainCamera;
+        private Vector3 _originalScale;
+        private float _appearanceTimer = 0f;
+        private bool _isAnimating = false;
 
         private void Awake()
         {
             FindCamera();
-            originalScale = transform.localScale;
+            _originalScale = transform.localScale;
 
             // Smart Auto-Connector
             if (timeText == null || iconText == null)
             {
                 var allTexts = GetComponentsInChildren<TextMeshPro>();
+                string name;
+                
                 foreach (var t in allTexts)
                 {
-                    string n = t.name.ToLower();
-                    if (timeText == null && (n.Contains("time") || n.Contains("timer") || n.Contains("tiempo"))) 
+                    name = t.name.ToLower();
+                    if (timeText == null && (name.Contains("time") || name.Contains("timer") || name.Contains("tiempo"))) 
                         timeText = t;
 
-                    bool shouldAssignIcon = iconText == null && (n.Contains("icon") || n.Contains("emoji") || n.Contains("bomb"));
+                    bool shouldAssignIcon = iconText == null && (name.Contains("icon") || name.Contains("emoji") || name.Contains("bomb"));
                     if (shouldAssignIcon) 
                         iconText = t;
                 }
@@ -56,48 +58,53 @@ namespace ChibiCocina.BombTag
             StartAppearanceAnimation();
         }
 
-        private void LateUpdate()
+        private void Start()
         {
-            MaintainRelativePosition();
-            OrientTowardsCamera();
+            UpdatePosition();
+            FindCamera();
+            if (_mainCamera != null)
+            {
+                // Inverse LookAt for perfect UI Billboard
+                transform.rotation = Quaternion.LookRotation(transform.position - _mainCamera.transform.position);
+            }
+        }
+
+        private void Update()
+        {
             UpdateTimeText();
+            UpdateBillboardOrientation();
             ProcessAppearanceAnimation();
         }
 
         private void FindCamera()
         {
-            if (mainCam == null)
+            _mainCamera = Camera.main;
+            if (_mainCamera == null)
             {
-                mainCam = Camera.main;
-                if (mainCam == null)
-                {
-                    mainCam = FindFirstObjectByType<Camera>();
-                }
+                _mainCamera = FindObjectOfType<Camera>();
             }
         }
 
-        private void MaintainRelativePosition()
+        private void UpdatePosition()
         {
-            // Forces local position to stay consistent relative to the bomb model
             transform.localPosition = new Vector3(0, heightAboveBomb, 0);
         }
 
-        private void OrientTowardsCamera()
+        private void UpdateBillboardOrientation()
         {
-            FindCamera();
-            if (mainCam != null)
+            if (_mainCamera != null)
             {
                 // Inverse LookAt for perfect UI Billboard
-                transform.rotation = Quaternion.LookRotation(transform.position - mainCam.transform.position);
+                transform.rotation = Quaternion.LookRotation(transform.position - _mainCamera.transform.position);
             }
         }
 
         private void UpdateTimeText()
         {
-            bool canUpdateText = timeText != null && GestorBombTag.Instance != null;
+            bool canUpdateText = timeText != null && BombTagGameManager.Instance != null;
             if (canUpdateText)
             {
-                float t = GestorBombTag.Instance.remainingBombTime;
+                float t = BombTagGameManager.Instance.remainingBombTime;
                 int seconds = Mathf.CeilToInt(t);
                 timeText.text = seconds > 0 ? seconds.ToString() : "💥";
 
@@ -110,23 +117,29 @@ namespace ChibiCocina.BombTag
 
         private void StartAppearanceAnimation()
         {
-            appearanceTimer = 0f;
-            isAnimating = true;
-            transform.localScale = originalScale * maxAppearanceScale;
+            _appearanceTimer = 0f;
+            _isAnimating = true;
+            transform.localScale = _originalScale * maxAppearanceScale;
         }
 
         private void ProcessAppearanceAnimation()
         {
-            if (isAnimating)
+            if (_isAnimating)
             {
-                appearanceTimer += Time.deltaTime;
-                float progress = Mathf.Clamp01(appearanceTimer / appearanceDuration);
-                transform.localScale = Vector3.Lerp(originalScale * maxAppearanceScale, originalScale, progress);
-
+                _appearanceTimer += Time.deltaTime;
+                float progress = _appearanceTimer / appearanceDuration;
+                
                 if (progress >= 1f)
                 {
-                    transform.localScale = originalScale;
-                    isAnimating = false;
+                    _isAnimating = false;
+                    transform.localScale = _originalScale;
+                }
+                else
+                {
+                    // Smooth scale back to original
+                    float easedProgress = 1f - Mathf.Pow(1f - progress, 3f); // Ease-out cubic
+                    float currentScale = Mathf.Lerp(maxAppearanceScale, 1f, easedProgress);
+                    transform.localScale = _originalScale * currentScale;
                 }
             }
         }

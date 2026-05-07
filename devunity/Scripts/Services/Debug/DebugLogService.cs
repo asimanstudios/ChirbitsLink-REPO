@@ -40,23 +40,26 @@ namespace ChibiCocina.Services
         
         public void Log(DebugModule module, string message)
         {
-            if (!CanLog(module)) return;
-            
-            Debug.Log($"[Debug | {module}] {message}");
+            if (CanLog(module))
+            {
+                Debug.Log($"[Debug | {module}] {message}");
+            }
         }
         
         public void LogWarning(DebugModule module, string message)
         {
-            if (!CanLog(module)) return;
-            
-            Debug.LogWarning($"[Debug | {module}] {message}");
+            if (CanLog(module))
+            {
+                Debug.LogWarning($"[Debug | {module}] {message}");
+            }
         }
         
         public void LogError(DebugModule module, string message)
         {
-            if (!CanLog(module)) return;
-            
-            Debug.LogError($"[Debug | {module}] {message}");
+            if (CanLog(module))
+            {
+                Debug.LogError($"[Debug | {module}] {message}");
+            }
         }
         
         private bool CanLog(DebugModule module)

@@ -655,9 +655,10 @@ namespace ChibitsLink.GameSide
         }
 
         /// <summary>
-        /// (DEPRECATED) El XP al perfil del usuario ahora se suma desde la App MAUI al cerrar la sala.
-        /// Se mantiene este método vacío por retrocompatibilidad para que los minijuegos compilen.
+        /// El XP al perfil del usuario ahora se suma desde la App MAUI al cerrar la sala.
+        /// Método obsoleto - mantenido por compatibilidad.
         /// </summary>
+        [System.Obsolete("Este método está obsoleto. El XP se maneja desde la App MAUI.")]
         public async Task FinalizePartyScoresAsync(string roomCode)
         {
             await Task.CompletedTask;

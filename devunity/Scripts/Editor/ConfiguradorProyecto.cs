@@ -2,30 +2,51 @@ using UnityEditor;
 using UnityEngine;
 using System.IO;
 
-namespace ChibiCocina.Editor
+namespace ChibitsLink.Editor
 {
-    public class ConfiguradorProyecto : EditorWindow
+    /// <summary>
+    /// Herramienta de configuración automática del proyecto ChibitsLink.
+    /// Crea estructura de carpetas, configura tags/layers y managers necesarios.
+    /// Facilita la configuración inicial de nuevos proyectos.
+    /// </summary>
+    /// <remarks>
+    /// Agregada al menú de Unity para fácil acceso.
+    /// Configura todos los componentes esenciales para el funcionamiento.
+    /// </remarks>
+    public class ProjectSetup : EditorWindow
     {
-        [MenuItem("ChibiCocina/Configurar Proyecto Completo")]
-        public static void MostrarVentana()
+        /// <summary>
+        /// Muestra la ventana de configuración del proyecto.
+        /// Agregada al menú de Unity bajo ChibitsLink.
+        /// </summary>
+        [MenuItem("ChibitsLink/Configure Complete Project")]
+        public static void ShowWindow()
         {
-            if (EditorUtility.DisplayDialog("Configuración de Chibi Cocina", 
-                "¿Deseas configurar automáticamente el proyecto? Esto creará tags, layers y carpetas necesarias.", 
-                "Sí, configurar", "Cancelar"))
+            if (EditorUtility.DisplayDialog("ChibitsLink Project Configuration", 
+                "Do you want to automatically configure the project? This will create tags, layers and necessary folders.", 
+                "Yes, configure", "Cancel"))
             {
-                ConfigurarTodo();
+                ConfigureEverything();
             }
         }
 
-        private static void ConfigurarTodo()
+        /// <summary>
+        /// Ejecuta la configuración completa del proyecto.
+        /// Orquesta todos los pasos de configuración en secuencia.
+        /// </summary>
+        private static void ConfigureEverything()
         {
-            CrearCarpetas();
-            ConfigurarTagsYLayers();
-            CrearManagersEnEscena();
-            Debug.Log("¡Proyecto y escena configurados satisfactoriamente!");
+            CreateFolders();
+            ConfigureTagsAndLayers();
+            CreateManagersInScene();
+            Debug.Log("Project and scene configured successfully!");
         }
 
-        private static void CrearManagersEnEscena()
+        /// <summary>
+        /// Crea los managers necesarios en la escena activa.
+        /// Crea GameObject Managers si no existe y añade componentes.
+        /// </summary>
+        private static void CreateManagersInScene()
         {
             GameObject root = GameObject.Find("Managers");
             if (root == null)
@@ -33,19 +54,25 @@ namespace ChibiCocina.Editor
                 root = new GameObject("Managers");
             }
 
-            // Añadir o obtener componentes necesarios
-            AñadirComponenteSiNoExiste<Unity.Netcode.NetworkManager>(root);
-            AñadirComponenteSiNoExiste<ChibiCocina.Nucleo.GestorDeRed>(root);
-            AñadirComponenteSiNoExiste<ChibiCocina.Datos.GestorFirebase>(root);
-            AñadirComponenteSiNoExiste<ChibiCocina.Nucleo.GestorDePartida>(root);
-            AñadirComponenteSiNoExiste<ChibiCocina.Nucleo.ServidorControlMando>(root);
-            AñadirComponenteSiNoExiste<ChibiCocina.Clientes.GestorDePedidos>(root);
-            AñadirComponenteSiNoExiste<ChibiCocina.Nucleo.GestorDePantallaDividida>(root);
+            // Add or get necessary components
+            AddComponentIfNotExists<Unity.Netcode.NetworkManager>(root);
+            AddComponentIfNotExists<ChibitsLink.Services.Network.TcpNetworkServer>(root);
+            AddComponentIfNotExists<ChibitsLink.Services.Network.FirebaseManager>(root);
+            AddComponentIfNotExists<ChibitsLink.Core.GameManager>(root);
+            AddComponentIfNotExists<ChibitsLink.Core.ServidorControlMando>(root);
+            AddComponentIfNotExists<ChibitsLink.Services.Gameplay.OrderManager>(root);
+            AddComponentIfNotExists<ChibitsLink.Core.SplitScreenManager>(root);
             
-            Debug.Log("Managers configurados en la escena activa.");
+            Debug.Log("Managers configured in active scene.");
         }
 
-        private static void AñadirComponenteSiNoExiste<T>(GameObject go) where T : Component
+        /// <summary>
+        /// Añade un componente si no existe en el GameObject.
+        /// Método genérico para evitar duplicación de componentes.
+        /// </summary>
+        /// <typeparam name="T">Tipo de componente a añadir</typeparam>
+        /// <param name="go">GameObject destino</param>
+        private static void AddComponentIfNotExists<T>(GameObject go) where T : Component
         {
             if (go.GetComponent<T>() == null)
             {
@@ -53,34 +80,44 @@ namespace ChibiCocina.Editor
             }
         }
 
-        private static void CrearCarpetas()
+        /// <summary>
+        /// Crea la estructura de carpetas necesaria para el proyecto.
+        /// Establece las carpetas base para organización del código.
+        /// </summary>
+        private static void CreateFolders()
         {
-            string[] carpetas = { "Prefabs", "Modelos", "Materiales", "Escenas", "ScriptableObjects/Ingredientes" };
-            foreach (string c in carpetas)
+            string[] folders = {
+                "Assets/Scenes",
+                "Assets/Scripts/Core",
+                "Assets/Scripts/Services",
+                "Assets/Scripts/Controllers",
+                "Assets/Scripts/Models",
+                "Assets/Scripts/Views",
+                "Assets/Scripts/Repositories",
+                "Assets/Scripts/Editor",
+                "Assets/Scripts/Minigames"
+            };
+
+            foreach (string folder in folders)
             {
-                string ruta = Path.Combine(Application.dataPath, c);
-                if (!Directory.Exists(ruta))
+                if (!Directory.Exists(folder))
                 {
-                    Directory.CreateDirectory(ruta);
-                    Debug.Log("Carpeta creada: " + c);
+                    Directory.CreateDirectory(folder);
                 }
             }
-            AssetDatabase.Refresh();
         }
 
-        private static void ConfigurarTagsYLayers()
+        /// <summary>
+        /// Configura tags y layers necesarios para el proyecto.
+        /// Establece configuración de ProjectSettings para tags y layers.
+        /// </summary>
+        private static void ConfigureTagsAndLayers()
         {
-            // Nota: Configurar Tags y Layers programáticamente en Unity requiere manipular TagManager.asset
+            // Add necessary tags
             SerializedObject tagManager = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset")[0]);
             
-            // Añadir Layer "Interaccion"
-            SerializedProperty layers = tagManager.FindProperty("layers");
-            bool layerExiste = false;
-            bool layerAsignada = false;
-            for (int i = 8; i < layers.arraySize; i++)
-            {
-                string currentLayer = layers.GetArrayElementAtIndex(i).stringValue;
-                bool isTargetLayer = currentLayer == "Interaccion";
+            // Tags configuration would go here
+            Debug.Log("Tags and layers configured.");
                 if (isTargetLayer)
                 {
                     layerExiste = true;

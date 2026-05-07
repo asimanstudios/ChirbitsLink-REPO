@@ -182,10 +182,13 @@ namespace ChibitsLink.GameSide.HookParty
 
                 if (!string.IsNullOrEmpty(code))
                 {
+                    string userId;
+                    int puntosItem;
+                    
                     foreach (var scoreEntry in scores)
                     {
-                        string userId = scoreEntry.Key;
-                        int puntosItem = scoreEntry.Value; 
+                        userId = scoreEntry.Key;
+                        puntosItem = scoreEntry.Value; 
 
                         Debug.Log($"[HookParty] Subiendo {puntosItem} ptos (XP) al jugador {userId}");
                         _ = ChibitsLink.GameSide.LobbyManager.Instance.UpdatePlayerScoreAsync(code, userId, puntosItem);

@@ -29,23 +29,26 @@ namespace ChibiCocina.Services
         
         public void LoadScene(string sceneName)
         {
-            if (isLoading)
+            if (!isLoading)
+            {
+                if (string.IsNullOrEmpty(sceneName))
+                {
+                    throw new SceneLoaderException("El nombre de la escena no puede ser nulo o vacío");
+                }
+                
+                if (SceneExists(sceneName))
+                {
+                    StartCoroutine(LoadSceneAsync(sceneName));
+                }
+                else
+                {
+                    throw new SceneLoaderException($"La escena '{sceneName}' no existe en el build settings");
+                }
+            }
+            else
             {
                 Debug.LogWarning("[SceneLoaderService] Ya hay una escena cargando");
-                return;
             }
-            
-            if (string.IsNullOrEmpty(sceneName))
-            {
-                throw new SceneLoaderException("El nombre de la escena no puede ser nulo o vacío");
-            }
-            
-            if (!SceneExists(sceneName))
-            {
-                throw new SceneLoaderException($"La escena '{sceneName}' no existe en el build settings");
-            }
-            
-            StartCoroutine(LoadSceneAsync(sceneName));
         }
         
         private System.Collections.IEnumerator LoadSceneAsync(string sceneName)

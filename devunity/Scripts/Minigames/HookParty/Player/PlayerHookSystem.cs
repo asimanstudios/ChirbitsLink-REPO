@@ -168,10 +168,12 @@ namespace ChibitsLink.GameSide.HookParty
             System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
 
             bool anchorAssigned = false;
+            bool canAttachToHit;
+            
             foreach (var hit in hits)
             {
                 // Solo permitimos enganchar a objetos con la etiqueta correcta que no sean triggers ni el propio jugador
-                bool canAttachToHit = hit.collider.CompareTag("hookable")
+                canAttachToHit = hit.collider.CompareTag("hookable")
                                       && !hit.collider.isTrigger
                                       && hit.collider.gameObject != gameObject
                                       && hit.collider.transform.root != transform

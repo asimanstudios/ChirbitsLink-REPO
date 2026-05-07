@@ -124,19 +124,20 @@ namespace ChibiCocina.Services
         public void RemoveBot(string botId)
         {
             BotModel bot = FindBot(botId);
-            if (bot == null)
+            if (bot != null)
+            {
+                bot.IsActive = false;
+                activeBots.Remove(bot);
+                
+                // Notificar a PlayerManager
+                PlayerManager.Instance?.HandlePlayerDisconnect(botId);
+                
+                DebugLogService.Instance?.Log(DebugModule.Player, $"Bot removido: {botId}");
+            }
+            else
             {
                 DebugLogService.Instance?.LogWarning(DebugModule.Player, $"Bot no encontrado: {botId}");
-                return;
             }
-            
-            bot.IsActive = false;
-            activeBots.Remove(bot);
-            
-            // Notificar a PlayerManager
-            PlayerManager.Instance?.HandlePlayerDisconnect(botId);
-            
-            DebugLogService.Instance?.Log(DebugModule.Player, $"Bot removido: {botId}");
         }
         
         public void RemoveAllBots()

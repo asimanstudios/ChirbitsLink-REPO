@@ -11,6 +11,8 @@ namespace ChibitsLink.GameSide.HookParty
         public static ScoreManager Instance { get; private set; }
 
         private Dictionary<string, int> _scores = new Dictionary<string, int>();
+        
+        public System.Action<string, int> OnScoreUpdated;
 
         private void Awake()
         {
@@ -26,7 +28,8 @@ namespace ChibitsLink.GameSide.HookParty
             }
             _scores[userId] += amount;
             
-            // TODO: Notificar al UI para actualizar texto de puntos del jugador
+            // Notificar al UI para actualizar texto de puntos del jugador
+            OnScoreUpdated?.Invoke(userId, _scores[userId]);
             Debug.Log($"[HookParty] ¡Puntos sumados para {userId}! Total: {_scores[userId]}");
         }
 

@@ -1,36 +1,36 @@
 using UnityEngine;
 using Unity.Netcode;
-using ChibiCocina.Models;
+using ChibitsLink.Models;
 
-namespace ChibiCocina.Nucleo
+namespace ChibitsLink.Core
 {
     public class ServidorControlMando : MonoBehaviour
     {
-        public static ServidorControlMando Instancia { get; private set; }
+        public static ServidorControlMando Instance { get; private set; }
         
-        [Header("Configuración del Servidor")]
-        public int puerto = 7777;
-        public int maximoConexiones = 8;
-        public float timeoutConexion = 10f;
+        [Header("Server Configuration")]
+        public int port = 7777;
+        public int maxConnections = 8;
+        public float connectionTimeout = 10f;
         
-        // Estado del servidor
-        private bool servidorActivo;
-        private int clientesConectados;
-        private System.Collections.Generic.Dictionary<ulong, ClienteInfo> clientes;
+        // Server state
+        private bool _isServerActive;
+        private int _connectedClients;
+        private System.Collections.Generic.Dictionary<ulong, ClientInfo> _clients;
         
-        // Eventos
-        public System.Action<int> OnClientesActualizados;
-        public System.Action<ulong> OnClienteConectado;
-        public System.Action<ulong> OnClienteDesconectado;
-        public System.Action<string> OnMensajeRecibido;
+        // Events
+        public System.Action<int> OnClientsUpdated;
+        public System.Action<ulong> OnClientConnected;
+        public System.Action<ulong> OnClientDisconnected;
+        public System.Action<string> OnMessageReceived;
         
         private void Awake()
         {
-            if (Instancia == null)
+            if (Instance == null)
             {
-                Instancia = this;
+                Instance = this;
                 DontDestroyOnLoad(gameObject);
-                InicializarServidor();
+                InitializeServer();
             }
             else
             {
@@ -38,188 +38,218 @@ namespace ChibiCocina.Nucleo
             }
         }
         
-        private void InicializarServidor()
+        private void InitializeServer()
         {
-            clientes = new System.Collections.Generic.Dictionary<ulong, ClienteInfo>();
-            clientesConectados = 0;
-            servidorActivo = false;
+            _clients = new System.Collections.Generic.Dictionary<ulong, ClientInfo>();
+            _connectedClients = 0;
+            _isServerActive = false;
             
-            // Suscribir a eventos de NetworkManager
+            // Subscribe to NetworkManager events
             if (NetworkManager.Singleton != null)
             {
-                NetworkManager.Singleton.OnClientConnectedCallback += ManejarClienteConectado;
-                NetworkManager.Singleton.OnClientDisconnectCallback += ManejarClienteDesconectado;
+                NetworkManager.Singleton.OnClientConnectedCallback += HandleClientConnected;
+                NetworkManager.Singleton.OnClientDisconnectCallback += HandleClientDisconnected;
             }
             
-            Debug.Log("[ServidorControlMando] Servidor inicializado");
+            Debug.Log("[ServidorControlMando] Server initialized");
         }
         
         private void OnDestroy()
         {
             if (NetworkManager.Singleton != null)
             {
-                NetworkManager.Singleton.OnClientConnectedCallback -= ManejarClienteConectado;
-                NetworkManager.Singleton.OnClientDisconnectCallback -= ManejarClienteDesconectado;
+                NetworkManager.Singleton.OnClientConnectedCallback -= HandleClientConnected;
+                NetworkManager.Singleton.OnClientDisconnectCallback -= HandleClientDisconnected;
             }
         }
         
-        public bool IniciarServidor()
+        public bool StartServer()
         {
-            if (servidorActivo)
+            if (_isServerActive)
             {
-                Debug.LogWarning("[ServidorControlMando] El servidor ya está activo");
+                Debug.LogWarning("[ServidorControlMando] Server is already active");
                 return false;
             }
             
             if (NetworkManager.Singleton == null)
             {
-                Debug.LogError("[ServidorControlMando] NetworkManager no encontrado");
+                Debug.LogError("[ServidorControlMando] NetworkManager not found");
                 return false;
             }
             
             var transport = NetworkManager.Singleton.GetComponent<Unity.Netcode.Transports.UTP.UnityTransport>();
-            transport.ConnectionData.Port = (ushort)puerto;
+            transport.ConnectionData.Port = (ushort)port;
             
             if (NetworkManager.Singleton.StartServer())
             {
-                servidorActivo = true;
-                Debug.Log($"[ServidorControlMando] Servidor iniciado en puerto {puerto}");
+                _isServerActive = true;
+                Debug.Log($"[ServidorControlMando] Server started on port {port}");
                 return true;
-            }
-            
-            Debug.LogError("[ServidorControlMando] No se pudo iniciar el servidor");
-            return false;
         }
         
-        public void DetenerServidor()
+        public void StopServer()
         {
-            if (!servidorActivo) return;
-            
-            if (NetworkManager.Singleton != null)
+            if (!_isServerActive)
             {
-                NetworkManager.Singleton.Shutdown();
+                Debug.LogWarning("[ServidorControlMando] Server is already stopped");
             }
-            
-            servidorActivo = false;
-            clientes.Clear();
-            clientesConectados = 0;
-            
-            Debug.Log("[ServidorControlMando] Servidor detenido");
-        }
-        
-        private void ManejarClienteConectado(ulong clientId)
-        {
-            if (clientes.ContainsKey(clientId)) return;
-            
-            var nuevoCliente = new ClienteInfo
+            else
             {
-                Id = clientId,
-                Nombre = $"Jugador_{clientId}",
-                Conectado = true,
-                TiempoConexion = Time.time
-            };
-            
-            clientes.Add(clientId, nuevoCliente);
-            clientesConectados++;
-            
-            OnClienteConectado?.Invoke(clientId);
-            OnClientesActualizados?.Invoke(clientesConectados);
-            
-            Debug.Log($"[ServidorControlMando] Cliente conectado: {clientId} ({nuevoCliente.Nombre})");
+                if (NetworkManager.Singleton != null)
+                {
+                    NetworkManager.Singleton.Shutdown();
+                }
+                
+                _isServerActive = false;
+                _clients.Clear();
+                _connectedClients = 0;
+                
+                Debug.Log("[ServidorControlMando] Server stopped");
+            }
         }
         
-        private void ManejarClienteDesconectado(ulong clientId)
+        private void HandleClientConnected(ulong clientId)
         {
-            if (!clientes.ContainsKey(clientId)) return;
-            
-            var cliente = clientes[clientId];
-            cliente.Conectado = false;
-            cliente.TiempoDesconexion = Time.time;
-            
-            clientes.Remove(clientId);
-            clientesConectados--;
-            
-            OnClienteDesconectado?.Invoke(clientId);
-            OnClientesActualizados?.Invoke(clientesConectados);
-            
-            Debug.Log($"[ServidorControlMando] Cliente desconectado: {clientId} ({cliente.Nombre})");
+            if (_clients.ContainsKey(clientId))
+            {
+                Debug.LogWarning($"[ServidorControlMando] Client {clientId} is already connected");
+            }
+            else
+            {
+                var newClient = new ClientInfo
+                {
+                    Id = clientId,
+                    Name = $"Player_{clientId}",
+                    IsConnected = true,
+                    ConnectionTime = Time.time
+                };
+                
+                _clients[clientId] = newClient;
+                _connectedClients++;
+                
+                OnClientConnected?.Invoke(clientId);
+                OnClientsUpdated?.Invoke(_connectedClients);
+                
+                Debug.Log($"[ServidorControlMando] Client connected: {clientId} ({newClient.Name})");
+            }
         }
         
-        public void EnviarMensajeATodos(string mensaje)
+        private void HandleClientDisconnected(ulong clientId)
         {
-            if (!servidorActivo) return;
-            
-            // Enviar mensaje a todos los clientes conectados
-            Debug.Log($"[ServidorControlMando] Enviando mensaje a todos: {mensaje}");
+            if (!_clients.ContainsKey(clientId))
+            {
+                Debug.LogWarning($"[ServidorControlMando] Client {clientId} is not connected");
+            }
+            else
+            {
+                var client = _clients[clientId];
+                client.IsConnected = false;
+                client.DisconnectionTime = Time.time;
+                
+                _connectedClients--;
+                
+                OnClientDisconnected?.Invoke(clientId);
+                OnClientsUpdated?.Invoke(_connectedClients);
+                
+                Debug.Log($"[ServidorControlMando] Client disconnected: {clientId} ({client.Name})");
+            }
         }
         
-        public void EnviarMensajeACliente(ulong clientId, string mensaje)
+        public void SendMessageToAll(string message)
         {
-            if (!servidorActivo || !clientes.ContainsKey(clientId)) return;
-            
-            // Enviar mensaje a cliente específico
-            Debug.Log($"[ServidorControlMando] Enviando mensaje a {clientId}: {mensaje}");
+            if (!_isServerActive)
+            {
+                Debug.LogWarning("[ServidorControlMando] Cannot send message - server inactive");
+            }
+            else
+            {
+                // Send message to all connected clients
+                Debug.Log($"[ServidorControlMando] Sending message to all: {message}");
+            }
         }
         
-        public bool EstaServidorActivo()
+        public void SendMessageToClient(ulong clientId, string message)
         {
-            return servidorActivo;
+            if (!_isServerActive)
+            {
+                Debug.LogWarning("[ServidorControlMando] Cannot send message - server inactive");
+            }
+            else if (!_clients.ContainsKey(clientId))
+            {
+                Debug.LogWarning($"[ServidorControlMando] Client {clientId} does not exist");
+            }
+            else
+            {
+                // Send message to specific client
+                Debug.Log($"[ServidorControlMando] Sending message to {clientId}: {message}");
+            }
         }
         
-        public int ObtenerClientesConectados()
+        public bool IsServerActive()
         {
-            return clientesConectados;
+            return _isServerActive;
         }
         
-        public ClienteInfo? ObtenerClienteInfo(ulong clientId)
+        public int GetConnectedClients()
         {
-            return clientes.ContainsKey(clientId) ? clientes[clientId] : null;
+            return _connectedClients;
         }
         
-        public System.Collections.Generic.IEnumerable<ClienteInfo> ObtenerTodosLosClientes()
+        public ClientInfo? GetClientInfo(ulong clientId)
         {
-            return clientes.Values;
+            return _clients.ContainsKey(clientId) ? _clients[clientId] : null;
+        }
+        
+        public System.Collections.Generic.IEnumerable<ClientInfo> GetAllClients()
+        {
+            return _clients.Values;
         }
         
         private void Update()
         {
-            if (servidorActivo)
+            if (_isServerActive)
             {
-                ProcesarMensajesPendientes();
+                // Unity Netcode handles network updates automatically
+                // No custom update logic needed for this server manager
             }
-        }
-        
-        private void ProcesarMensajesPendientes()
-        {
-            // Lógica para procesar mensajes recibidos de clientes
-            // Esta es una implementación básica que se puede expandir
         }
         
         private void OnGUI()
         {
-            if (!servidorActivo) return;
-            
-            GUILayout.BeginArea(new Rect(10, 320, 300, 150));
-            GUILayout.Label($"Servidor Activo - Puerto: {puerto}");
-            GUILayout.Label($"Clientes: {clientesConectados}/{maximoConexiones}");
-            
-            if (GUILayout.Button("Detener Servidor"))
+            if (_isServerActive)
             {
-                DetenerServidor();
+                GUILayout.BeginArea(new Rect(10, 320, 300, 150));
+                GUILayout.Label($"Server Active - Port: {port}");
+                GUILayout.Label($"Clients: {_connectedClients}/{maxConnections}");
+                
+                if (GUILayout.Button("Stop Server"))
+                {
+                    StopServer();
+                }
+                GUILayout.EndArea();
             }
-            
-            GUILayout.EndArea();
+            else
+            {
+                GUILayout.BeginArea(new Rect(10, 320, 300, 150));
+                GUILayout.Label($"Server Inactive - Port: {port}");
+                
+                if (GUILayout.Button("Start Server"))
+                {
+                    StartServer();
+                }
+                GUILayout.EndArea();
+            }
         }
     }
     
     [System.Serializable]
-    public class ClienteInfo
+    public class ClientInfo
     {
         public ulong Id;
-        public string Nombre;
-        public bool Conectado;
-        public float TiempoConexion;
-        public float TiempoDesconexion;
+        public string Name;
+        public bool IsConnected;
+        public float ConnectionTime;
+        public float DisconnectionTime;
         public int Ping;
     }
 }
