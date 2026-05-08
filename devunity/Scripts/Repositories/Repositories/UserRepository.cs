@@ -162,7 +162,6 @@ namespace ChibitsLink.Repositories
                 var user = await GetUserAsync(userId);
                 if (user == null)
                 {
-                    // Create user if doesn't exist
                     user = new User 
                     { 
                         UserId = userId, 
@@ -229,9 +228,9 @@ namespace ChibitsLink.Repositories
                 };
                 await UpdateUserAsync(userId, updates);
             }
-            catch (UserUpdateException)
+            catch (UserUpdateException ex)
             {
-                throw; // Re-throw specific exceptions
+                throw new UserUpdateException($"Failed to update stats for user {userId}", ex);
             }
             catch (FirebaseException ex)
             {
@@ -324,23 +323,19 @@ namespace ChibitsLink.Repositories
             ValidateRepositoryInitialized();
             ValidateUserId(userId);
 
-            bool result = false;
-            
             try
             {
                 var user = await GetUserAsync(userId);
-                result = user != null;
+                return user != null;
             }
-            catch (UserRetrievalException)
+            catch (UserRetrievalException ex)
             {
-                throw; // Re-throw specific exceptions
+                throw new RepositoryException($"Error checking if user {userId} exists", ex);
             }
             catch (Exception ex)
             {
                 throw new RepositoryException($"Unexpected error checking if user {userId} exists", ex);
             }
-            
-            return result;
         }
     }
 }

@@ -131,9 +131,9 @@ namespace ChibitsLink.Repositories
 
                 return snapshot.ConvertTo<Party>();
             }
-            catch (PartyNotFoundException)
+            catch (PartyNotFoundException ex)
             {
-                throw; // Re-throw specific exception
+                throw new PartyRetrievalException($"Party {roomCode} not found", ex);
             }
             catch (FirebaseException ex)
             {

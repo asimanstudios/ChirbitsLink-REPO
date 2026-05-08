@@ -26,37 +26,40 @@ public class JoinRoomViewModel : BaseViewModel
             RoomCode = RoomCode.Trim().ToUpperInvariant();
         }
 
-        if (string.IsNullOrEmpty(RoomCode) || RoomCode.Length != 6)
+        bool isCodeValid = !string.IsNullOrEmpty(RoomCode) && RoomCode.Length == 6;
+
+        if (!isCodeValid)
         {
             await Shell.Current.DisplayAlert("Código Inválido", "El código de la sala debe tener exactamente 6 caracteres.", "OK");
-            return;
         }
-
-        IsBusy = true;
-        try
+        else
         {
-            bool isValid = await _gameService.ValidateLobbyAsync(RoomCode);
-            if (isValid)
+            IsBusy = true;
+            try
             {
-                await Shell.Current.GoToAsync($"//LobbyPage?code={RoomCode}");
+                bool lobbyExists = await _gameService.ValidateLobbyAsync(RoomCode);
+                if (lobbyExists)
+                {
+                    await Shell.Current.GoToAsync($"//LobbyPage?code={RoomCode}");
+                }
+                else
+                {
+                    await Shell.Current.DisplayAlert("Sala Inexistente", "No hemos encontrado ninguna sala abierta con ese código.", "Entendido");
+                }
             }
-            else
+            catch (ChibitsLink.main.cs.exception.DatabaseException ex)
             {
-                await Shell.Current.DisplayAlert("Sala Inexistente", "No hemos encontrado ninguna sala abierta con ese código.", "Entendido");
+                string details = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                await Shell.Current.DisplayAlert("Error de Conexión", $"No se pudo verificar la sala: {details}", "OK");
             }
-        }
-        catch (ChibitsLink.main.cs.exception.DatabaseException ex)
-        {
-            string details = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
-            await Shell.Current.DisplayAlert("Error de Conexión", $"No se pudo verificar la sala: {details}", "OK");
-        }
-        catch (System.Exception ex)
-        {
-            await Shell.Current.DisplayAlert("Error Inesperado", $"Ocurrió un error al buscar la sala: {ex.Message}", "OK");
-        }
-        finally
-        {
-            IsBusy = false;
+            catch (System.Exception ex)
+            {
+                await Shell.Current.DisplayAlert("Error Inesperado", $"Ocurrió un error al buscar la sala: {ex.Message}", "OK");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
         }
     }
 }

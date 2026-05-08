@@ -4,16 +4,6 @@ using System.Collections.ObjectModel;
 
 namespace ChibitsLink.main.cs.view;
 
-public class HistoryPlayerItem
-{
-    public string Name { get; set; } = string.Empty;
-    public string ScoreDisplay { get; set; } = string.Empty;
-    public string LevelDisplay { get; set; } = string.Empty;
-    public string CharacterImage { get; set; } = "char_default.png";
-    public string RankDisplay { get; set; } = string.Empty;
-    public Color RankColor { get; set; } = Colors.White;
-}
-
 public partial class HistoryDetailPage : ContentPage
 {
     private readonly Party _party;
@@ -111,9 +101,13 @@ public partial class HistoryDetailPage : ContentPage
             PlayersListView.ItemsSource = playerItems;
             BuildGamesList(gameMap);
         }
-        catch (Exception ex)
+        catch (ChibitsLink.main.cs.exception.DatabaseException ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[HistoryDetailPage] Error: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[HistoryDetailPage] Error Firestore: {ex.Message}");
+        }
+        catch (OperationCanceledException)
+        {
+            System.Diagnostics.Debug.WriteLine("[HistoryDetailPage] Carga cancelada.");
         }
         finally
         {
@@ -124,22 +118,23 @@ public partial class HistoryDetailPage : ContentPage
     private void BuildGamesList(Dictionary<string, Game> gameMap)
     {
         GamesFlexList.Children.Clear();
-        if (_party.PlayedGames == null) return;
-
-        foreach (var gameId in _party.PlayedGames)
+        if (_party.PlayedGames != null)
         {
-            gameMap.TryGetValue(gameId, out var gameInfo);
-            string displayName = gameInfo?.Name ?? gameId.Replace("Minigame_", "").ToUpper();
-
-            var chip = new Border
+            foreach (var gameId in _party.PlayedGames)
             {
-                Style = (Style)Application.Current!.Resources["GlassFrame"],
-                Margin = new Thickness(4),
-                Padding = new Thickness(12, 6),
-                Stroke = (Color)Application.Current.Resources["Secondary"],
-                Content = new Label { Text = displayName, FontSize = 10, FontAttributes = FontAttributes.Bold, TextColor = Colors.White }
-            };
-            GamesFlexList.Children.Add(chip);
+                gameMap.TryGetValue(gameId, out var gameInfo);
+                string displayName = gameInfo?.Name ?? gameId.Replace("Minigame_", "").ToUpper();
+
+                var chip = new Border
+                {
+                    Style = (Style)Application.Current!.Resources["GlassFrame"],
+                    Margin = new Thickness(4),
+                    Padding = new Thickness(12, 6),
+                    Stroke = (Color)Application.Current.Resources["Secondary"],
+                    Content = new Label { Text = displayName, FontSize = 10, FontAttributes = FontAttributes.Bold, TextColor = Colors.White }
+                };
+                GamesFlexList.Children.Add(chip);
+            }
         }
     }
 

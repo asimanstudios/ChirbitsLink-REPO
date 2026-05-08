@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,20 +11,6 @@ using ChibitsLink.main.repository.interfaces;
 using ChibitsLink.main.cs.net;
 
 namespace ChibitsLink.main.cs.viewmodel;
-
-public class PlayerItem : BaseViewModel
-{
-    private string _name = string.Empty;
-    private string _characterImage = "char_placeholder";
-    private bool _isReady = false;
-    private int _level = 1;
-
-    public string Name { get => _name; set => SetProperty(ref _name, value); }
-    public string CharacterImage { get => _characterImage; set => SetProperty(ref _characterImage, value); }
-    public bool IsReady { get => _isReady; set => SetProperty(ref _isReady, value); }
-    public int Level { get => _level; set => SetProperty(ref _level, value); }
-    public string LevelDisplay => $"LVL. {Level}";
-}
 
 public class LobbyViewModel : BaseViewModel
 {
@@ -103,43 +90,40 @@ public class LobbyViewModel : BaseViewModel
 
     private async Task ConnectToGameServerAsync()
     {
-        if (string.IsNullOrEmpty(_roomCode)) return;
-
-        try
+        if (!string.IsNullOrEmpty(_roomCode))
         {
-            var party = await _lobbyRepo.GetPartyAsync(_roomCode);
-            if (party != null && !string.IsNullOrEmpty(party.IpAddress))
+            try
             {
-                Debug.WriteLine($"[Lobby] Intentando conectar a {party.IpAddress}:{party.Port}");
-                
-                // Limpiar conexión previa por si acaso
-                await _connection.DisconnectAsync();
-                
-                await _connection.ConnectTcpAsync(party.IpAddress, party.Port);
-                
-                if (_connection.IsConnected)
+                var party = await _lobbyRepo.GetPartyAsync(_roomCode);
+                if (party != null && !string.IsNullOrEmpty(party.IpAddress))
                 {
-                    var user = _accountService.GetCurrentUser();
-                    if (user != null)
+                    Debug.WriteLine($"[Lobby] Intentando conectar a {party.IpAddress}:{party.Port}");
+
+                    // Limpiar conexión previa por si acaso
+                    await _connection.DisconnectAsync();
+
+                    await _connection.ConnectTcpAsync(party.IpAddress, party.Port);
+
+                    if (_connection.IsConnected)
                     {
-                        // Identificarse ante el servidor de Unity nada más conectar
-                        await _connection.SendMessageAsync($"SYNC_CHAR|{user.Id}|{user.SelectedCharacterId}|{user.Username}");
-                        Debug.WriteLine("[Lobby] Conexión establecida e identificación enviada.");
+                        var user = _accountService.GetCurrentUser();
+                        if (user != null)
+                        {
+                            // Identificarse ante el servidor de Unity nada más conectar
+                            await _connection.SendMessageAsync($"SYNC_CHAR|{user.Id}|{user.SelectedCharacterId}|{user.Username}");
+                            Debug.WriteLine("[Lobby] Conexión establecida e identificación enviada.");
+                        }
                     }
                 }
             }
-        }
-        catch (ChibitsLink.main.cs.exception.NetworkException ex)
-        {
-            Debug.WriteLine($"[Lobby] Error de conexión TCP: {ex.Message}");
-            MainThread.BeginInvokeOnMainThread(async () =>
+            catch (ChibitsLink.main.cs.exception.NetworkException ex)
             {
-                await Shell.Current.DisplayAlert("Error de Red", ex.Message, "Entendido");
-            });
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"[Lobby] Fallo inesperado en TCP: {ex.Message}");
+                Debug.WriteLine($"[Lobby] Error de conexión TCP: {ex.Message}");
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    await Shell.Current.DisplayAlert("Error de Red", ex.Message, "Entendido");
+                });
+            }
         }
     }
 
@@ -156,11 +140,7 @@ public class LobbyViewModel : BaseViewModel
             catch (ChibitsLink.main.cs.exception.DatabaseException ex)
             {
                 Debug.WriteLine($"[Lobby] Error al registrar historial en BBDD: {ex.Message}");
-                // No lanzamos alerta para no interrumpir el flujo, pero se registra concretamente
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"[Lobby] Error inesperado al registrar historial: {ex.Message}");
+                // No lanzamos alerta para no interrumpir el flujo
             }
         }
     }
@@ -179,16 +159,17 @@ public class LobbyViewModel : BaseViewModel
     private void UpdateUserData()
     {
         var user = _accountService.GetCurrentUser();
-        if (user == null) return;
-
-        Username = user.Username.ToUpper();
-        LevelDisplay = $"LVL. {user.Level}";
-
-        var selected = Characters.FirstOrDefault(c => c.Id == user.SelectedCharacterId);
-        if (selected != null)
+        if (user != null)
         {
-            SelectedCharacterName = selected.Name;
-            SelectedCharacterImage = selected.ImageUrl;
+            Username = user.Username.ToUpper();
+            LevelDisplay = $"LVL. {user.Level}";
+
+            var selected = Characters.FirstOrDefault(c => c.Id == user.SelectedCharacterId);
+            if (selected != null)
+            {
+                SelectedCharacterName = selected.Name;
+                SelectedCharacterImage = selected.ImageUrl;
+            }
         }
     }
 
@@ -243,82 +224,86 @@ public class LobbyViewModel : BaseViewModel
 
     private void UpdatePlayerList(Party party)
     {
-        if (party == null) return;
-
-        MainThread.BeginInvokeOnMainThread(() =>
+        if (party != null)
         {
-            var currentIds = party.PlayerIds ?? new List<string>();
-            Debug.WriteLine($"[Lobby] Actualizando lista. Jugadores en Firestore: {currentIds.Count}");
-            
-            // Reconstruir la lista para asegurar sincronización total
-            Players.Clear();
-
-            foreach (var userId in currentIds)
+            MainThread.BeginInvokeOnMainThread(() =>
             {
-                Debug.WriteLine($"[Lobby] Procesando jugador: {userId}");
-                string name = "JUGADOR";
-                if (party.ParticipantNames != null && party.ParticipantNames.TryGetValue(userId, out var n))
-                    name = n;
+                var currentIds = party.PlayerIds ?? new List<string>();
+                Debug.WriteLine($"[Lobby] Actualizando lista. Jugadores en Firestore: {currentIds.Count}");
 
-                string charId = "";
-                if (party.ParticipantCharacters != null && party.ParticipantCharacters.TryGetValue(userId, out var c))
-                    charId = c;
+                // Reconstruir la lista para asegurar sincronización total
+                Players.Clear();
 
-                string charImg = "char_placeholder";
-                var character = Characters.FirstOrDefault(ch => ch.Id == charId);
-                if (character != null) charImg = character.ImageUrl;
-
-                bool ready = party.ReadyPlayerIds != null && party.ReadyPlayerIds.Contains(userId);
-                
-                int level = 1;
-                if (party.ParticipantLevels != null && party.ParticipantLevels.TryGetValue(userId, out var lvl))
-                    level = lvl;
-
-                Players.Add(new PlayerItem
+                foreach (var userId in currentIds)
                 {
-                    Name = name.ToUpper(),
-                    CharacterImage = charImg,
-                    IsReady = ready,
-                    Level = level
-                });
-            }
-        });
+                    Debug.WriteLine($"[Lobby] Procesando jugador: {userId}");
+                    string name = "JUGADOR";
+                    if (party.ParticipantNames != null && party.ParticipantNames.TryGetValue(userId, out var n))
+                        name = n;
+
+                    string charId = "";
+                    if (party.ParticipantCharacters != null && party.ParticipantCharacters.TryGetValue(userId, out var c))
+                        charId = c;
+
+                    string charImg = "char_placeholder";
+                    var character = Characters.FirstOrDefault(ch => ch.Id == charId);
+                    if (character != null) charImg = character.ImageUrl;
+
+                    bool ready = party.ReadyPlayerIds != null && party.ReadyPlayerIds.Contains(userId);
+
+                    int level = 1;
+                    if (party.ParticipantLevels != null && party.ParticipantLevels.TryGetValue(userId, out var lvl))
+                        level = lvl;
+
+                    Players.Add(new PlayerItem
+                    {
+                        Name = name.ToUpper(),
+                        CharacterImage = charImg,
+                        IsReady = ready,
+                        Level = level
+                    });
+                }
+            });
+        }
     }
 
     private async Task ExecuteToggleReady()
     {
         // No permitir cambiar el estado de listo si ya estamos votando o en juego
-        if (IsVoting) return;
-
-        var user = _accountService.GetCurrentUser();
-        if (user == null) return;
-
-        IsReady = !IsReady;
-        await _gameService.ToggleReadyAsync(_roomCode, user.Id, IsReady);
-        
-        if (_connection.IsConnected)
+        if (!IsVoting)
         {
-            await _connection.SendMessageAsync($"READY|{user.Id}|{IsReady}");
+            var user = _accountService.GetCurrentUser();
+            if (user != null)
+            {
+                IsReady = !IsReady;
+                await _gameService.ToggleReadyAsync(_roomCode, user.Id, IsReady);
+
+                if (_connection.IsConnected)
+                {
+                    await _connection.SendMessageAsync($"READY|{user.Id}|{IsReady}");
+                }
+            }
         }
     }
 
     private async Task SelectCharacterAsync(Character character)
     {
-        if (character == null) return;
-
-        IsCharacterListVisible = false;
-        SelectedCharacterName = character.Name;
-        SelectedCharacterImage = character.ImageUrl;
-
-        var user = _accountService.GetCurrentUser();
-        if (user != null)
+        if (character != null)
         {
-            user.SelectedCharacterId = character.Id;
-            await _accountService.UpdateUser(user);
+            IsCharacterListVisible = false;
+            SelectedCharacterName = character.Name;
+            SelectedCharacterImage = character.ImageUrl;
 
-            if (_connection.IsConnected)
+            var user = _accountService.GetCurrentUser();
+            if (user != null)
             {
-                await _connection.SendMessageAsync($"SYNC_CHAR|{user.Id}|{character.Id}|{user.Username}");
+                user.SelectedCharacterId = character.Id;
+                await _accountService.UpdateUser(user);
+
+                if (_connection.IsConnected)
+                {
+                    await _connection.SendMessageAsync($"SYNC_CHAR|{user.Id}|{character.Id}|{user.Username}");
+                }
             }
         }
     }

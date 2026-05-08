@@ -29,46 +29,46 @@ public class RegisterPageViewModel : BaseViewModel
 
     private async Task ExecuteRegister()
     {
-        if (string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Password) || string.IsNullOrWhiteSpace(Email))
+        bool hasMandatoryFields = !string.IsNullOrWhiteSpace(Username)
+            && !string.IsNullOrWhiteSpace(Password)
+            && !string.IsNullOrWhiteSpace(Email);
+
+        if (!hasMandatoryFields)
         {
             await Shell.Current.DisplayAlert("Campos Vacíos", "Por favor rellena todos los campos mágicos.", "Entendido");
-            return;
         }
-
-        if (Password != ConfirmPassword)
+        else if (Password != ConfirmPassword)
         {
             await Shell.Current.DisplayAlert("Error", "Las contraseñas no coinciden, joven héroe.", "Reintentar");
-            return;
         }
-
-        var (isValid, message) = PasswordValidator.Validate(Password);
-        if (!isValid)
+        else
         {
-            await Shell.Current.DisplayAlert("Contraseña Débil", message, "Mejorar");
-            return;
-        }
-
-        IsBusy = true;
-        try
-        {
-            await _accountService.RegisterAsync(RealName, Username, Email, Password);
-            await Shell.Current.GoToAsync("//LoginPage");
-        }
-        catch (ChibitsLink.main.cs.exception.AuthException ex)
-        {
-            await Shell.Current.DisplayAlert("Error en Registro", ex.Message, "Entendido");
-        }
-        catch (ChibitsLink.main.cs.exception.DatabaseException ex)
-        {
-            await Shell.Current.DisplayAlert("Problema de Base de Datos", ex.Message, "OK");
-        }
-        catch (System.Exception ex)
-        {
-            await Shell.Current.DisplayAlert("Error Crítico", $"Fallo inesperado: {ex.Message}", "OK");
-        }
-        finally
-        {
-            IsBusy = false;
+            var (isValid, message) = PasswordValidator.Validate(Password);
+            if (!isValid)
+            {
+                await Shell.Current.DisplayAlert("Contraseña Débil", message, "Mejorar");
+            }
+            else
+            {
+                IsBusy = true;
+                try
+                {
+                    await _accountService.RegisterAsync(RealName, Username, Email, Password);
+                    await Shell.Current.GoToAsync("//LoginPage");
+                }
+                catch (ChibitsLink.main.cs.exception.AuthException ex)
+                {
+                    await Shell.Current.DisplayAlert("Error en Registro", ex.Message, "Entendido");
+                }
+                catch (ChibitsLink.main.cs.exception.DatabaseException ex)
+                {
+                    await Shell.Current.DisplayAlert("Problema de Base de Datos", ex.Message, "OK");
+                }
+                finally
+                {
+                    IsBusy = false;
+                }
+            }
         }
     }
 }

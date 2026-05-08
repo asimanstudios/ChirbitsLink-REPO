@@ -56,11 +56,20 @@ public class Connection
             StartHeartbeat();
             System.Diagnostics.Debug.WriteLine($"Connected to Game Server at {finalHost}:{finalPort}");
         }
+        catch (System.Net.Sockets.SocketException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"TCP Socket Error: {ex.Message}");
+            throw new ChibitsLink.main.cs.exception.NetworkException($"Error al conectar con la sala ({finalHost}:{finalPort}). Revisa tu conexión Wi-Fi.", ex);
+        }
+        catch (OperationCanceledException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"TCP Connection Cancelled: {ex.Message}");
+            throw new ChibitsLink.main.cs.exception.NetworkException($"Conexión cancelada.", ex);
+        }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"TCP Connection Error: {ex.Message}");
-            _isConnecting = false;
-            throw new ChibitsLink.main.cs.exception.NetworkException($"Error al conectar con la sala ({finalHost}:{finalPort}). Revisa tu conexión Wi-Fi.", ex);
+            System.Diagnostics.Debug.WriteLine($"TCP Connection Unexpected Error: {ex.Message}");
+            throw new ChibitsLink.main.cs.exception.NetworkException($"Error inesperado al conectar ({finalHost}:{finalPort}).", ex);
         }
         finally
         {
@@ -112,9 +121,13 @@ public class Connection
                     }
                 }
             }
+            catch (System.IO.IOException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Bluetooth Send IO Error: {ex.Message}");
+            }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Bluetooth Send Error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Bluetooth Send Unexpected Error: {ex.Message}");
             }
         }
     }
@@ -152,12 +165,14 @@ public class Connection
     {
         var buffer = new byte[4096];
         var sb = new StringBuilder();
+        var client = (System.Net.Sockets.TcpClient?)null;
+        var stream = (System.Net.Sockets.NetworkStream?)null;
         try
         {
             while (true)
             {
-                var client = _tcpClient;
-                var stream = _tcpStream;
+                client = _tcpClient;
+                stream = _tcpStream;
                 if (client == null || !client.Connected || stream == null) break;
 
                 int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, _cts?.Token ?? CancellationToken.None);
@@ -181,9 +196,17 @@ public class Connection
                 sb.Append(data);
             }
         }
+        catch (System.IO.IOException ex)
+        {
+            Debug.WriteLine($"TCP Receive IO Exception: {ex.Message}");
+        }
+        catch (OperationCanceledException)
+        {
+            Debug.WriteLine("TCP Receive: loop cancelled (normal disconnect).");
+        }
         catch (Exception ex)
         {
-            Debug.WriteLine($"TCP Receive Exception: {ex.Message}");
+            Debug.WriteLine($"TCP Receive Unexpected Exception: {ex.Message}");
         }
         
         StopHeartbeat();
@@ -222,9 +245,17 @@ public class Connection
                 ProcessReceivedMessage(message);
             }
         }
+        catch (System.Net.WebSockets.WebSocketException ex)
+        {
+            Debug.WriteLine($"WebSocket Exception: {ex.Message}");
+        }
+        catch (OperationCanceledException)
+        {
+            Debug.WriteLine("WebSocket Receive: loop cancelled (normal disconnect).");
+        }
         catch (Exception ex)
         {
-            Debug.WriteLine($"WebSocket Receive Exception: {ex.Message}");
+            Debug.WriteLine($"WebSocket Receive Unexpected Exception: {ex.Message}");
         }
 
         bool wasCancelled = false;

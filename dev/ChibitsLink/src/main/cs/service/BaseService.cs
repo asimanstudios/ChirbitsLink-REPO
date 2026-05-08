@@ -36,9 +36,19 @@ public abstract class BaseService
             }
             return default;
         }
+        catch (HttpRequestException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[BaseService] HTTP Request Error ({endpoint}): {ex.Message}");
+            return default;
+        }
+        catch (TaskCanceledException)
+        {
+            System.Diagnostics.Debug.WriteLine($"[BaseService] HTTP Timeout ({endpoint}).");
+            return default;
+        }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"API Error: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[BaseService] Unexpected API Error ({endpoint}): {ex.Message}");
             return default;
         }
     }

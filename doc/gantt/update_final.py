@@ -97,6 +97,28 @@ sessions = [
     ("2026-04-18", "11:00", "15:00", ["R07F04T04 – Corregir errores"]),
     ("2026-04-19", "11:00", "15:00", ["R07F04T04 – Corregir errores"]),
     ("2026-04-20", "18:00", "22:00", ["R02F03T01 – Definir sistema de conexión a utilizar sockets WebSockets o Bluetooth"]),
+    
+    # --- NEW LATE-APRIL & MAY SESSIONS FROM PDF (3) ---
+    ("2026-04-21", "18:00", "22:00", ["R06F01T01P01 – Conectar jugadores y verificar visualización simultánea"]),
+    ("2026-04-22", "18:00", "22:00", ["R02F03T01 – Definir sistema de conexión a utilizar sockets WebSockets o Bluetooth"]),
+    ("2026-04-23", "18:00", "22:00", ["R05F01T01P01 – Registrar puntuación al finalizar partida y validar cambios"]),
+    ("2026-04-24", "18:00", "22:00", ["R07F04T04 – Corregir errores"]),
+    ("2026-04-25", "11:00", "15:00", ["R02F03T01 – Definir sistema de conexión a utilizar sockets WebSockets o Bluetooth"]),
+    ("2026-04-26", "11:00", "15:00", ["R05F01T01P01 – Registrar puntuación al finalizar partida y validar cambios"]),
+    ("2026-04-27", "18:00", "22:00", ["R07F04T04 – Corregir errores"]),
+    ("2026-04-28", "18:00", "22:00", ["R03F01T01P01 – Presionar botón virtual y verificar acción en Unity"]),
+    ("2026-04-29", "18:00", "22:00", ["R06F02T01P01 – Modificar puntuación y comprobar actualización inmediata"]),
+    ("2026-04-30", "18:00", "22:00", ["R07F04T04 – Corregir errores"]),
+    
+    # May (Documentación y memoria)
+    ("2026-05-01", "08:00", "12:00", ["R07F04T02 – Cumplimentar diferentes secciones de la memoria"]),
+    ("2026-05-02", "14:00", "18:00", ["R07F04T04 – Corregir errores"]),
+    ("2026-05-03", "19:00", "23:00", ["R02F03T01 – Definir sistema de conexión a utilizar sockets WebSockets o Bluetooth"]),
+    ("2026-05-04", "09:00", "13:00", ["R05F01T01P01 – Registrar puntuación al finalizar partida y validar cambios"]),
+    ("2026-05-05", "08:00", "14:30", ["R07F04T04 – Corregir errores"]),
+    ("2026-05-05", "14:30", "18:00", ["R06F01T01P01 – Conectar jugadores y verificar visualización simultánea"]),
+    ("2026-05-06", "19:00", "21:30", ["R07F04T04 – Corregir errores"]),
+    ("2026-05-07", "20:00", "22:30", ["R07F04T02 – Cumplimentar diferentes secciones de la memoria"]),
 ]
 
 milestones = [

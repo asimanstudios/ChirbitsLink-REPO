@@ -1,11 +1,11 @@
-﻿namespace ChibitsLink.main.cs.controller;
+namespace ChibitsLink.main.cs.controller;
 
 /*
- * Controla el sistema de mando
+ * Controla el sistema de mando: delega las entradas del usuario (joystick, botones)
+ * al servicio de comunicación con el servidor de Unity.
  */
-using ChibitsLink.main.cs.view;
-using ChibitsLink.main.cs.service;
 using System.Threading.Tasks;
+using ChibitsLink.main.cs.service;
 
 public class ControllerController
 {

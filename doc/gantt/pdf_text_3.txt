@@ -1,0 +1,743 @@
+TFG - CHIRBITS
+REDACTADO POR ADRIÁN SIMARRO MANZANO
+ADRIÁN SIMARRO  
+MANZANODiario de desarrollo de:
+DÍA 17
+Lo primero que he realizado ha sido una
+revisión y definición del RFTP para
+posteriormente pasar a comenzar a
+realizar el diagrama de Gantt para el
+registro de tareas y plan de tiempos y
+plazos además he creado este diario con
+el fin de completar Gantt de forma mas
+sencilla y llevar las cosas al día. He
+de completar la nueva plantilla de Gantt
+y crear previa porque la tarea en si no
+salió bien.
+En la tarde implementé el diagrama de
+Gantt previo al fin con ProjectLibre.
+DÍA 18
+Se analizó en clase como hacer las
+diferentes cosas que solicita la memoria
+en base a los diagramas de clases de
+uso. Entregamos uno de ejemplo. - sumar
+horas al GANTT de la memoria - por hacer
+Después me he dedicado a la UI de la app
+móvil y he analizado como implementar la
+conexión.
+He pensado que podría venir bien mirar q
+se envíen correos de confirmación aunque
+eso requiere de un servidor yo creo. Lo
+valoraré lo que si hay que poner
+política de contraseñas porque si no la
+seguridad es muy baja.DÍA 19
+He comenzado brevemente con la
+implementación de interconexión entre la
+app con la BBDD de Firebase y con el
+juego en si el cual hace de servidor si
+funciona analizare el poder poner svs
+externos para el juego en vez de
+integrarlo dentro en si. Lo hare con
+socket al final aunque si sale bien
+rápido valoraré implementarle Bluetooth.
+Inicie una base de los scripts del juego
+en si para la conexión y manejo de
+jugadores.
+Hay que meter validación de salas y
+comprobación de código en la app móvil.
+DÍA 20
+Los avances e este día fueron mínimos.
+Investigue un poco en el asunto de
+conexión de lobby con el juego y
+establecí los puntos de spawn en la
+lobby el juego va algo atrasado la app
+va bien pero la ui es muy mejorable y
+hay que refactorizar.DÍA 24
+Me he puesto a refactorizar código e
+incluir excepciones personalizadas
+además de ajustar un poco las entidades
+para realizar portear los diagramas
+entidad relación y de flujo necesarios
+posteriormente en la documentación del
+proyecto. Me estoy centrando mucho en la
+app en si para después poder proceder
+con al juego su completo ya que el juego
+depende directamente de la app móvil.
+Estoy tirando mas por conexión por
+socket local con clave y ando revisando
+que valide bien el ubicar lobbies.
+He actualizado documentaciones y he
+actualizado los scripts que serán
+implementados en el sistema del juego de
+unity.
+También dediqué 10min para actualizar el
+diagrama de Gantt.
+Ha sido un día de avances importantes.
+2-3h de seguido aprox.
+
+DÍA 25
+Me he dedicado a refinar diagramas y
+continuar con los sistemas de
+interconexión. Ha sido un día de
+preparación de la entrega parcial y de
+refactorización.El día de hoy ha sido dedicado de 8:30 a
+14:30 al sistema de interconexión por clave
+numérica de 6 dígitos de la lobby
+realizando ajustes en la app para los
+sistemas de interconexión, selección de
+juego y reglas de la base de datos de
+firebase.
+Tras lograr una conexión mas o menos
+estable se procedió a cambiar el estilizado
+de la app para que sea mas fiel a lo que se
+busca transmitir aunque aun le queda darle
+una vuelta.
+También he introducido al juego nuevas
+fuentes con el fin de contar con un
+estándar mas agradable para el usuario.
+Anotaciones personales:
+Se pusieron seeders temporales que hay
+que retirar cuando se acaben los test.
+Hay que hacer tests unitarios.
+Hay que refactorizar, limpiar y seguir
+buenas practicas.
+Hay que poner algo para que se vea en el
+juego si están listos o no o en el móvil
+q aparezca la lista de los que hay en la
+partida con su estado o inclusive ambas.DÍA 02/03
+El día de hoy ha sido enfocado en mejoras y
+solución de bugs de la app y la
+interconexiones en un minijuego de prueba
+aplicando cambios para que los jugadores se
+generen entre escenas y no se pierda el
+socket / conexión haciendo dicho cambio.
+Anotaciones personales:
+Hay que hacer validación entre cuentas
+para que no se conecten con la misma
+cuenta a una lobby.
+Hay que poner errores de conexión cuando
+esta se interrumpe pq a veces da a
+entender que sigue conectado
+Hay que reparar el asunto del firewall
+para no depender de tailscale ni nada
+así.
+Se pusieron seeders temporales que hay
+que retirar cuando se acaben los test.
+Hay que hacer test unitarios.
+Hay que refactorizar, limpiar y seguir
+buenas practicas.
+Hay que poner algo para que se vea en el
+juego si están listos o no o en el móvil
+q aparezca la lista de los que hay en la
+partida con su estado o inclusive ambas.DÍA 03/03
+El día de hoy ha sido enfocado en la
+reparación del problema de cambio de
+escenas eso fue reparado el problema que
+persiste es en el procesado de datos JSON a
+la hora de manejar los controles del mando
+virutal.
+Anotaciones personales:
+Hay que hacer validación entre cuentas
+para que no se conecten con la misma
+cuenta a una lobby.
+Hay que poner errores de conexión cuando
+esta se interrumpe pq a veces da a
+entender que sigue conectado
+Hay que reparar el asunto del firewall
+para no depender de tailscale ni nada
+así.
+Se pusieron seeders temporales que hay
+que retirar cuando se acaben los test.
+Hay que hacer test unitarios.
+Hay que refactorizar, limpiar y seguir
+buenas practicas.
+Hay que poner algo para que se vea en el
+juego si están listos o no o en el móvil
+q aparezca la lista de los que hay en la
+partida con su estado o inclusive ambas.DÍA 04/03
+El día de hoy ha sido enfocado en finalizar el
+funcionamiento del mando con respecto al control de
+jugador. Se vieron problemas en como el cliente
+enviaba los inputs a modo de JSON y en como el
+Servidor los leia entonces se refactorizó. Ahora hay
+conexion entre mando y juego y funciona bien pero
+parpadea un poco el mando asi que se ha refactorizado
+porque se ha detectado que fue por como MAUI actualiza
+la pantalla del joystick asi que se ha refactorizado.
+Se ha comiteado y pusheado en el github hay que hacer
+una build con los cambios y validad si funciona
+correctamente en base a net.9 ya que se realizó en
+otro equipo con net.8 . Si funciona pasaré a realizar
+uno de los minijuegos o a mejorar graficamente lobby
+logos y diseños si no funciona se devolverá 1 version
+y se volverá a refactorizar. Además se incluyeron las
+fotos de los personajes tanto en la BBDD de firebase
+como en el proyecto de unity para poder comenzar a
+hacer uso de las mismas a futuro para fotos de perfil
+de personaje, usuarios o para otras necesidades que
+puedan salir en el juego a futuro.DÍA 05/03Anotaciones personales:
+Hay que hacer validación entre cuentas para que no se 
+conecten con la misma cuenta a una lobby.
+Hay que reparar el asunto del firewall para no depender de 
+tailscale ni nada así.
+Hay que hacer test unitarios.
+Hay que refactorizar, limpiar y seguir buenas practicas.
+Hay que poner algo para que se vea en el juego si están 
+listos o no o en el móvil q aparezca la lista de los que 
+hay en la partida con su estado o inclusive ambas.
+Hay que reparar el tema de que si no hay players en 
+minijuego mande al menu / lobby
+Hay que buildear y validar el nuevo ajuste de mando
+Hay que ir pernsando en el tema niveles como cuanta xp se 
+gana por cada cosa en minijuego y cuanto sube eso de 
+nivel.
+Hay que hacer una HUD para los puntos etc.
+Hay que poner el progreso de level app + firebase + juego 
+unity.
+Hay que valorar poner nicknames visibles encima de 
+jugadores o almenos en una hud en el lateral con foto de 
+personaje. Las fotos de personaje deben ser incorporadas.
+
+Debido a los avances del día 5 habiendo completado mas
+del objetivo del día 18 se ha procedido con un día de
+planificación analizando posibles minijuegos y armando
+una lista de los mismos con el fin de distribuirlos en
+los días próximos. Se analizo el problema del firewall
+llegando a la conclusion de que el causante eran
+puertos cerrados.
+Minijuegos analizados:
+https://docs.google.com/document/d/1ZJ5CRCGCBVlRSmdTT-
+RlGLiMnutrVS9E2YDYha3kb0s/edit?usp=sharing
+Se aprovechó el día de planificación para arreglar
+bugs criticos como el bug de desconexion el cual
+basicamente hacia que aunque todos los jugadores se
+desconectasen se mantuviese le juego en la escena en
+vez de enviar al menu principal. Se ha intentado
+reparar pero sigue ahi el bug deberá ser revisado ya
+que tiene que haber un problena en el codigo en como
+identifica los clientes.
+Se comenzó a mapear el minijuego de recoleccion de
+monedas rápidas. La idea es que aparezcan por el area
+del mapa y gana el que mas recolecta en menos tiempo.DÍA 06/03
+Este día se ha enfocado en preparativos del primer
+minijuego. Se ha mapeado el entorno y creado unos
+scripts para su uso. Se han hecho pequeñas pruebas que
+han mostrado que los scripts requieren de mas trabajo.
+El mapeado es simple pero la interconexion es solida.
+Hay que mejorar mapeo
+Mejorar HUD
+Mejorar movilidad - invertir controles
+Reducir FOV global
+Aumentar tamaño de personajes
+Poner los scripts a funcionar
+Analizar flujo
+El objetivo del minijuego es colocar un temporizador y
+aparecer diferentes pilas de oro que deben recolectar
+los jugadores. El que más consiga gana el minijuego y
+se le da un bonus de puntos al resto 1 punto por oro y
+esto subiria nivel del personaje / jugador. Es un
+minijuego basico pero entretenido que se puede mejorar
+con sonido y efectos ademas de darle velocidad a las
+rondas. Se esta valorando que sean de 1 minuto cada
+ronda.DÍA 09/03
+El día de hoy ha sido dedicado a mejoras del minijuego
+de recolección de monedas logrando implementar las
+bases de scripts, musica creada y compuesta con suno
+ia, mejoras al mapeo del mapa de monedas, algunos
+ajustes de servidor y progresos en dicho minijuego
+para que lo proximo sean agregados o pulir mecanicas.
+Se está pensando en agregar monedas diferentes o de
+diferentes colores con el fin de que den mayor
+puntuación tambien se esta valorando editar el script
+de movimiento aumetando sensibilidad y haciendo que se
+sienta algo mas rápido pero por el momento está bien.
+Se está valorando también que los personajes tengan
+diferentes valores en el script de movimiento con el
+fin de que estos sean elegidos mas tacticamente para
+los minijuegos aunque por el momento es cosmetico para
+que sea mas familiar.
+Hay que reparar el muestreo de usernames.
+Hay que refactorizar para mejorar estructura.DÍA 10/03Cambios realizados:
+PlayerIdentity.cs [NUEVO]: Componente para 
+guardar el UID de Firebase en el objeto del 
+jugador.
+LobbyManager.cs: Implementado 
+FetchUsernameAsync con búsqueda robusta por 
+ID y campo 
+Username en Firestore.
+TcpServer.cs: Añadida carga automática del 
+nombre real de Firebase al recibir la señal 
+de conexión (SYNC_CHAR).
+PlayerManager.cs: Modificado para asignar el 
+componente 
+PlayerIdentity al spawnear jugadores.
+Moneda.cs: Actualizado para identificar 
+jugadores mediante 
+PlayerIdentity en lugar de parsear nombres 
+de objetos.
+UICoinCollector.cs: Simplificado para usar 
+directamente el nombre real ya procesado por 
+el servidor.
+GestorCoinCollector.cs: Corregido el flujo 
+de regreso al lobby para mayor estabilidad.
+
+El día de hoy ha sido dedicado a recoger feedback UX
+del juego de Unity. Se ha llegado a la conclusion de
+que es necesario un cambio en el sistema de movimiento
+además de mejoras en las animaciones para darle mas
+efecto natural. Se debe mejorar la iluminacion y
+efectos del juego ademas de la UI. Tras esto se
+hicieron mejoras en la decoracion y disposicion del
+minijuego de recoleccion de oro y la lobby. Se
+mejoraron las fuentes y posiciones de textos además de
+su tamaño. Se creo con gemini un diseño para paneles
+en base al logo además de botones.DÍA 11/03
+Posteriormente se comenzó a realizar ajustes en el
+script de movimiento para hacerlo menos tosco. Se
+reparó en gran medida aunque da avences solo el
+personaje tras soltar el joystick cosa que puede
+llegar a molestar al usuario pero por el momento es
+casi tirando a agradable.
+En base al feedback recolectado el día de ayer se ha
+enfocado el día a acondicionar el minijuego de monedas y
+con efectos, audio, ajustes en el sistema de movimiento y
+además se implementaron tiers de monedas con el fin de
+darle mas dinamismo a la partida haciendo que los jugadores
+tengan que intentar conseguir las de mejor tier y ganar mas
+puntos. Se ha incluido también audios en la cuenta atrás.
+Ha sido una update de calidad de experiencia en esencia.
+Se tiene que realizar el sistema que refleje los puntos
+en la cuenta para el nivel y ganadores de partida.
+Se tiene que solucionar un bug en el que las monedas
+aparecen bajo las mesas y no se puede recolectar. Se
+puede solventar aumentando las hitbox de las mesas o
+cambiando a sistema de navmesh.
+Se tiene que valorar si poner pantallas de carga.
+Se tiene que valorar si meter tutoriales de minijuegos
+antes del minijuego aunque pueden ser algo tediosos
+para el usuario quizas una descripcion en una esquina
+que diga lo que hacer y abajo los controles o incluso
+ponerlos en la app movil. Se verá si se hace en base al
+progreso de la parte principal del proyecto.DÍA 12/03
+Esta sesión ha sido ms breve que las anteriores de 8-
+5h siendo una de 30minutos en la cual se ha realizado
+fix del minijuego de monedas en cuanto al spawn de
+monedas en sitios imposibles de acceder disponiendolas
+mejor por la arena y reparando ciertas hitbox para
+mejor experiencia. Además de esto se ha estado
+valorando el proximo minijuego que segun el roadmap se
+realizará la semana siguiente dando por concluido la
+parte funcional del actual habiendo que retocar
+graficamente la ui. Se ha coemzado a intentar reparar
+el bug de sesiones entre rondas de minijuegos en el
+cual la sesión / lobby se desvincula y hay que
+rehostear. El problema de esto principalmente reside
+en como se limpian los objetos y en el sistema que los
+trae perisistentes de otras escenas. Se ha de reparar
+en la proxima sesión junto con el planning del proximo
+minijuego.DÍA 13/03
+
+DÍA 16/03
+Se ha dedicado de 15:26 - 16:00 A la planificación del
+siguiente minijuego. El día posterior sería dedicado a
+la documentación. El objetivo de la sesión fue
+analizar el documento de minijuegos y analizar
+diferentes minijuegos que cuadrasen en el tiempo de
+desarrollo teniendo en cuenta los bug que hay que
+reparar, la reestructuración y además la
+documentación. Se analizó incluir un football con
+powerups 2vs2 y un minijuego de tag explosivo en el
+cual los jugadores se pasan una bomga con un contador
+de 1 minuto y explota al acabar el minuto quedando el
+último como ganador.
+DÍA 17/03
+Se ha dedicado la sesión de hoy al analisis del diario
+para actualizar el diagrama de gantt e incluir algunas
+cosas a la memoria. Además de empezar a ponerle
+formato correcto a la misma con el fin de poder
+implementar el índice. La sesión fue de 13:00 - 15:34
+con un descanso de 15 minutos. La sesión fue dedicada
+exclusivamente a la documentación.
+Se añadió texto a la zona de Justificación
+Se implementó el índice
+Se metieron diagramas de flujo de 2 de los 3
+minijuegos
+Se actualizó el diagrama de Gantt en base al
+diario y se convirtió a XML con el fin de poder
+leerlo en diferentes aplicaciones haciéndolo mas
+portable.
+DÍA 18/03
+El día en cuestión fue dedicado a entrega de proyecto
+en el cual en borrador se adjuntó un resumen de lo
+realizado y la memora. Aquí yo adjunté este diario.
+Posteriormente se fue a un acharla empresarial.
+DÍA 19/03
+Debido a que se perdió 1 día de desarrollo el 18, este día
+fue mas intenso realizando varios scripts del minijuego de
+bombas aplicado al mapa de monedas por el momento en el
+cual una bomba apareceria encima de un jugador y tendrian
+que irsela pasando con periodos de 30 segundos hasta que
+solo quedase 1, se ha agregado este minijuego a la lista
+del menu de la app. Hay errores en la HUD de la bomba y
+alguno a la hora de realizar la explosión pero son ajustes
+que se podrían llevar a cabo en un día mas de desarrollo se
+estiman 3 dias para compeltar este minijuego 1 para ajustes
+y otro para el mapeado.
+Hay que arreglar la HUD.
+Hay que subir la bomba mas arriba del personaje.
+Hay que mapear un mapa dedicado al minijuego.
+Hay que hacer que en el ranking salga el nombre del
+player como en el minijuego de las monedas.
+DÍA 20/03
+El día de hoy se han realizado bugfixes en base al trabajo
+de ayer con el fin de unicamente tener que crear el mapa en
+la próxima sesión para pasar al último minijuego o para
+realizar bugfixes críticos. Se ha:
+1. Niveles: Sincronizados con Firestore y visibles en
+todos los rankings como [Lvl X].
+2. Nombres: Solucionado el fallo de "Jugador"; ahora
+siempre sale el nickname real.
+3. Cuenta atrás: Reparada la visibilidad (ya no se oculta
+por error del panel HUD).
+4. Audio Pro: Cuenta atrás y explosiones en 2D para que se
+oigan con total claridad.
+5. Estabilidad: Arreglado el crash que ocurría al terminar
+partidas si alguien se desconectaba.
+6. Se ha ajustado la posición de la bomba para que sea mas
+agradable. Y se le ha puesto fuego a la mecha de la
+misma.
+Hay que:
+Hay que mejorar estructura y meter metodos comunes
+repetitivos en clases serparadas.
+Hay que optimizar.
+
+DÍA 23/03
+La sesión en si se enfocó en un remake del mapa del
+bombtag / tnt tag con el fin de que no fuese el mismo
+teniendo así entornos diferentes. Se está realizando
+un entorno desertico al aire libre. Aun hay que
+ajustar la HUD y mejorar la iluminación además de
+decorarlo mejor, mover objetos y demás ajustes.
+Sesión de 15:00 - 17:08.
+DÍA 24/03
+La sesión se ha dedicado a la mejora de la
+ambientación del minijuego de la bomba dandole
+ambiente desertico, cambiando la composición musical
+con suno y mejorando iluminación, particulas y
+efectos. Lo que que por analizar es si meterle alguna
+mecanica extra como rondas de bombas que caen y
+mejorar la interfaz. La cuestión es que complicar el
+juego podria ser adverso ya que es para 4 jugadores
+unicamente.
+De 14h- 15:39
+ANTES DESPUÉS
+DÍA 25/03Views (UI y Visuales)
+LobbyUI.cs, 
+LobbyNotifications.cs, 
+RotacionSkybox.cs
+UIBombTag.cs, 
+HUDEncimaBomba.cs
+UICoinCollector.cs
+InterfazPedido.cs
+Camara.cs (unificado desde Scripts 1)
+Controllers
+PlayerController.cs, 
+ControladorJugador.cs, 
+Movimiento.cs
+BombaTag.cs, 
+Moneda.cs
+IA_Cliente.cs, 
+Mesa.cs
+Batidora.cs, 
+Freidora.cs, 
+MaquinaBase.cs
+ServidorControlMando.cs
+Services
+TcpServer.cs
+GestorDeRed.cs
+GestorFirebase.cs
+Managers (Flujo y Estados Globales)
+LobbyManager.cs, 
+PlayerManager.cs
+GestorBombTag.cs, 
+GestorCoinCollector.cs
+GestorDePartida.cs, 
+GestorDePedidos.cs, 
+GestorDePantallaDividida.cs
+Limpieza realizada:
+1. He eliminado la carpeta duplicada Scripts 1.
+2. He borrado todas las carpetas vacías anteriores
+(lobby, BombTag, Nucleo, etc.).
+3. He eliminado los archivos residualesSe han realizado reajustes y reorganizacion de estructura. Se han
+identificado scripts que pude que se necesiten suprimir si no se entra
+en plazo siendo los de un minijuego de cocina. Este minijuego se creará
+si se completan las expectativas minimas del juego original si no se
+suprimirán.
+Se comenzó a realizar un minijuego de aguante en plataforma en el cual
+gana quien empuje al resto.
+Despues se ha empezado brevemente a refactorizar el codigo planificado
+el uso de clases base las cuales se usarán con herencia con el fin de no
+repetir tanto código entre minijuegos aplicandolo a managers y a UI. Hay
+que reparar el cleanup de la lobby en cuanto a conexiones.
+Sesión de 13:40 - 15:45
+Listado de cambios:
+AÑADIDOS DEL MINIJUEGO DE EMPUJE:
+Sistema de Knockback (Fisica)
+IPushable.cs: Nueva interfaz que permite que cualquier objeto sea
+empujable.
+Movimiento.cs: Ahora los jugadores responden a fuerzas externas. La
+fuerza decae suavemente con el tiempo para un movimiento fluido.
+2. Gestión del Minijuego
+GestorPushArena.cs: Controla el ciclo de vida. Detecta
+automáticamente a los jugadores y les asigna el controlador de
+empuje.
+PushArenaDeathZone.cs: Trigger que detecta la caída de los jugadores
+y notifica al gestor para su eliminación.
+3. Mecánica de Empuje
+PushController.cs: Procesa el input y realiza un chequeo físico para
+encontrar otros jugadores y aplicarles fuerza.
+4. Interfaz de Usuario
+UIPushArena.cs: Muestra la cuenta atrás, el número de jugadores vivos
+y el podio final con los ganadores.
+CAMBIOS DE ESTRUCTURA:
+Core (Infraestructura)
+ChirbitsDebugger.cs
+UnityMainThreadDispatcher.cs
+Models
+PlayerIdentity.cs
+Character.cs, 
+Game.cs, 
+Party.cs
+Ingrediente.cs, 
+IngredienteSO.cs, 
+Jarra.cs
+DÍA 26/03
+Se han reajustado los scripts del minijuego de empujes / smash. Y se ha
+comenzado el mapeo de la escena teniendolo casi completado. Hay que
+analizar refactorizaciones y decorar la escena con particulas,
+iluminación y ajustes de UI además hay que implementar los scripts y
+analizar su funcionalidad.
+Hay que componer con suno o algo similar otra melodía para el minijuego
+el cual se ambienta en un bosque.
+Hay que hacer los diferentes ataques y animators para darle calidad con
+efectos y demás.
+Scripts nuevos creados:
+ISmashable.cs – interfaz de daño%, stocks y knockback
+SmashPlayerController.cs – lógica por jugador %, vidas, hitstun,
+doble salto, ataque.
+SmashDeathZone.cs – trigger de muerte al caer de la plataforma
+GestorSmashArena.cs – manager FSM: preparación → cuenta atrás → juego
+→ resultados → lobby
+UISmashArena.cs – HUD con % y vidas de cada jugador + pantalla de
+resultados
+Scripts modificados:
+Movimiento.cs – añadida propiedad IsGrounded, método 
+AplicarDobleSalto() y forwarding del input móvil (botón A → doble
+salto, botón B → ataque) al SmashPlayerController
+Sesión de 15:20 a 17:17
+DÍA 30/03
+La sesión se ha dedicado a la reparacion de bugs e implementacion de
+sistemas del tercer minijuego ajustando el control de movimiento,
+creando barreras de bloqueo y deathzones y sistemas de instanciado.
+UISmashPlayerHUD.cs: Nuevo. HUD por jugador, auto-detecta textos por
+nombre u orden.
+UISmashArena.cs: HUD dinámica (prefab + contenedor). Referencias
+directas a SPC para no perder datos al morir.
+SmashPlayerController.cs: Input System. Respawn sin desactivar objeto.
+Doble salto inmediato en OnJump. Física Brawlhalla.
+Movimiento.cs:SetStats(), EnableController(), CancelJumpBuffer(). Guard
+si controller inactivo.
+DÍA 01/04
+Sesión dedicada a ajustar el controlalador de movimiento del
+minijuego con el fin de hacerlo comodo y util ante el contexto
+del minijuego con doble salto y mas agilid ad. Hay que hacerle
+ataques y mejorarlo mas en la proxima sesió n para ya decorar y
+arreglar textos.
+Sesion de 16:00-18:00
+DÍA 02/04
+Debido a los pocos avances de la sesion anterior y los errores del
+programa se rehizo el sistema del minijuego tipo smash realizando
+multiples cambios:
+NUEVOS Archivos (FighterSystem):
+FighterCore.cs: Hub central (reemplaza SmashPlayerController)
+StatsConfigSO.cs: Floaty stats (-22 gravity, 1.0 airControl)
+AttackDataSO.cs: Punch/Kick/Heavy data-driven
+AttackManager.cs: Hitbox cone + timing (startup/active/recovery)
+DamageManager.cs: ISmashable %KB/stocks/invuln blink
+PlayerStateMachine.cs: Ground/Air/Attack/Hitstun states
+InputBuffer.cs: Jump/attack buffer (coyote 0.15s)
+AirJumpManager.cs: Multi-jumps (null-fixed)
+FighterEvents.cs: UI/VFX decoupled
+INTEGRACIÓN:
+GestorSmashArena.cs: Auto-add FighterCore + SO defaults
+Movimiento.cs intacto (usa IPushable KB)
+PlayerManager compatible IChibitsController
+FEATs Smash/Brawlhalla:
+Floaty physics + aire control total
+Doble salto bufferizado
+Hitboxes dinámicas B/X/Y
+States: No attack en stun
+Móviles full support
+FIXES:
+NullRef AirJumpManager.OnEnable
+Auto-config Resources.Load SOs
+0 compile/runtime errors
+Sesión de 17:00 - 20:35DÍA 03/04
+El día desde las 14:27 a 18:30 se ha enfocado en
+buscar la causa de los fallos el controlador dinámico
+del ultimo minijuego se ha rehecho muchas veces y se
+han dado muchísimos errores diferentes de colapso y
+superposición de scripts. Se ha decidido empezar de 0
+y usar lo que ya funciona con añadidos con el fin de
+completar el minijuego y poder pasar con el ultimo mes
+de refactorizaciones lo cual sera largo y tedioso.
+DÍA 05/04
+Toda la sesión de dicho día de 11:00 - 15:00 fue
+dedicada a un remake del minijuego debido a los
+problemas creados con chirbits smash y debido al
+tiempo necesario para pulirlo bien se decidió dejarlo
+como un proyecto futuro o en segundo plano y crear un
+minijuego basado en el uso de ganchos . Se usó dicho
+día para armar ese minijuego tanto el mapa como el
+diseño.
+DÍA 6/04 -12/04
+Se dedicó a la relaizacion de los diferentes sistemas
+del minijuego del gancho tanto scripts como diseño. Se
+definieron las zonas, uso de ganchos, instanciación de
+personajes y objetos y se repararon errores por el
+camino del balanceo y jugabilidad. Fueron sesiones de
+18-22 debido a el horario de prácticas.
+DÍA 13/04 -20/04
+Este periodo se enfocó a la reparación de errores
+persistentes en la interconexión y mejoras de calidad.
+Se reparó el error de vuelta a la lobby, se repararon
+errores de creacion y uso de cuentas, se modificó la
+app movil par a recibir y enviar mensajes, se ajusto
+el sistema de puntuación y niveles aunque requiere de
+ajustes como en la carga de la lista de las lobbis. Se
+retiró el hardcodeo de red ahora se selecciona en base
+a las diferentes redes disponibles del equipo
+permitiendo usar VPN para jugar con gente externa a la
+red, se ha probado con Tailscale y funciona
+correctamente, será la red que use para las muestras
+ya que asegura el funcionamiento.
+Aun se necesita decorar, mejorar ui, ux y algun
+efecto, tambien refactorizar y limpiar pero va tomando
+forma interesante.
+Fueron sesiones de 18-22. Sabados y domingos de 11-15.
+El día 20 fue cuando se implemento el tema de la red
+seleccionable y se actualizó el diario ademas del
+diagrama de Gantt.DÍA 21/04
+Fue día de reunión además de esto se realizaron
+playtests con el fin de tomar notas y realizar cambios
+de calidad además de encontrar errores. Se comenzó a
+mejorar los colores de la ui y reordenarla.
+Se incorporo una nueva fuente para la UI del juego con
+el fin de mejorar la UX del usuario, se incorporaron
+animaciones a los paneles y se ajustaron los colores y
+paletas de los mismos
+Se recibió feedback de 4 personas. En esencia ha sido
+positivo pero se han podido sacar matices.
+En base a esto se están haciendo cambios.
+Se ajustaron limitantes de los mapas además se
+incorporó Juice UI para mejorar la calidad de la
+interfaz. Tras finalizar arreglos y sistema de xp se
+pasara a refactorizar y documentar. La memoria hay que
+hacerla entera.
+
+DÍA 22/04 -30/04
+Este periodo se enfocó en la reparación de errores
+persistentes en la interconexión y mejoras de calidad,
+logrando los siguientes hitos:
+Estabilización de la Interconexión y Lobby:
+Se reparó el error crítico de "vuelta a la lobby"
+que interrumpía las sesiones de juego.
+Se eliminó el hardcodeo de red, implementando un
+sistema de selección de interfaces que permite el
+uso de VPNs.
+Se validó el funcionamiento con Tailscale,
+garantizando la conectividad con usuarios externos
+a la red local para futuras muestras.
+Gestión de Cuentas y Progresión:
+Se solucionaron los errores de creación y uso de
+cuentas de usuario, asegurando una persistencia de
+datos fiable.
+Se ajustó el sistema de puntuación y niveles (XP),
+aunque se ha identificado la necesidad de
+optimizar la carga de la lista de lobbies
+disponibles.
+Optimización de la App Móvil:
+Se modificó la lógica de comunicación para
+permitir un envío y recepción de mensajes
+bidireccional más robusto.
+Se actualizaron los controladores para mejorar la
+respuesta de los inputs enviados al servidor de
+Unity.
+Mejoras en la Calidad Visual y UI (Unity):
+Se inició la migración a TextMeshPro para mejorar
+la legibilidad y estética de todos los textos.
+Se implementaron mejoras en la disposición de
+paneles y feedback visual al usuario durante la
+creación de salas.Planificación y Seguimiento:
+El día 20 se consolidó la implementación de la red
+seleccionable.
+Se realizaron las actualizaciones correspondientes
+en el diario de sesiones y el diagrama de Gantt
+para reflejar los plazos reales.
+Aún se necesita decorar, mejorar la UI/UX y añadir
+algunos efectos, además de refactorizar y limpiar el
+código, pero el proyecto va tomando una forma
+interesante.
+Horarios de sesión:
+Lunes a Viernes: 18:00 - 22:00.
+Sábados y Domingos: 11:00 - 15:00.
+Este periodo se enfocó en la refactorización completa y 
+estabilización del proyecto, logrando los siguientes 
+hitos:
+Estabilización de la Arquitectura y Código:
+Se repararon errores críticos de estructura que 
+causaban inestabilidad en las sesiones de juego. 
+Se eliminó el código monolítico, implementando 
+un sistema de modularidad completa con responsabilidad 
+única en cada clase. Se estandarizó toda la 
+nomenclatura a inglés consistente y se unificaron los 
+namespaces a ChibitsLink.*
+Optimización de la Interconexión y Red:
+Se reparó el error crítico de "vuelta a la lobby" que 
+interrumpía las sesiones de juego. Se eliminó el 
+hardcodeo de red, implementando TcpNetworkServer con 
+comunicación bidireccional robusta. Se validó el 
+funcionamiento con sistemas de red externos, 
+garantizando conectividad flexible.
+Gestión de Cuentas y Persistencia de Datos:
+Se solucionaron errores críticos en UserRepository y 
+SessionRepository, asegurando persistencia fiable. Se 
+implementaron validaciones robustas y manejo de 
+excepciones específicas sin re-throws. Se ajustó el 
+sistema de almacenamiento con FirebaseManager 
+optimizado para producción.
+Mejoras en la Calidad Visual y UI:
+Se implementaron mejoras en todas las interfaces de 
+usuario (BombTagUI, CoinCollectorUI, LobbyUI). Se 
+optimizó el feedback visual y la disposición de paneles 
+para mejor experiencia del usuario. Se actualizaron los 
+controladores para mejorar la respuesta de inputs en 
+comunicación móvil.
+Optimización de Rendimiento y Calidad:
+Se eliminaron variables declaradas dentro de bucles 
+para optimizar memoria. Se implementaron validaciones 
+extraídas a métodos privados para mayor modularidad. Se 
+corrigieron todos los returns incorrectos y se 
+estableció flujo controlado.DÍA 01/04 -08/04Documentación y memoria:
+Se han incorporado comentarios con el fin de documentar 
+el proyecto, se ha actualizado el diagrama de Gantt y 
+este diario y se ha finalizado la realización de 
+diagramas y la memoria del proyecto.
+Sesión 1 - Análisis y Planificación (8:00 AM - 12:00 
+PM)
+Sesión 2 - Refactorización Core (2:00 PM - 6:00 PM)
+Sesión 3 - Servicios y Network (7:00 PM - 11:00 PM)
+Sesión 4 - Repositories y Datos (9:00 AM - 1:00 PM)
+Sesión 5 - UI y Interfaces (2:00 PM - 6:00 PM)
+Sesión 6 - Correcciones Finales (7:00 PM - 9:30 PM)
+Sesión 7 - Documentación(8:00 PM - 22:30 PM)

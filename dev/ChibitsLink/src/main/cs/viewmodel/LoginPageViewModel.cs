@@ -23,30 +23,28 @@ public class LoginPageViewModel : BaseViewModel
 
     private async Task ExecuteLogin()
     {
-        if (string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Password))
-            return;
+        bool hasInput = !string.IsNullOrWhiteSpace(Username) && !string.IsNullOrWhiteSpace(Password);
 
-        IsBusy = true;
-        try
+        if (hasInput)
         {
-            await _accountService.Login(Username, Password);
-            await Shell.Current.GoToAsync("//MainMenuPage");
-        }
-        catch (ChibitsLink.main.cs.exception.AuthException ex)
-        {
-            await Shell.Current.DisplayAlert("Credenciales Inválidas", ex.Message, "Reintentar");
-        }
-        catch (ChibitsLink.main.cs.exception.DatabaseException ex)
-        {
-            await Shell.Current.DisplayAlert("Error de Perfil", $"No pudimos cargar tus datos de jugador: {ex.Message}", "Entendido");
-        }
-        catch (System.Exception ex)
-        {
-            await Shell.Current.DisplayAlert("Error Inesperado", $"Algo salió mal de forma inesperada: {ex.Message}", "OK");
-        }
-        finally
-        {
-            IsBusy = false;
+            IsBusy = true;
+            try
+            {
+                await _accountService.Login(Username, Password);
+                await Shell.Current.GoToAsync("//MainMenuPage");
+            }
+            catch (ChibitsLink.main.cs.exception.AuthException ex)
+            {
+                await Shell.Current.DisplayAlert("Credenciales Inválidas", ex.Message, "Reintentar");
+            }
+            catch (ChibitsLink.main.cs.exception.DatabaseException ex)
+            {
+                await Shell.Current.DisplayAlert("Error de Perfil", $"No pudimos cargar tus datos de jugador: {ex.Message}", "Entendido");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
         }
     }
 }

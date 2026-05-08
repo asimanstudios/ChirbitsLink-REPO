@@ -52,6 +52,16 @@
             <Border Style="{StaticResource GlassFrame}">
                 <VerticalStackLayout Spacing="20">
                     <VerticalStackLayout Spacing="8">
+                        <Label Text="Contraseña Actual" FontSize="13" TextColor="{StaticResource TextLight}" Margin="5,0" />
+                        <Grid ColumnDefinitions="40, *">
+                            <Label Text="🔑" VerticalOptions="Center" HorizontalOptions="Center" FontSize="18"/>
+                            <Entry Grid.Column="1" x:Name="CurrentPasswordEntry" Placeholder="Tu contraseña actual" IsPassword="True" Style="{StaticResource ModernEntry}" />
+                        </Grid>
+                        <Label Text="Necesaria para cambiar contraseña o email"
+                               FontSize="11" TextColor="{StaticResource TextLight}" Opacity="0.6" Margin="45,0,0,0"/>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="8">
                         <Label Text="Nueva Contraseña" FontSize="13" TextColor="{StaticResource TextLight}" Margin="5,0" />
                         <Grid ColumnDefinitions="40, *">
                             <Label Text="🔒" VerticalOptions="Center" HorizontalOptions="Center" FontSize="18"/>

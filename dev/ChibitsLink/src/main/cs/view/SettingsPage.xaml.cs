@@ -22,7 +22,6 @@ public partial class SettingsPage : ContentPage
         if (user == null)
         {
             await Shell.Current.GoToAsync("//LoginPage");
-            return;
         }
     }
 
@@ -49,7 +48,7 @@ public partial class SettingsPage : ContentPage
         {
             user.RealName = RealNameEntry.Text;
             user.Username = UsernameEntry.Text;
-            
+
             await _accountService.UpdateUser(user);
 
             // Sync Shell UI
@@ -58,8 +57,33 @@ public partial class SettingsPage : ContentPage
                 shell.UpdateHeader(user.Username);
             }
 
-            // Handle email update
-            if (!string.IsNullOrEmpty(EmailEntry.Text) && EmailEntry.Text != user.Email)
+            bool wantsEmailChange = !string.IsNullOrEmpty(EmailEntry.Text) && EmailEntry.Text != user.Email;
+            bool wantsPasswordChange = !string.IsNullOrEmpty(NewPasswordEntry.Text);
+            bool passwordChangeBlocked = false;
+
+            // Si quiere cambiar email o contraseña, necesita re-autenticarse primero
+            if (wantsEmailChange || wantsPasswordChange)
+            {
+                string currentPassword = CurrentPasswordEntry.Text ?? string.Empty;
+
+                if (string.IsNullOrEmpty(currentPassword))
+                {
+                    await DisplayAlert("Verificación Requerida", "Introduce tu contraseña actual para modificar el email o la contraseña.", "Entendido");
+                    passwordChangeBlocked = true;
+                }
+                else
+                {
+                    var reauth = await _accountService.ReauthenticateAsync(currentPassword);
+                    if (!reauth.Success)
+                    {
+                        await DisplayAlert("Verificación Fallida", reauth.ErrorMessage ?? "Contraseña actual incorrecta.", "Reintentar");
+                        passwordChangeBlocked = true;
+                    }
+                }
+            }
+
+            // Handle email update (solo si la re-auth fue exitosa)
+            if (!passwordChangeBlocked && wantsEmailChange)
             {
                 var emailResult = await _accountService.UpdateEmail(EmailEntry.Text);
                 if (emailResult.Success)
@@ -69,42 +93,50 @@ public partial class SettingsPage : ContentPage
                 else
                 {
                     await DisplayAlert("Error Email", emailResult.ErrorMessage, "OK");
+                    passwordChangeBlocked = true;
                 }
             }
 
-            // Handle password update
-            if (!string.IsNullOrEmpty(NewPasswordEntry.Text))
+            // Handle password update (solo si la re-auth fue exitosa y no hay bloqueo previo)
+            if (!passwordChangeBlocked && wantsPasswordChange)
             {
                 if (NewPasswordEntry.Text != ConfirmNewPasswordEntry.Text)
                 {
                     await DisplayAlert("Error", "Las contraseñas no coinciden.", "Reintentar");
-                    return;
+                    passwordChangeBlocked = true;
                 }
-
-                var (isValid, message) = ChibitsLink.main.cs.utils.PasswordValidator.Validate(NewPasswordEntry.Text);
-                if (!isValid)
+                else
                 {
-                    await DisplayAlert("Contraseña Débil", message, "OK");
-                    return;
-                }
-
-                var passResult = await _accountService.ChangePassword(NewPasswordEntry.Text);
-                if (!passResult.Success)
-                {
-                    await DisplayAlert("Error Contraseña", passResult.ErrorMessage, "OK");
-                    return;
+                    var (isValid, message) = ChibitsLink.main.cs.utils.PasswordValidator.Validate(NewPasswordEntry.Text);
+                    if (!isValid)
+                    {
+                        await DisplayAlert("Contraseña Débil", message, "OK");
+                        passwordChangeBlocked = true;
+                    }
+                    else
+                    {
+                        var passResult = await _accountService.ChangePassword(NewPasswordEntry.Text);
+                        if (!passResult.Success)
+                        {
+                            await DisplayAlert("Error Contraseña", passResult.ErrorMessage, "OK");
+                            passwordChangeBlocked = true;
+                        }
+                    }
                 }
             }
 
-            // Save Networking Settings
-            Preferences.Set("pref_server_ip", ServerIpEntry.Text ?? "127.0.0.1");
-            if (int.TryParse(ServerPortEntry.Text, out int port))
+            if (!passwordChangeBlocked)
             {
-                Preferences.Set("pref_server_port", port);
-            }
+                // Save Networking Settings
+                Preferences.Set("pref_server_ip", ServerIpEntry.Text ?? "127.0.0.1");
+                if (int.TryParse(ServerPortEntry.Text, out int port))
+                {
+                    Preferences.Set("pref_server_port", port);
+                }
 
-            await DisplayAlert("Éxito", "Tus ajustes han sido guardados en el pergamino real.", "OK");
-            await Shell.Current.GoToAsync("//MainMenuPage"); // Direct navigation to ensure "Volver" feel
+                await DisplayAlert("Éxito", "Tus ajustes han sido guardados en el pergamino real.", "OK");
+                await Shell.Current.GoToAsync("//MainMenuPage");
+            }
         }
     }
 

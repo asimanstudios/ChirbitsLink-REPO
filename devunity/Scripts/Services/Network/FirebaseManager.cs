@@ -28,7 +28,7 @@ namespace ChibitsLink.Services.Network
         /// <summary>Indica si Firebase ha sido inicializado correctamente</summary>
         private bool _isInitialized = false;
         
-        // Repositories
+        // Repositorios
         private PartyRepository _partyRepository;
         private UserRepository _userRepository;
         private SessionRepository _sessionRepository;

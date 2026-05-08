@@ -55,19 +55,20 @@ public partial class ControllerPage : ContentPage
     {
         base.OnAppearing();
         _connection.MessageReceived += OnMessageReceived;
-        
+
         // Security check
         var user = _accountService.GetCurrentUser();
         if (user == null)
         {
             await Shell.Current.GoToAsync("//LoginPage");
-            return;
         }
+        else
+        {
+            UsernameLabel.Text = (user.Username ?? "USER").ToUpper();
+            UserLevelLabel.Text = $"LVL. {user.Level}";
 
-        UsernameLabel.Text = (user.Username ?? "USER").ToUpper();
-        UserLevelLabel.Text = $"LVL. {user.Level}";
-
-        _orientationService?.SetLandscape();
+            _orientationService?.SetLandscape();
+        }
     }
 
     private void OnUnexpectedDisconnect()

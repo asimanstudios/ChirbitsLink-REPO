@@ -66,8 +66,7 @@ public static class MauiProgram
         builder.Services.AddTransient<JoinRoomViewModel>();
         builder.Services.AddTransient<LobbyViewModel>();
 
-        // Controllers (Services for the pages)
-        builder.Services.AddSingleton<AccountController>();
+        // Controllers
         builder.Services.AddSingleton<ControllerController>();
         builder.Services.AddSingleton<ConexionController>();
 

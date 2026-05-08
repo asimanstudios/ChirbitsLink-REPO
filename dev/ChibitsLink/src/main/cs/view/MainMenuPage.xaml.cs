@@ -80,7 +80,7 @@ public partial class MainMenuPage : ContentPage
         if (confirm)
         {
             if (_connection.IsConnected) await _connection.DisconnectAsync();
-            await _accountService.Logout();
+            _accountService.Logout();
             await Shell.Current.GoToAsync("//LoginPage");
         }
     }

@@ -38,38 +38,36 @@ public partial class JoinRoomPage : ContentPage
             code = code.Trim().ToUpperInvariant();
         }
 
-        if (string.IsNullOrEmpty(code) || code.Length != 6)
+        bool isCodeValid = !string.IsNullOrEmpty(code) && code.Length == 6;
+
+        if (!isCodeValid)
         {
             await DisplayAlert("Ups", "El código debe ser de exactamente 6 dígitos mágicos.", "Vale");
-            return;
         }
-
-        LoadingIndicator.IsRunning = true;
-
-        try
+        else
         {
-            bool isValid = await _gameService.ValidateLobbyAsync(code);
-            LoadingIndicator.IsRunning = false;
+            LoadingIndicator.IsRunning = true;
 
-            if (isValid)
+            try
             {
-                await Shell.Current.GoToAsync($"//LobbyPage?code={code}");
+                bool lobbyExists = await _gameService.ValidateLobbyAsync(code!);
+                LoadingIndicator.IsRunning = false;
+
+                if (lobbyExists)
+                {
+                    await Shell.Current.GoToAsync($"//LobbyPage?code={code}");
+                }
+                else
+                {
+                    await DisplayAlert("Error", "La sala no existe o el código es incorrecto.", "Vale");
+                }
             }
-            else
+            catch (ChibitsLink.main.cs.exception.DatabaseException dbEx)
             {
-                await DisplayAlert("Error", "La sala no existe o el código es incorrecto.", "Vale");
+                LoadingIndicator.IsRunning = false;
+                string detail = dbEx.InnerException != null ? dbEx.InnerException.Message : dbEx.Message;
+                await DisplayAlert("Error de Conexión", $"No hemos podido verificar la sala: {detail}", "Vale");
             }
-        }
-        catch (ChibitsLink.main.cs.exception.DatabaseException dbEx)
-        {
-            LoadingIndicator.IsRunning = false;
-            string detail = dbEx.InnerException != null ? dbEx.InnerException.Message : dbEx.Message;
-            await DisplayAlert("Error de Conexión", $"No hemos podido verificar la sala: {detail}", "Vale");
-        }
-        catch (Exception ex)
-        {
-            LoadingIndicator.IsRunning = false;
-            await DisplayAlert("Error de Conexión", $"Fallo inesperado: {ex.Message}", "Vale");
         }
     }
 

@@ -1,3 +1,9 @@
+// ╔══════════════════════════════════════════════════════════════════════════════╗
+// ║  ⚠️  CLASE OBSOLETA — No usar en código nuevo.                              ║
+// ║  Esta clase ha sido completamente reemplazada por los repositorios           ║
+// ║  modulares: LobbyRepository, UserRepository, MasterDataRepository.           ║
+// ║  Puede eliminarse del proyecto de forma segura.                              ║
+// ╚══════════════════════════════════════════════════════════════════════════════╝
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,11 +14,8 @@ using ChibitsLink.main.cs.model;
 
 namespace ChibitsLink.main.repository;
 
-/// <summary>
-/// Capa de acceso a datos sobre Cloud Firestore.
-/// Responsabilidad única: traducir operaciones del dominio a llamadas Firestore.
-/// No contiene lógica de negocio.
-/// </summary>
+/// <inheritdoc cref="LobbyRepository"/>
+[Obsolete("Usar LobbyRepository, UserRepository y MasterDataRepository en su lugar.")]
 public class Database
 {
     // ── Constantes de colecciones ────────────────────────────────────────────

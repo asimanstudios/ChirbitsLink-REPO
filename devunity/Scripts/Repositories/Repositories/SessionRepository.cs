@@ -152,9 +152,9 @@ namespace ChibitsLink.Repositories
             {
                 throw new SessionRetrievalException($"Failed to retrieve game session for host {hostId}", ex);
             }
-            catch (SessionNotFoundException)
+            catch (SessionNotFoundException ex)
             {
-                // SessionNotFoundException already thrown above, let it bubble up
+                throw new SessionRetrievalException($"Game session for host {hostId} not found", ex);
             }
             catch (Exception ex)
             {
@@ -194,7 +194,7 @@ namespace ChibitsLink.Repositories
             {
                 var query = _database.Collection(_collectionName)
                     .OrderByDescending("last_updated")
-                    .Limit(50); // Limit to recent sessions
+                    .Limit(50); // Limitar a sesiones recientes
 
                 var snapshot = await query.GetSnapshotAsync();
 

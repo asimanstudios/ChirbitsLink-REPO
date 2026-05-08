@@ -75,7 +75,6 @@ namespace ChibitsLink.Services.Network
         private bool _isRunning;
         private bool _isInitialized;
         
-        // Constants
         private const int DEFAULT_PORT = 11000;
         private const int DEFAULT_MAX_CONNECTIONS = 8;
         private const float DEFAULT_CONNECTION_TIMEOUT = 30f;
@@ -125,7 +124,6 @@ namespace ChibitsLink.Services.Network
                 
                 Debug.Log($"[TcpNetworkServer] Server started on port {port}");
                 
-                // Start accepting connections
                 _ = Task.Run(AcceptConnectionsAsync);
                 
                 return true;
@@ -150,7 +148,6 @@ namespace ChibitsLink.Services.Network
                     _isRunning = false;
                     _listener?.Stop();
                     
-                    // Disconnect all clients
                     foreach (var client in _connectedClients.ToArray())
                     {
                         DisconnectClient(client);
@@ -300,7 +297,6 @@ namespace ChibitsLink.Services.Network
             {
                 Debug.Log($"[TcpNetworkServer] Received message: {message}");
                 
-                // Parse message format: "COMMAND:DATA"
                 string[] parts = message.Split(':', 2);
                 if (parts.Length >= 2)
                 {
@@ -359,13 +355,11 @@ namespace ChibitsLink.Services.Network
                         level = 1;
                     }
                     
-                    // Store player data
                     _idToName[userId] = userName;
                     _idToCharacterId[userId] = characterId;
                     _idToLevel[userId] = level;
                     _userIdToClient[userId] = client;
                     
-                    // Update session data
                     _sessionNames[userId] = userName;
                     _sessionCharacters[userId] = characterId;
                     _sessionLevels[userId] = level;
@@ -377,10 +371,8 @@ namespace ChibitsLink.Services.Network
                     
                     Debug.Log($"[TcpNetworkServer] Player connected: {userName} ({userId})");
                     
-                    // Notify lobby UI
                     lobbyUI?.OnPlayerConnected(userId, userName, characterId, level);
                     
-                    // Send confirmation
                     SendMessageToClient(client, "CONNECTED:OK");
                 }
                 else
@@ -423,7 +415,6 @@ namespace ChibitsLink.Services.Network
                     
                     Debug.Log($"[TcpNetworkServer] Player disconnected: {userName} ({userId})");
                     
-                    // Notify lobby UI
                     lobbyUI?.OnPlayerDisconnected(userId, userName);
                 }
                 
@@ -459,11 +450,9 @@ namespace ChibitsLink.Services.Network
                 
                 if (!string.IsNullOrEmpty(userId))
                 {
-                    // Forward input to PlayerManager
                     var playerManager = ChibitsLink.GameSide.PlayerManager.Instance;
                     if (playerManager != null)
                     {
-                        // Parse input data: "joystick:x:y" or "button:buttonId:state"
                         string[] inputParts = data.Split(':');
                         if (inputParts.Length >= 2)
                         {
@@ -514,7 +503,6 @@ namespace ChibitsLink.Services.Network
                 _connectedClients.Remove(client);
                 _clientBuffers.Remove(client);
                 
-                // Remove from user mappings
                 var keysToRemove = new List<string>();
                 foreach (var kvp in _userIdToClient)
                 {
@@ -621,7 +609,6 @@ namespace ChibitsLink.Services.Network
             }
         }
 
-        // Public API methods
         public bool IsRunning => _isRunning;
         public int ConnectedClientCount => _connectedClients.Count;
         public List<string> ActivePlayerIds => new List<string>(_activePlayerIds);

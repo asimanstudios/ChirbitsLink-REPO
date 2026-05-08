@@ -1,22 +1,14 @@
+using System;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
+using ChibitsLink.main.cs.exception;
 using ChibitsLink.main.cs.model;
 using ChibitsLink.main.cs.service;
 using ChibitsLink.main.repository.interfaces;
-using ChibitsLink.main.cs.view;
 
 namespace ChibitsLink.main.cs.viewmodel;
-
-/// <summary>
-/// Modelo simple para la lista del historial. Evita problemas de binding con modelos complejos.
-/// </summary>
-public class HistoryItem
-{
-    public Party OriginalParty { get; set; } = null!;
-    public string Code { get; set; } = string.Empty;
-    public string DateText { get; set; } = string.Empty;
-    public string PlayerCount { get; set; } = string.Empty;
-}
 
 public class HistoryViewModel : BaseViewModel
 {
@@ -24,6 +16,12 @@ public class HistoryViewModel : BaseViewModel
     private readonly IUserRepository _userRepo;
     private readonly IMasterDataRepository _masterRepo;
     
+    /// <summary>
+    /// Evento disparado cuando el usuario selecciona una partida del historial.
+    /// La Vista (HistoryPage) es la responsable de abrir el detalle modal.
+    /// </summary>
+    public event Func<HistoryItem, Task>? PartySelected;
+
     public ObservableCollection<HistoryItem> History { get; } = new();
     public ICommand RefreshCommand { get; }
     public ICommand SelectPartyCommand { get; }
@@ -33,47 +31,53 @@ public class HistoryViewModel : BaseViewModel
         _accountService = accountService;
         _userRepo = userRepo;
         _masterRepo = masterRepo;
-        
+
         RefreshCommand = new Command(async () => await LoadHistoryAsync());
-        SelectPartyCommand = new Command<HistoryItem>(async (item) => await OpenDetailAsync(item));
+        SelectPartyCommand = new Command<HistoryItem>(async (item) => await OnPartySelectedAsync(item));
     }
 
     public async Task LoadHistoryAsync()
     {
         var user = _accountService.GetCurrentUser();
-        if (user == null) return;
-
-        IsBusy = true;
-        try
+        if (user != null)
         {
-            var historyData = await _userRepo.GetUserHistoryAsync(user.Id);
-            History.Clear();
-            
-            // Mapeo manual y seguro
-            foreach (var party in historyData.OrderByDescending(p => p.CreatedAt))
+            IsBusy = true;
+            try
             {
-                History.Add(new HistoryItem 
-                { 
-                    OriginalParty = party,
-                    Code = $"SALA #{party.RoomCode}",
-                    DateText = party.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm"),
-                    PlayerCount = $"👥 {party.PlayerIds?.Count ?? 0} JUGADORES"
-                });
+                var historyData = await _userRepo.GetUserHistoryAsync(user.Id);
+                History.Clear();
+
+                foreach (var party in historyData.OrderByDescending(p => p.CreatedAt))
+                {
+                    History.Add(new HistoryItem
+                    {
+                        OriginalParty = party,
+                        Code = $"SALA #{party.RoomCode}",
+                        DateText = party.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm"),
+                        PlayerCount = $"👥 {party.PlayerIds?.Count ?? 0} JUGADORES"
+                    });
+                }
             }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[HistoryViewModel] Error: {ex.Message}");
-        }
-        finally
-        {
-            IsBusy = false;
+            catch (DatabaseException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[HistoryViewModel] Firestore error: {ex.Message}");
+            }
+            catch (OperationCanceledException)
+            {
+                System.Diagnostics.Debug.WriteLine("[HistoryViewModel] Load cancelled.");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
         }
     }
 
-    private async Task OpenDetailAsync(HistoryItem item)
+    private async Task OnPartySelectedAsync(HistoryItem item)
     {
-        if (item?.OriginalParty == null) return;
-        await Shell.Current.Navigation.PushModalAsync(new HistoryDetailPage(item.OriginalParty, _masterRepo, _userRepo));
+        if (item?.OriginalParty != null && PartySelected != null)
+        {
+            await PartySelected.Invoke(item);
+        }
     }
 }

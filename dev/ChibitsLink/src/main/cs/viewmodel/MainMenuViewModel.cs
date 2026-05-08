@@ -72,22 +72,23 @@ public class MainMenuViewModel : BaseViewModel
     private void UpdateUserData()
     {
         var user = _accountService.GetCurrentUser();
-        if (user == null) return;
+        if (user != null)
+        {
+            Username = user.Username.ToUpper();
+            LevelDisplay = $"LVL. {user.Level}";
 
-        Username = user.Username.ToUpper();
-        LevelDisplay = $"LVL. {user.Level}";
+            // Lógica de progreso de XP (5k por nivel con escala incremental)
+            int currentLevel = user.Level;
+            int totalXp = user.Experience;
+            int xpForCurrentLevel = 0;
+            for (int i = 1; i < currentLevel; i++) xpForCurrentLevel += i * 5000;
 
-        // Lógica de progreso de XP (5k por nivel con escala incremental)
-        int currentLevel = user.Level;
-        int totalXp = user.Experience;
-        int xpForCurrentLevel = 0;
-        for (int i = 1; i < currentLevel; i++) xpForCurrentLevel += i * 5000;
+            int xpIntoLevel = Math.Max(0, totalXp - xpForCurrentLevel);
+            int xpNeeded = currentLevel * 5000;
 
-        int xpIntoLevel = Math.Max(0, totalXp - xpForCurrentLevel);
-        int xpNeeded = currentLevel * 5000;
-
-        XpProgress = (double)xpIntoLevel / xpNeeded;
-        XpStatus = $"{xpIntoLevel} / {xpNeeded} XP";
+            XpProgress = (double)xpIntoLevel / xpNeeded;
+            XpStatus = $"{xpIntoLevel} / {xpNeeded} XP";
+        }
     }
 
     private async Task LoadCharactersAsync()
@@ -110,21 +111,22 @@ public class MainMenuViewModel : BaseViewModel
 
     private async Task SelectCharacterAsync(Character character)
     {
-        if (character == null) return;
-
-        IsCharacterListVisible = false;
-        SelectedCharacterName = character.Name;
-        SelectedCharacterImage = character.ImageUrl;
-
-        var user = _accountService.GetCurrentUser();
-        if (user != null)
+        if (character != null)
         {
-            user.SelectedCharacterId = character.Id;
-            await _accountService.UpdateUser(user);
+            IsCharacterListVisible = false;
+            SelectedCharacterName = character.Name;
+            SelectedCharacterImage = character.ImageUrl;
 
-            if (_connection.IsConnected)
+            var user = _accountService.GetCurrentUser();
+            if (user != null)
             {
-                await _connection.SendMessageAsync($"SYNC_CHAR|{user.Id}|{character.Id}|{user.Username}");
+                user.SelectedCharacterId = character.Id;
+                await _accountService.UpdateUser(user);
+
+                if (_connection.IsConnected)
+                {
+                    await _connection.SendMessageAsync($"SYNC_CHAR|{user.Id}|{character.Id}|{user.Username}");
+                }
             }
         }
     }

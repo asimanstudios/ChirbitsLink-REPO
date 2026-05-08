@@ -1,11 +1,12 @@
-namespace ChibitsLink.main.cs.model;
-
 using System.Collections.Generic;
-/*
- * datos de usuario como nombre, username, contraseña (debe manejar un hash), personaje (id del mismo enviara peticiones para q el juego en unity le setee el prefab + otros dato relevantes como nivel de ussuario e historial de partidas del mismo
- */
 using Plugin.CloudFirestore.Attributes;
 
+namespace ChibitsLink.main.cs.model;
+
+/// <summary>
+/// Datos de usuario: nombre, username, personaje seleccionado, nivel y historial de partidas.
+/// La contraseña se gestiona exclusivamente a través de Firebase Auth (nunca se almacena en texto plano).
+/// </summary>
 public class User
 {
     [Id]

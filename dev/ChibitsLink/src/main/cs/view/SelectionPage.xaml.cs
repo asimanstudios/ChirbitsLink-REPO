@@ -62,46 +62,52 @@ public partial class SelectionPage : ContentPage
             if (!hasPermission)
             {
                 await DisplayAlert("Permisos", "Se necesitan permisos de ubicación/dispositivos cercanos para buscar el juego.", "OK");
-                return;
             }
-
-            await _bluetoothService.ScanDevicesAsync();
-            var deviceNames = _bluetoothService.DiscoveredDevices
-                .Select((Plugin.BLE.Abstractions.Contracts.IDevice d) => d.Name ?? d.Id.ToString())
-                .ToArray();
-
-            if (deviceNames.Length == 0)
+            else
             {
-                await DisplayAlert("Bluetooth", "No se encontraron dispositivos. Asegúrate de que el juego Unity esté en modo emparejamiento.", "OK");
-                return;
-            }
+                await _bluetoothService.ScanDevicesAsync();
+                var deviceNames = _bluetoothService.DiscoveredDevices
+                    .Select((Plugin.BLE.Abstractions.Contracts.IDevice d) => d.Name ?? d.Id.ToString())
+                    .ToArray();
 
-            var selectedName = await DisplayActionSheet("Seleccionar Host ChirBits", "Cancelar", null, deviceNames);
-
-            if (selectedName != "Cancelar" && selectedName != null)
-            {
-                var selectedDevice = _bluetoothService.DiscoveredDevices
-                    .FirstOrDefault(d => (d.Name ?? d.Id.ToString()) == selectedName);
-
-                if (selectedDevice != null)
+                if (deviceNames.Length == 0)
                 {
-                    bool connected = await _bluetoothService.ConnectToDeviceAsync(selectedDevice);
-                    if (connected)
+                    await DisplayAlert("Bluetooth", "No se encontraron dispositivos. Asegúrate de que el juego Unity esté en modo emparejamiento.", "OK");
+                }
+                else
+                {
+                    var selectedName = await DisplayActionSheet("Seleccionar Host ChirBits", "Cancelar", null, deviceNames);
+
+                    if (selectedName != "Cancelar" && selectedName != null)
                     {
-                        _connection.SetBluetoothDevice(selectedDevice);
-                        await DisplayAlert("Éxito", "¡Conectado vía Bluetooth!", "OK");
-                        await Shell.Current.GoToAsync("//ControllerPage");
-                    }
-                    else
-                    {
-                        await DisplayAlert("Error", "No se pudo conectar al dispositivo.", "OK");
+                        var selectedDevice = _bluetoothService.DiscoveredDevices
+                            .FirstOrDefault(d => (d.Name ?? d.Id.ToString()) == selectedName);
+
+                        if (selectedDevice != null)
+                        {
+                            bool connected = await _bluetoothService.ConnectToDeviceAsync(selectedDevice);
+                            if (connected)
+                            {
+                                _connection.SetBluetoothDevice(selectedDevice);
+                                await DisplayAlert("Éxito", "¡Conectado vía Bluetooth!", "OK");
+                                await Shell.Current.GoToAsync("//ControllerPage");
+                            }
+                            else
+                            {
+                                await DisplayAlert("Error", "No se pudo conectar al dispositivo.", "OK");
+                            }
+                        }
                     }
                 }
             }
         }
-        catch (Exception ex)
+        catch (InvalidOperationException ex)
         {
-            await DisplayAlert("Error Bluetooth", ex.Message, "OK");
+            await DisplayAlert("Error Bluetooth", $"Bluetooth no disponible o permisos insuficientes: {ex.Message}", "OK");
+        }
+        catch (TimeoutException ex)
+        {
+            await DisplayAlert("Tiempo Agotado", $"El escaneo Bluetooth tardó demasiado: {ex.Message}", "OK");
         }
     }
 
@@ -121,9 +127,9 @@ public partial class SelectionPage : ContentPage
                 await DisplayAlert("Conectado", "Enlace WebSocket establecido.", "OK");
                 await Shell.Current.GoToAsync("//ControllerPage");
             }
-            catch (Exception ex)
+            catch (ChibitsLink.main.cs.exception.NetworkException ex)
             {
-                await DisplayAlert("Conexión Fallida", ex.Message, "OK");
+                await DisplayAlert("Conexión Fallida", $"No se pudo conectar al servidor WebSocket: {ex.Message}", "OK");
             }
         }
     }
@@ -131,27 +137,30 @@ public partial class SelectionPage : ContentPage
     private async void OnJoinLobbyClicked(object sender, EventArgs e)
     {
         string code = RoomCodeEntry.Text;
-        if (string.IsNullOrEmpty(code) || code.Length != 6)
+        bool isCodeValid = !string.IsNullOrEmpty(code) && code.Length == 6;
+
+        if (!isCodeValid)
         {
             await DisplayAlert("Error", "Introduce un código válido de 6 dígitos.", "OK");
-            return;
         }
-
-        try
+        else
         {
-            bool isValid = await _gameService.ValidateLobbyAsync(code);
-            if (isValid)
+            try
             {
-                await Shell.Current.GoToAsync($"LobbyPage?code={code}");
+                bool lobbyExists = await _gameService.ValidateLobbyAsync(code!);
+                if (lobbyExists)
+                {
+                    await Shell.Current.GoToAsync($"LobbyPage?code={code}");
+                }
+                else
+                {
+                    await DisplayAlert("Error", "La sala no existe o el código es incorrecto.", "Vale");
+                }
             }
-            else
+            catch (ChibitsLink.main.cs.exception.DatabaseException ex)
             {
-                await DisplayAlert("Error", "La sala no existe o el código es incorrecto.", "Vale");
+                await DisplayAlert("Error de Conexión", $"No hemos podido verificar la sala: {ex.Message}", "Vale");
             }
-        }
-        catch (Exception)
-        {
-            await DisplayAlert("Error de Conexión", "No hemos podido verificar la sala. Comprueba tu conexión.", "Vale");
         }
     }
 
