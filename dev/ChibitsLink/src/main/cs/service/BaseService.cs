@@ -46,9 +46,9 @@ public abstract class BaseService
             System.Diagnostics.Debug.WriteLine($"[BaseService] HTTP Timeout ({endpoint}).");
             return default;
         }
-        catch (Exception ex)
+        catch (System.Text.Json.JsonException ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[BaseService] Unexpected API Error ({endpoint}): {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[BaseService] JSON Serialization/Deserialization Error ({endpoint}): {ex.Message}");
             return default;
         }
     }

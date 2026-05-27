@@ -189,35 +189,36 @@ public class LobbyViewModel : BaseViewModel
         _lobbyListener?.Dispose();
         _lobbyListener = _lobbyRepo.ListenToParty(_roomCode, async (party) =>
         {
-            if (party == null) return;
-            
-            // 1. Detectar si entramos en fase de votación
-            bool nowVoting = (party.GameState == "VOTING");
-            
-            // Si acabamos de entrar en votación y la lista está vacía, reintentar carga de catálogo
-            if (nowVoting && !IsVoting && AvailableGames.Count == 0)
+            if (party != null)
             {
-                await LoadCatalogAsync();
-            }
-            
-            IsVoting = nowVoting;
-
-            // Asegurarnos de que el catálogo esté cargado antes de procesar la lista
-            if (Characters.Count == 0)
-            {
-                await LoadCatalogAsync();
-            }
-
-            // 2. Actualizar lista de jugadores
-            UpdatePlayerList(party);
-
-            // 3. Detectar si el juego ha empezado
-            if (party.GameState == "IN_GAME")
-            {
-                MainThread.BeginInvokeOnMainThread(async () =>
+                // 1. Detectar si entramos en fase de votación
+                bool nowVoting = (party.GameState == "VOTING");
+                
+                // Si acabamos de entrar en votación y la lista está vacía, reintentar carga de catálogo
+                if (nowVoting && !IsVoting && AvailableGames.Count == 0)
                 {
-                    await Shell.Current.GoToAsync($"//ControllerPage?code={_roomCode}");
-                });
+                    await LoadCatalogAsync();
+                }
+                
+                IsVoting = nowVoting;
+
+                // Asegurarnos de que el catálogo esté cargado antes de procesar la lista
+                if (Characters.Count == 0)
+                {
+                    await LoadCatalogAsync();
+                }
+
+                // 2. Actualizar lista de jugadores
+                UpdatePlayerList(party);
+
+                // 3. Detectar si el juego ha empezado
+                if (party.GameState == "IN_GAME")
+                {
+                    MainThread.BeginInvokeOnMainThread(async () =>
+                    {
+                        await Shell.Current.GoToAsync($"//ControllerPage?code={_roomCode}");
+                    });
+                }
             }
         });
     }

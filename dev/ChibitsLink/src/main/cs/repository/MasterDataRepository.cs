@@ -33,7 +33,7 @@ public class MasterDataRepository : IMasterDataRepository
             _cachedCharacters = snapshot.Documents.Select(d => d.ToObject<Character>()).Where(x => x != null).Cast<Character>().ToList();
             return _cachedCharacters;
         }
-        catch (Exception ex)
+        catch (Plugin.CloudFirestore.CloudFirestoreException ex)
         {
             throw new DatabaseException("Error al listar personajes", ex, ColCharacters);
         }
@@ -49,7 +49,7 @@ public class MasterDataRepository : IMasterDataRepository
             _cachedGames = snapshot.Documents.Select(d => d.ToObject<Game>()).Where(x => x != null).Cast<Game>().ToList();
             return _cachedGames;
         }
-        catch (Exception ex)
+        catch (Plugin.CloudFirestore.CloudFirestoreException ex)
         {
             throw new DatabaseException("Error al listar minijuegos", ex, ColGames);
         }
@@ -60,23 +60,24 @@ public class MasterDataRepository : IMasterDataRepository
         try
         {
             var existing = await GetCharactersAsync();
-            if (existing.Count > 0) return;
-
-            var defaults = new List<Character>
+            if (existing.Count == 0)
             {
-                new Character { Id = "VALIENTE",    Name = "Valiente",    Description = "Guerrero audaz.", ImageUrl = "char_placeholder" },
-                new Character { Id = "MAGO",        Name = "Mago",        Description = "Maestro arcano.", ImageUrl = "char_placeholder" },
-                new Character { Id = "EXPLORADOR",  Name = "Explorador",  Description = "Sigiloso.",       ImageUrl = "char_placeholder" },
-                new Character { Id = "CURADORA",    Name = "Curadora",    Description = "Apoyo.",          ImageUrl = "char_placeholder" },
-                new Character { Id = "TANQUE",      Name = "Tanque",      Description = "Defensa.",        ImageUrl = "char_placeholder" }
-            };
+                var defaults = new List<Character>
+                {
+                    new Character { Id = "VALIENTE",    Name = "Valiente",    Description = "Guerrero audaz.", ImageUrl = "char_placeholder" },
+                    new Character { Id = "MAGO",        Name = "Mago",        Description = "Maestro arcano.", ImageUrl = "char_placeholder" },
+                    new Character { Id = "EXPLORADOR",  Name = "Explorador",  Description = "Sigiloso.",       ImageUrl = "char_placeholder" },
+                    new Character { Id = "CURADORA",    Name = "Curadora",    Description = "Apoyo.",          ImageUrl = "char_placeholder" },
+                    new Character { Id = "TANQUE",      Name = "Tanque",      Description = "Defensa.",        ImageUrl = "char_placeholder" }
+                };
 
-            foreach (var c in defaults)
-            {
-                await _firestore.Collection(ColCharacters).Document(c.Id).SetAsync(c);
+                foreach (var c in defaults)
+                {
+                    await _firestore.Collection(ColCharacters).Document(c.Id).SetAsync(c);
+                }
             }
         }
-        catch (Exception ex)
+        catch (Plugin.CloudFirestore.CloudFirestoreException ex)
         {
             throw new DatabaseException("Error al inicializar catálogo", ex, ColCharacters);
         }
@@ -88,7 +89,7 @@ public class MasterDataRepository : IMasterDataRepository
         {
             await _firestore.Collection(ColGames).Document(game.Id).SetAsync(game);
         }
-        catch (Exception ex)
+        catch (Plugin.CloudFirestore.CloudFirestoreException ex)
         {
             throw new DatabaseException("Error al guardar minijuego", ex, ColGames, game.Id);
         }

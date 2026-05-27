@@ -9,7 +9,7 @@
 
     <Grid RowDefinitions="Auto, *" Padding="20" RowSpacing="20">
         
-        <!-- Header -->
+        
         <VerticalStackLayout Grid.Row="0" Spacing="5" Margin="0,10,0,10">
             <Label Text="RELATOS DE BATALLA" 
                    Style="{StaticResource ModernTitle}" 
@@ -22,14 +22,14 @@
                    Opacity="0.8"/>
         </VerticalStackLayout>
 
-        <!-- Loader -->
+        
         <ActivityIndicator Grid.Row="1" 
                            IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
                            Color="{StaticResource Secondary}"
                            HorizontalOptions="Center" VerticalOptions="Center"
                            WidthRequest="50" HeightRequest="50"/>
 
-        <!-- Main List -->
+        
         <RefreshView Grid.Row="1" 
                      Command="{Binding RefreshCommand}"
                      IsRefreshing="{Binding IsBusy}"
@@ -50,7 +50,7 @@
                 
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="viewmodel:HistoryItem">
-                        <!-- Tarjeta Premium Refinada -->
+                        
                         <Border Style="{StaticResource GlassFrame}" 
                                 Margin="0,10" 
                                 Padding="0"
@@ -65,7 +65,7 @@
                             </Border.GestureRecognizers>
 
                             <Grid ColumnDefinitions="*, Auto">
-                                <!-- Info Principal -->
+                                
                                 <VerticalStackLayout Padding="20" Spacing="6" VerticalOptions="Center">
                                     <HorizontalStackLayout Spacing="8">
                                         <Label Text="⚔️" FontSize="18" VerticalOptions="Center"/>
@@ -80,10 +80,10 @@
                                     <Label Text="{Binding DateText, FallbackValue='Fecha Desconocida'}" 
                                            FontSize="12" 
                                            TextColor="{StaticResource TextLight}"
-                                           Margin="26,0,0,0"/> <!-- Alinear bajo el código -->
+                                           Margin="26,0,0,0"/> 
                                 </VerticalStackLayout>
 
-                                <!-- Panel Lateral (Jugadores y Flecha) -->
+                                
                                 <Border Grid.Column="1" 
                                         BackgroundColor="#0A000000" 
                                         StrokeThickness="0" 

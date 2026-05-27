@@ -11,11 +11,11 @@
     Shell.ForegroundColor="{StaticResource TextMain}"
     Shell.TitleColor="{StaticResource TextMain}">
 
-    <!-- Flyout Menu comprimido y bonito (Sin panel naranja) -->
+    
     <Shell.ItemTemplate>
         <DataTemplate>
             <Grid Padding="20,12" ColumnDefinitions="40, *">
-                <!-- Icono -->
+                
                 <Image Grid.Column="0" 
                        Source="{Binding Icon}" 
                        HeightRequest="22" 
@@ -24,7 +24,7 @@
                        VerticalOptions="Center" 
                        Opacity="0.7"/>
                 
-                <!-- Texto -->
+                
                 <Label Grid.Column="1" 
                        Text="{Binding Title}" 
                        TextColor="{StaticResource TextMain}" 
@@ -36,7 +36,7 @@
         </DataTemplate>
     </Shell.ItemTemplate>
 
-    <!-- Auth Flow (Hidden from Flyout) -->
+    
     <ShellContent
         Title="Intro"
         ContentTemplate="{DataTemplate view:IntroPage}"
@@ -49,7 +49,7 @@
         Route="LoginPage"
         FlyoutItemIsVisible="False" />
 
-    <!-- Main App Navigation -->
+    
     <FlyoutItem Title="Inicio" Icon="dotnet_bot">
         <ShellContent
             ContentTemplate="{DataTemplate view:MainMenuPage}"
@@ -74,7 +74,7 @@
             Route="HistoryPage" />
     </FlyoutItem>
 
-    <!-- Hidden Pages -->
+    
     <ShellContent
         Title="Selection"
         ContentTemplate="{DataTemplate view:SelectionPage}"

@@ -39,41 +39,47 @@ public class Connection
     // TCP Connection (App as Client)
     public async Task ConnectTcpAsync(string? host = null, int? port = null)
     {
-        if (_isConnecting || (_tcpClient?.Connected ?? false)) return;
-        _isConnecting = true;
+        if (!_isConnecting && !(_tcpClient?.Connected ?? false))
+        {
+            _isConnecting = true;
 
-        string finalHost = host ?? Microsoft.Maui.Storage.Preferences.Get("pref_server_ip", "127.0.0.1");
-        int finalPort = port ?? Microsoft.Maui.Storage.Preferences.Get("pref_server_port", 11000);
+            string finalHost = host ?? Microsoft.Maui.Storage.Preferences.Get("pref_server_ip", "127.0.0.1");
+            int finalPort = port ?? Microsoft.Maui.Storage.Preferences.Get("pref_server_port", 11000);
 
-        try
-        {
-
-            _tcpClient = new System.Net.Sockets.TcpClient();
-            _cts = new CancellationTokenSource();
-            await _tcpClient.ConnectAsync(finalHost, finalPort);
-            _tcpStream = _tcpClient.GetStream();
-            _ = ReceiveTcpLoop(); // Start receiving messages in background
-            StartHeartbeat();
-            System.Diagnostics.Debug.WriteLine($"Connected to Game Server at {finalHost}:{finalPort}");
-        }
-        catch (System.Net.Sockets.SocketException ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"TCP Socket Error: {ex.Message}");
-            throw new ChibitsLink.main.cs.exception.NetworkException($"Error al conectar con la sala ({finalHost}:{finalPort}). Revisa tu conexión Wi-Fi.", ex);
-        }
-        catch (OperationCanceledException ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"TCP Connection Cancelled: {ex.Message}");
-            throw new ChibitsLink.main.cs.exception.NetworkException($"Conexión cancelada.", ex);
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"TCP Connection Unexpected Error: {ex.Message}");
-            throw new ChibitsLink.main.cs.exception.NetworkException($"Error inesperado al conectar ({finalHost}:{finalPort}).", ex);
-        }
-        finally
-        {
-            _isConnecting = false;
+            try
+            {
+                _tcpClient = new System.Net.Sockets.TcpClient();
+                _cts = new CancellationTokenSource();
+                await _tcpClient.ConnectAsync(finalHost, finalPort);
+                _tcpStream = _tcpClient.GetStream();
+                _ = ReceiveTcpLoop(); // Start receiving messages in background
+                StartHeartbeat();
+                System.Diagnostics.Debug.WriteLine($"Connected to Game Server at {finalHost}:{finalPort}");
+            }
+            catch (System.Net.Sockets.SocketException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"TCP Socket Error: {ex.Message}");
+                throw new ChibitsLink.main.cs.exception.NetworkException($"Error al conectar con la sala ({finalHost}:{finalPort}). Revisa tu conexión Wi-Fi.", ex);
+            }
+            catch (OperationCanceledException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"TCP Connection Cancelled: {ex.Message}");
+                throw new ChibitsLink.main.cs.exception.NetworkException($"Conexión cancelada.", ex);
+            }
+            catch (ObjectDisposedException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"TCP Connection Object Disposed: {ex.Message}");
+                throw new ChibitsLink.main.cs.exception.NetworkException($"Error inesperado al conectar ({finalHost}:{finalPort}).", ex);
+            }
+            catch (InvalidOperationException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"TCP Connection Invalid Operation: {ex.Message}");
+                throw new ChibitsLink.main.cs.exception.NetworkException($"Error inesperado al conectar ({finalHost}:{finalPort}).", ex);
+            }
+            finally
+            {
+                _isConnecting = false;
+            }
         }
     }
 
@@ -110,24 +116,28 @@ public class Connection
             try
             {
                 var services = await _bluetoothDevice.GetServicesAsync();
-                foreach (var service in services)
+                int serviceIndex = 0;
+                bool characteristicWritten = false;
+                while (serviceIndex < services.Count && !characteristicWritten)
                 {
+                    var service = services[serviceIndex];
                     var characteristics = await service.GetCharacteristicsAsync();
                     var characteristic = characteristics.FirstOrDefault(c => c.CanWrite);
                     if (characteristic != null)
                     {
                         await characteristic.WriteAsync(bytes);
-                        break;
+                        characteristicWritten = true;
                     }
+                    serviceIndex++;
                 }
             }
             catch (System.IO.IOException ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Bluetooth Send IO Error: {ex.Message}");
             }
-            catch (Exception ex)
+            catch (Plugin.BLE.Abstractions.Exceptions.BluetoothException ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Bluetooth Send Unexpected Error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Bluetooth Send Error: {ex.Message}");
             }
         }
     }
@@ -169,31 +179,42 @@ public class Connection
         var stream = (System.Net.Sockets.NetworkStream?)null;
         try
         {
-            while (true)
+            bool keepReading = true;
+            while (keepReading)
             {
                 client = _tcpClient;
                 stream = _tcpStream;
-                if (client == null || !client.Connected || stream == null) break;
-
-                int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, _cts?.Token ?? CancellationToken.None);
-                if (bytesRead == 0) break;
-
-                var chunk = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                sb.Append(chunk);
-
-                string data = sb.ToString();
-                int newlineIndex;
-                while ((newlineIndex = data.IndexOf('\n')) >= 0)
+                if (client != null && client.Connected && stream != null)
                 {
-                    string msg = data.Substring(0, newlineIndex).Trim('\r');
-                    data = data.Substring(newlineIndex + 1);
-                    if (!string.IsNullOrWhiteSpace(msg))
+                    int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, _cts?.Token ?? CancellationToken.None);
+                    if (bytesRead > 0)
                     {
-                        ProcessReceivedMessage(msg);
+                        var chunk = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                        sb.Append(chunk);
+
+                        string data = sb.ToString();
+                        int newlineIndex;
+                        while ((newlineIndex = data.IndexOf('\n')) >= 0)
+                        {
+                            string msg = data.Substring(0, newlineIndex).Trim('\r');
+                            data = data.Substring(newlineIndex + 1);
+                            if (!string.IsNullOrWhiteSpace(msg))
+                            {
+                                ProcessReceivedMessage(msg);
+                            }
+                        }
+                        sb.Clear();
+                        sb.Append(data);
+                    }
+                    else
+                    {
+                        keepReading = false;
                     }
                 }
-                sb.Clear();
-                sb.Append(data);
+                else
+                {
+                    keepReading = false;
+                }
             }
         }
         catch (System.IO.IOException ex)
@@ -204,9 +225,17 @@ public class Connection
         {
             Debug.WriteLine("TCP Receive: loop cancelled (normal disconnect).");
         }
-        catch (Exception ex)
+        catch (ObjectDisposedException ex)
         {
-            Debug.WriteLine($"TCP Receive Unexpected Exception: {ex.Message}");
+            Debug.WriteLine($"TCP Receive Object Disposed: {ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            Debug.WriteLine($"TCP Receive Invalid Operation: {ex.Message}");
+        }
+        catch (ArgumentException ex)
+        {
+            Debug.WriteLine($"TCP Receive Argument Exception: {ex.Message}");
         }
         
         StopHeartbeat();
@@ -233,16 +262,27 @@ public class Connection
         var buffer = new byte[4096];
         try
         {
-            while (true)
+            bool keepReading = true;
+            while (keepReading)
             {
                 var ws = _webSocket;
-                if (ws == null || ws.State != WebSocketState.Open) break;
-
-                var result = await ws.ReceiveAsync(new ArraySegment<byte>(buffer), _cts?.Token ?? CancellationToken.None);
-                if (result.MessageType == WebSocketMessageType.Close) break;
-                
-                var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                ProcessReceivedMessage(message);
+                if (ws != null && ws.State == WebSocketState.Open)
+                {
+                    var result = await ws.ReceiveAsync(new ArraySegment<byte>(buffer), _cts?.Token ?? CancellationToken.None);
+                    if (result.MessageType != WebSocketMessageType.Close)
+                    {
+                        var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                        ProcessReceivedMessage(message);
+                    }
+                    else
+                    {
+                        keepReading = false;
+                    }
+                }
+                else
+                {
+                    keepReading = false;
+                }
             }
         }
         catch (System.Net.WebSockets.WebSocketException ex)
@@ -253,9 +293,17 @@ public class Connection
         {
             Debug.WriteLine("WebSocket Receive: loop cancelled (normal disconnect).");
         }
-        catch (Exception ex)
+        catch (ObjectDisposedException ex)
         {
-            Debug.WriteLine($"WebSocket Receive Unexpected Exception: {ex.Message}");
+            Debug.WriteLine($"WebSocket Receive Object Disposed: {ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            Debug.WriteLine($"WebSocket Receive Invalid Operation: {ex.Message}");
+        }
+        catch (ArgumentException ex)
+        {
+            Debug.WriteLine($"WebSocket Receive Argument Exception: {ex.Message}");
         }
 
         bool wasCancelled = false;
@@ -289,19 +337,20 @@ public class Connection
         _heartbeatTimer = new System.Timers.Timer(5000); // 5 seconds
         _heartbeatTimer.Elapsed += async (s, e) => 
         {
-            if (!IsConnected)
+            if (IsConnected)
             {
-                StopHeartbeat();
-                Disconnected?.Invoke();
-                return;
+                try 
+                {
+                    // Send a lightweight ping to keep connection alive and detect failures
+                    await SendMessageAsync("PING");
+                }
+                catch 
+                {
+                    StopHeartbeat();
+                    Disconnected?.Invoke();
+                }
             }
-
-            try 
-            {
-                // Send a lightweight ping to keep connection alive and detect failures
-                await SendMessageAsync("PING");
-            }
-            catch 
+            else
             {
                 StopHeartbeat();
                 Disconnected?.Invoke();

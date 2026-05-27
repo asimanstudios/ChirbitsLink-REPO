@@ -27,7 +27,7 @@ public class UserRepository : IUserRepository
             var snapshot = await _firestore.Collection(CollectionName).Document(id).GetAsync();
             return snapshot.Exists ? snapshot.ToObject<User>() : null;
         }
-        catch (Exception ex)
+        catch (Plugin.CloudFirestore.CloudFirestoreException ex)
         {
             throw new DatabaseException("Error al obtener usuario", ex, CollectionName, id);
         }
@@ -39,7 +39,7 @@ public class UserRepository : IUserRepository
         {
             await _firestore.Collection(CollectionName).Document(user.Id).SetAsync(user);
         }
-        catch (Exception ex)
+        catch (Plugin.CloudFirestore.CloudFirestoreException ex)
         {
             throw new DatabaseException("Error al guardar usuario", ex, CollectionName, user.Id);
         }
@@ -61,7 +61,7 @@ public class UserRepository : IUserRepository
         {
             await _firestore.Collection(CollectionName).Document(user.Id).UpdateAsync(fields);
         }
-        catch (Exception ex)
+        catch (Plugin.CloudFirestore.CloudFirestoreException ex)
         {
             throw new DatabaseException("Error al actualizar perfil de usuario", ex, CollectionName, user.Id);
         }
@@ -77,7 +77,7 @@ public class UserRepository : IUserRepository
                     { "GameHistory", FieldValue.ArrayUnion(roomCode) }
                 });
         }
-        catch (Exception ex)
+        catch (Plugin.CloudFirestore.CloudFirestoreException ex)
         {
             throw new DatabaseException("Error al añadir al historial", ex, CollectionName, userId);
         }
@@ -105,7 +105,7 @@ public class UserRepository : IUserRepository
 
             return result;
         }
-        catch (Exception ex)
+        catch (Plugin.CloudFirestore.CloudFirestoreException ex)
         {
             throw new DatabaseException($"Error al recuperar historial del usuario {userId}", ex, CollectionName, userId);
         }

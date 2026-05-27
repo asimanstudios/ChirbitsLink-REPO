@@ -39,10 +39,11 @@ public class BluetoothService
 
     public async Task ScanDevicesAsync()
     {
-        if (!_ble.IsOn) return;
-
-        DiscoveredDevices.Clear();
-        await _adapter.StartScanningForDevicesAsync();
+        if (_ble.IsOn)
+        {
+            DiscoveredDevices.Clear();
+            await _adapter.StartScanningForDevicesAsync();
+        }
     }
 
     public async Task<bool> ConnectToDeviceAsync(IDevice device)

@@ -16,7 +16,7 @@
 
             <BoxView HeightRequest="1" Color="{StaticResource Surface}" Margin="0,10"/>
 
-            <!-- Lobby Section (R02) -->
+            
             <VerticalStackLayout Spacing="10" Padding="10">
                 <Label Text="UNIRSE A SALA" FontSize="18" TextColor="{StaticResource Primary}" HorizontalOptions="Center" FontAttributes="Bold"/>
                 <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">

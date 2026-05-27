@@ -8,7 +8,7 @@
 
     <Grid RowDefinitions="Auto, *" Padding="20">
         
-        <!-- Header Overlay (Tilt & Latency) -->
+        
         <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto" Padding="15" BackgroundColor="{StaticResource Surface}">
             <Button Grid.Column="0" 
                     Text="VOLVER" 
@@ -43,7 +43,7 @@
 
         <Grid Grid.Row="1" ColumnDefinitions="*, *">
             
-            <!-- Joystick Area (Left) -->
+            
             <ContentView Grid.Column="0" VerticalOptions="Center" HorizontalOptions="Center">
                 <AbsoluteLayout x:Name="JoystickBoundary" 
                                 WidthRequest="220" 
@@ -68,7 +68,7 @@
                 </AbsoluteLayout>
             </ContentView>
 
-            <!-- Buttons Area (Right) -->
+            
             <Grid Grid.Column="1" 
                    RowDefinitions="*, *, *" 
                    ColumnDefinitions="*, *, *" 
@@ -84,7 +84,7 @@
             </Grid>
         </Grid>
 
-        <!-- Connection Status -->
+        
         <HorizontalStackLayout Grid.Row="1" 
                                HorizontalOptions="Center" 
                                VerticalOptions="End" 

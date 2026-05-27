@@ -24,7 +24,7 @@ public class LobbyRepository : ILobbyRepository
         {
             await _firestore.Collection(CollectionName).Document(party.RoomCode).SetAsync(party);
         }
-        catch (Exception ex)
+        catch (Plugin.CloudFirestore.CloudFirestoreException ex)
         {
             throw new DatabaseException("Error al crear la sala", ex, CollectionName, party.RoomCode);
         }
@@ -37,7 +37,7 @@ public class LobbyRepository : ILobbyRepository
             var snapshot = await _firestore.Collection(CollectionName).Document(roomCode).GetAsync();
             return snapshot.Exists ? snapshot.ToObject<Party>() : null;
         }
-        catch (Exception ex)
+        catch (Plugin.CloudFirestore.CloudFirestoreException ex)
         {
             throw new DatabaseException("Error al obtener la sala", ex, CollectionName, roomCode);
         }
@@ -57,7 +57,7 @@ public class LobbyRepository : ILobbyRepository
             var party = snapshot.Documents.First().ToObject<Party>();
             return party != null && party.GameState != "CLOSED";
         }
-        catch (Exception ex)
+        catch (Plugin.CloudFirestore.CloudFirestoreException ex)
         {
             throw new DatabaseException("Error al validar existencia de la sala", ex, CollectionName, roomCode);
         }
@@ -69,8 +69,10 @@ public class LobbyRepository : ILobbyRepository
             .Document(roomCode)
             .AddSnapshotListener((snapshot, error) =>
             {
-                if (error != null || snapshot == null) return;
-                onChanged(snapshot.Exists ? snapshot.ToObject<Party>() : null);
+                if (error == null && snapshot != null)
+                {
+                    onChanged(snapshot.Exists ? snapshot.ToObject<Party>() : null);
+                }
             });
     }
 
@@ -88,7 +90,7 @@ public class LobbyRepository : ILobbyRepository
                 await doc.UpdateAsync("ReadyPlayerIds", FieldValue.ArrayRemove(userId));
             }
         }
-        catch (Exception ex)
+        catch (Plugin.CloudFirestore.CloudFirestoreException ex)
         {
             throw new DatabaseException("Error al actualizar estado de listo", ex, CollectionName, roomCode);
         }

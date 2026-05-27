@@ -10,13 +10,13 @@
     
     <Grid RowDefinitions="Auto, *, Auto" Padding="25" RowSpacing="20">
         
-        <!-- Header & Profile -->
+        
             <VerticalStackLayout x:Name="ProfileSection" Grid.Row="0" Spacing="15" HorizontalOptions="Center" Opacity="0">
                 <VerticalStackLayout.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding ToggleCharacterListCommand}" />
                 </VerticalStackLayout.GestureRecognizers>
                 
-                <!-- Circular Profile Image (Sticker Style) -->
+                
                 <Border x:Name="ProfileBorder"
                         WidthRequest="120" 
                         HeightRequest="120" 
@@ -72,11 +72,11 @@
         </VerticalStackLayout>
 
 
-        <!-- Main Content -->
+        
         <ScrollView Grid.Row="1">
             <VerticalStackLayout x:Name="ContentStack" Spacing="20" Opacity="0">
                 
-                <!-- Character Selection (Hidden by default) -->
+                
                 <VerticalStackLayout IsVisible="{Binding IsCharacterListVisible}" Spacing="10">
                     <Label Text="CAMBIAR PERSONAJE" 
                            FontSize="14" 
@@ -123,7 +123,7 @@
                     </CollectionView>
                 </VerticalStackLayout>
 
-                <!-- Action Cards -->
+                
                 <Grid ColumnDefinitions="*, *" ColumnSpacing="15">
                     <Border x:Name="MandoPreviewCard" Grid.Column="0" Style="{StaticResource GlassFrame}">
                         <Border.GestureRecognizers>
@@ -148,7 +148,7 @@
                     </Border>
                 </Grid>
 
-                <!-- Description Card -->
+                
                 <Border Style="{StaticResource GlassFrame}" Padding="20" BackgroundColor="{StaticResource Surface}">
                     <VerticalStackLayout Spacing="10">
                         <Label Text="Sobre ChirBits Link" 
@@ -165,7 +165,7 @@
             </VerticalStackLayout>
         </ScrollView>
 
-        <!-- Action Buttons -->
+        
         <VerticalStackLayout x:Name="FooterStack" Grid.Row="2" Spacing="12" VerticalOptions="End" Opacity="0">
             <Button Text="CONECTAR A PARTIDA" 
                     Style="{StaticResource ModernButton}" 

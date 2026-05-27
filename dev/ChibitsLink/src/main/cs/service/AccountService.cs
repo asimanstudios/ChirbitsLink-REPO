@@ -36,31 +36,32 @@ public class AccountService : BaseService
     /// </summary>
     public async Task<bool> IsSessionActiveAsync()
     {
+        bool result = false;
         var userId = Preferences.Get(SESSION_UID_KEY, string.Empty);
         var expiryString = Preferences.Get(SESSION_EXPIRY_KEY, string.Empty);
 
-        if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(expiryString))
-            return false;
+        if (!string.IsNullOrEmpty(userId) && !string.IsNullOrEmpty(expiryString))
+        {
+            bool sessionValid = DateTime.TryParse(expiryString, out var expiry) && DateTime.Now < expiry;
+            if (sessionValid)
+            {
+                try
+                {
+                    _currentUser = await _userRepo.GetUserAsync(userId);
+                    result = _currentUser != null;
+                }
+                catch (DatabaseException ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[AccountService] IsSessionActive: Firestore error: {ex.Message}");
+                }
+                catch (OperationCanceledException)
+                {
+                    System.Diagnostics.Debug.WriteLine("[AccountService] IsSessionActive: operación cancelada.");
+                }
+            }
+        }
 
-        bool sessionValid = DateTime.TryParse(expiryString, out var expiry) && DateTime.Now < expiry;
-        if (!sessionValid)
-            return false;
-
-        try
-        {
-            _currentUser = await _userRepo.GetUserAsync(userId);
-            return _currentUser != null;
-        }
-        catch (DatabaseException ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[AccountService] IsSessionActive: Firestore error: {ex.Message}");
-            return false;
-        }
-        catch (OperationCanceledException)
-        {
-            System.Diagnostics.Debug.WriteLine("[AccountService] IsSessionActive: operación cancelada.");
-            return false;
-        }
+        return result;
     }
 
     private void SaveSession(string uid)
@@ -178,57 +179,92 @@ public class AccountService : BaseService
     /// </summary>
     public async Task<(bool Success, string? ErrorMessage)> ReauthenticateAsync(string currentPassword)
     {
+        bool success = false;
+        string? errorMessage = null;
         var firebaseUser = _connection.Auth.CurrentUser;
-        if (firebaseUser == null) return (false, "No hay sesión activa.");
 
-        string email = _currentUser?.Email ?? firebaseUser.Email ?? string.Empty;
-        if (string.IsNullOrEmpty(email)) return (false, "No se pudo obtener el email de la sesión actual.");
+        if (firebaseUser == null)
+        {
+            errorMessage = "No hay sesión activa.";
+        }
+        else
+        {
+            string email = _currentUser?.Email ?? firebaseUser.Email ?? string.Empty;
+            if (string.IsNullOrEmpty(email))
+            {
+                errorMessage = "No se pudo obtener el email de la sesión actual.";
+            }
+            else
+            {
+                try
+                {
+                    var credential = Plugin.FirebaseAuth.CrossFirebaseAuth.Current.EmailAuthProvider.GetCredential(email, currentPassword);
+                    await firebaseUser.ReauthenticateAsync(credential);
+                    success = true;
+                }
+                catch (Plugin.FirebaseAuth.FirebaseAuthException ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[AccountService] ReauthenticateAsync: contraseña incorrecta: {ex.Message}");
+                    errorMessage = "Contraseña actual incorrecta.";
+                }
+            }
+        }
 
-        try
-        {
-            var credential = Plugin.FirebaseAuth.CrossFirebaseAuth.Current.EmailAuthProvider.GetCredential(email, currentPassword);
-            await firebaseUser.ReauthenticateAsync(credential);
-            return (true, null);
-        }
-        catch (Plugin.FirebaseAuth.FirebaseAuthException ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[AccountService] ReauthenticateAsync: contraseña incorrecta: {ex.Message}");
-            return (false, "Contraseña actual incorrecta.");
-        }
+        return (success, errorMessage);
     }
 
     /// <summary>Actualiza el email del usuario autenticado en Firebase Auth.</summary>
     public async Task<(bool Success, string? ErrorMessage)> UpdateEmail(string newEmail)
     {
-        if (_connection.Auth.CurrentUser == null) return (false, "No hay sesión activa.");
+        bool success = false;
+        string? errorMessage = null;
 
-        try
+        if (_connection.Auth.CurrentUser == null)
         {
-            await _connection.Auth.CurrentUser.UpdateEmailAsync(newEmail);
-            return (true, null);
+            errorMessage = "No hay sesión activa.";
         }
-        catch (Plugin.FirebaseAuth.FirebaseAuthException ex)
+        else
         {
-            System.Diagnostics.Debug.WriteLine($"[AccountService] UpdateEmail: {ex.Message}");
-            return (false, ex.Message);
+            try
+            {
+                await _connection.Auth.CurrentUser.UpdateEmailAsync(newEmail);
+                success = true;
+            }
+            catch (Plugin.FirebaseAuth.FirebaseAuthException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AccountService] UpdateEmail: {ex.Message}");
+                errorMessage = ex.Message;
+            }
         }
+
+        return (success, errorMessage);
     }
 
     /// <summary>Cambia la contraseña del usuario autenticado en Firebase Auth.</summary>
     public async Task<(bool Success, string? ErrorMessage)> ChangePassword(string newPassword)
     {
-        if (_connection.Auth.CurrentUser == null) return (false, "No hay sesión activa.");
+        bool success = false;
+        string? errorMessage = null;
 
-        try
+        if (_connection.Auth.CurrentUser == null)
         {
-            await _connection.Auth.CurrentUser.UpdatePasswordAsync(newPassword);
-            return (true, null);
+            errorMessage = "No hay sesión activa.";
         }
-        catch (Plugin.FirebaseAuth.FirebaseAuthException ex)
+        else
         {
-            System.Diagnostics.Debug.WriteLine($"[AccountService] ChangePassword: {ex.Message}");
-            return (false, ex.Message);
+            try
+            {
+                await _connection.Auth.CurrentUser.UpdatePasswordAsync(newPassword);
+                success = true;
+            }
+            catch (Plugin.FirebaseAuth.FirebaseAuthException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AccountService] ChangePassword: {ex.Message}");
+                errorMessage = ex.Message;
+            }
         }
+
+        return (success, errorMessage);
     }
 
     /// <summary>Cierra la sesión del usuario y borra los datos de sesión persistidos.</summary>
@@ -246,44 +282,44 @@ public class AccountService : BaseService
     /// </summary>
     public async Task ClaimPartyExperienceAsync(string roomCode, Party party)
     {
-        if (_currentUser == null || party == null)
-            return;
-
-        if (_currentUser.XpClaimedParties == null)
-            _currentUser.XpClaimedParties = new List<string>();
-
-        bool alreadyClaimed = _currentUser.XpClaimedParties.Contains(roomCode);
-
-        if (!alreadyClaimed
-            && party.PlayerScores != null
-            && party.PlayerScores.TryGetValue(_currentUser.Id, out int scoreToAdd)
-            && scoreToAdd > 0)
+        if (_currentUser != null && party != null)
         {
-            int newXp = _currentUser.Experience + scoreToAdd;
+            if (_currentUser.XpClaimedParties == null)
+                _currentUser.XpClaimedParties = new List<string>();
 
-            int calculatedLevel = 1;
-            int tempXp = newXp;
-            int xpRequired = calculatedLevel * 5000;
+            bool alreadyClaimed = _currentUser.XpClaimedParties.Contains(roomCode);
 
-            while (tempXp >= xpRequired)
+            if (!alreadyClaimed
+                && party.PlayerScores != null
+                && party.PlayerScores.TryGetValue(_currentUser.Id, out int scoreToAdd)
+                && scoreToAdd > 0)
             {
-                tempXp -= xpRequired;
-                calculatedLevel++;
-                xpRequired = calculatedLevel * 5000;
+                int newXp = _currentUser.Experience + scoreToAdd;
+
+                int calculatedLevel = 1;
+                int tempXp = newXp;
+                int xpRequired = calculatedLevel * 5000;
+
+                while (tempXp >= xpRequired)
+                {
+                    tempXp -= xpRequired;
+                    calculatedLevel++;
+                    xpRequired = calculatedLevel * 5000;
+                }
+
+                _currentUser.Experience = newXp;
+                _currentUser.Level = calculatedLevel;
+                _currentUser.XpClaimedParties.Add(roomCode);
+
+                if (_currentUser.GameHistory == null)
+                    _currentUser.GameHistory = new List<string>();
+
+                if (!_currentUser.GameHistory.Contains(roomCode))
+                    _currentUser.GameHistory.Add(roomCode);
+
+                await UpdateUser(_currentUser);
+                System.Diagnostics.Debug.WriteLine($"[AccountService] XP reclamada para sala {roomCode}. +{scoreToAdd} XP -> Nivel {calculatedLevel}");
             }
-
-            _currentUser.Experience = newXp;
-            _currentUser.Level = calculatedLevel;
-            _currentUser.XpClaimedParties.Add(roomCode);
-
-            if (_currentUser.GameHistory == null)
-                _currentUser.GameHistory = new List<string>();
-
-            if (!_currentUser.GameHistory.Contains(roomCode))
-                _currentUser.GameHistory.Add(roomCode);
-
-            await UpdateUser(_currentUser);
-            System.Diagnostics.Debug.WriteLine($"[AccountService] XP reclamada para sala {roomCode}. +{scoreToAdd} XP -> Nivel {calculatedLevel}");
         }
     }
 
@@ -293,42 +329,42 @@ public class AccountService : BaseService
     /// </summary>
     public async Task CheckAndClaimPendingExperienceAsync(ILobbyRepository lobbyRepo)
     {
-        if (_currentUser == null)
-            return;
-
-        // Refrescar usuario para tener GameHistory actualizado desde Firestore
-        var freshUser = await _userRepo.GetUserAsync(_currentUser.Id);
-        if (freshUser != null)
-            _currentUser = freshUser;
-
-        if (_currentUser.GameHistory == null || _currentUser.GameHistory.Count == 0)
-            return;
-
-        if (_currentUser.XpClaimedParties == null)
-            _currentUser.XpClaimedParties = new List<string>();
-
-        var pendingRooms = _currentUser.GameHistory.Except(_currentUser.XpClaimedParties).ToList();
-
-        var partyTasks = pendingRooms.Select(code => lobbyRepo.GetPartyAsync(code));
-        var parties = await Task.WhenAll(partyTasks);
-
-        bool updated = false;
-        for (int i = 0; i < pendingRooms.Count; i++)
+        if (_currentUser != null)
         {
-            var roomCode = pendingRooms[i];
-            var party = parties[i];
+            // Refrescar usuario para tener GameHistory actualizado desde Firestore
+            var freshUser = await _userRepo.GetUserAsync(_currentUser.Id);
+            if (freshUser != null)
+                _currentUser = freshUser;
 
-            if (party != null && party.GameState == "CLOSED")
+            if (_currentUser.GameHistory != null && _currentUser.GameHistory.Count > 0)
             {
-                await ClaimPartyExperienceAsync(roomCode, party);
-                updated = true;
-            }
-        }
+                if (_currentUser.XpClaimedParties == null)
+                    _currentUser.XpClaimedParties = new List<string>();
 
-        if (updated)
-        {
-            var refreshedUser = await _userRepo.GetUserAsync(_currentUser.Id);
-            if (refreshedUser != null) _currentUser = refreshedUser;
+                var pendingRooms = _currentUser.GameHistory.Except(_currentUser.XpClaimedParties).ToList();
+
+                var partyTasks = pendingRooms.Select(code => lobbyRepo.GetPartyAsync(code));
+                var parties = await Task.WhenAll(partyTasks);
+
+                bool updated = false;
+                for (int i = 0; i < pendingRooms.Count; i++)
+                {
+                    var roomCode = pendingRooms[i];
+                    var party = parties[i];
+
+                    if (party != null && party.GameState == "CLOSED")
+                    {
+                        await ClaimPartyExperienceAsync(roomCode, party);
+                        updated = true;
+                    }
+                }
+
+                if (updated)
+                {
+                    var refreshedUser = await _userRepo.GetUserAsync(_currentUser.Id);
+                    if (refreshedUser != null) _currentUser = refreshedUser;
+                }
+            }
         }
     }
 

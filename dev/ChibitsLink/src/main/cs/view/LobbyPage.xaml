@@ -16,7 +16,7 @@
 
     <Grid Padding="20" RowDefinitions="Auto, *, Auto" RowSpacing="20">
         
-        <!-- Header -->
+        
         <VerticalStackLayout Grid.Row="0" Spacing="5" HorizontalOptions="Center">
             <Label Text="{Binding RoomCode, StringFormat='SALA #{0}'}" 
                    Style="{StaticResource ModernTitle}" 
@@ -29,10 +29,10 @@
                    CharacterSpacing="1"/>
         </VerticalStackLayout>
 
-        <!-- Main Content Area -->
+        
         <VerticalStackLayout Grid.Row="1" Spacing="20">
             
-            <!-- User Profile & Character Display -->
+            
             <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
                 <VerticalStackLayout.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding ToggleCharacterListCommand}" />
@@ -75,7 +75,7 @@
                        FontAttributes="Bold"/>
             </VerticalStackLayout>
 
-            <!-- Character Selection Carousel (Hidden by default) -->
+            
             <VerticalStackLayout IsVisible="{Binding IsCharacterListVisible}" Spacing="10">
                 <CollectionView ItemsSource="{Binding Characters}"
                                 SelectionMode="None"
@@ -115,7 +115,7 @@
                 </CollectionView>
             </VerticalStackLayout>
 
-            <!-- Player List (Always Visible) -->
+            
             <Label Text="JUGADORES EN LA SALA" 
                    FontSize="12" 
                    FontAttributes="Bold" 
@@ -177,7 +177,7 @@
             </CollectionView>
         </VerticalStackLayout>
 
-        <!-- Footer Actions -->
+        
         <VerticalStackLayout Grid.Row="2" Spacing="10">
             <Button Text="{Binding IsReady, Converter={StaticResource BooleanToReadyTextConverter}}"
                     Style="{StaticResource ModernButton}"
@@ -188,7 +188,7 @@
                     Clicked="OnLeaveClicked" />
         </VerticalStackLayout>
 
-        <!-- Voting Overlay -->
+        
         <Grid x:Name="VotingOverlay" 
               Grid.RowSpan="3" 
               BackgroundColor="#F2000000" 
