@@ -249,19 +249,20 @@ namespace ChibitsLink.Minigames.BombTag
         private void StartNewRound()
         {
             bool canStartRound = IsGameRunning;
-            if (!canStartRound) return;
-            
-            List<GameObject> alivePlayers = GetAlivePlayers();
-            canStartRound = alivePlayers.Count > 1;
-            
             if (canStartRound)
             {
-                GameObject victim = SelectRandomVictim(alivePlayers);
-                Debug.Log($"[BombTagGameManager] Starting round. Target: {victim.name}");
+                List<GameObject> alivePlayers = GetAlivePlayers();
+                canStartRound = alivePlayers.Count > 1;
                 
-                _physics.SpawnBomb(victim);
-                remainingTime = _config.bombDuration;
-                carrier = victim;
+                if (canStartRound)
+                {
+                    GameObject victim = SelectRandomVictim(alivePlayers);
+                    Debug.Log($"[BombTagGameManager] Starting round. Target: {victim.name}");
+                    
+                    _physics.SpawnBomb(victim);
+                    remainingTime = _config.bombDuration;
+                    carrier = victim;
+                }
             }
         }
         
@@ -275,8 +276,12 @@ namespace ChibitsLink.Minigames.BombTag
         /// </remarks>
         private GameObject SelectRandomVictim(List<GameObject> alivePlayers)
         {
-            if (alivePlayers.Count == 0) return null;
-            return alivePlayers[Random.Range(0, alivePlayers.Count)];
+            GameObject victim = null;
+            if (alivePlayers.Count > 0)
+            {
+                victim = alivePlayers[Random.Range(0, alivePlayers.Count)];
+            }
+            return victim;
         }
 
 
@@ -412,8 +417,12 @@ namespace ChibitsLink.Minigames.BombTag
         /// <returns>Nombre del portador o "None" si no hay bomba</returns>
         public string GetCarrierName()
         {
-            if (carrier == null) return "None";
-            return _scoring.GetPlayerName(carrier);
+            string name = "None";
+            if (carrier != null)
+            {
+                name = _scoring.GetPlayerName(carrier);
+            }
+            return name;
         }
         
         /// <summary>
@@ -439,8 +448,12 @@ namespace ChibitsLink.Minigames.BombTag
         /// <returns>Nombre del jugador o "Unknown" si es null</returns>
         public string GetPlayerName(GameObject player)
         {
-            if (player == null) return "Unknown";
-            return _scoring.GetPlayerName(player);
+            string name = "Unknown";
+            if (player != null)
+            {
+                name = _scoring.GetPlayerName(player);
+            }
+            return name;
         }
 
         /// <summary>

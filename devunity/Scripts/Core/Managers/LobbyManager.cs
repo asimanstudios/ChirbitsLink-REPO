@@ -191,11 +191,12 @@ namespace ChibitsLink.GameSide
             {
                 var batch = _firestore.StartBatch();
                 int charsAdded = 0;
+                DocumentReference docRef;
                 foreach (var c in characters)
                 {
                     if (!existingCharIds.Contains(c.Id))
                     {
-                        var docRef = _firestore.Collection(CHARACTERS_COLLECTION).Document(c.Id);
+                        docRef = _firestore.Collection(CHARACTERS_COLLECTION).Document(c.Id);
                         batch.Set(docRef, c);
                         charsAdded++;
                     }
@@ -314,13 +315,15 @@ namespace ChibitsLink.GameSide
         /// <returns>Dirección IP local</returns>
         private string GetLocalIPAddress()
         {
+            string ipAddress = "127.0.0.1";
             try 
             {
                 // Estrategia 1: Buscar interfaces activas con Gateway (las más probables de ser la REAL)
+                bool foundIp = false;
                 foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
                 {
                     if (ni.OperationalStatus == OperationalStatus.Up && 
-                        (ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 || ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet))
+                        (ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 || ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet) && !foundIp)
                     {
                         // Ignorar interfaces virtuales conocidas
                         string name = ni.Name.ToLower();
@@ -332,10 +335,11 @@ namespace ChibitsLink.GameSide
                         {
                             foreach (var ip in props.UnicastAddresses)
                             {
-                                if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
+                                if (ip.Address.AddressFamily == AddressFamily.InterNetwork && !foundIp)
                                 {
                                     Debug.Log($"[LobbyManager] Detectada IP Principal (con Gateway): {ip.Address} en {ni.Name}");
-                                    return ip.Address.ToString();
+                                    ipAddress = ip.Address.ToString();
+                                    foundIp = true;
                                 }
                             }
                         }
@@ -343,17 +347,25 @@ namespace ChibitsLink.GameSide
                 }
 
                 // Estrategia 2: Fallback a cualquier IP que no sea loopback ni virtual
-                var host = Dns.GetHostEntry(Dns.GetHostName());
-                var validIps = host.AddressList
-                    .Where(ip => ip.AddressFamily == AddressFamily.InterNetwork && !ip.ToString().StartsWith("127."))
-                    .ToList();
+                if (!foundIp)
+                {
+                    var host = Dns.GetHostEntry(Dns.GetHostName());
+                    var validIps = host.AddressList
+                        .Where(ip => ip.AddressFamily == AddressFamily.InterNetwork && !ip.ToString().StartsWith("127."))
+                        .ToList();
 
-                // Intentar filtrar rangos de APIPA (169.254.x.x) y priorizar Hotspots
-                var priorityIp = validIps.FirstOrDefault(ip => ip.ToString().StartsWith("192.168.43.") || ip.ToString().StartsWith("172.20.10."));
-                if (priorityIp != null) return priorityIp.ToString();
-
-                var finalIp = validIps.FirstOrDefault(ip => !ip.ToString().StartsWith("169.254."));
-                return finalIp?.ToString() ?? (validIps.Count > 0 ? validIps[0].ToString() : "127.0.0.1");
+                    // Intentar filtrar rangos de APIPA (169.254.x.x) y priorizar Hotspots
+                    var priorityIp = validIps.FirstOrDefault(ip => ip.ToString().StartsWith("192.168.43.") || ip.ToString().StartsWith("172.20.10."));
+                    if (priorityIp != null)
+                    {
+                        ipAddress = priorityIp.ToString();
+                    }
+                    else
+                    {
+                        var finalIp = validIps.FirstOrDefault(ip => !ip.ToString().StartsWith("169.254."));
+                        ipAddress = finalIp?.ToString() ?? (validIps.Count > 0 ? validIps[0].ToString() : "127.0.0.1");
+                    }
+                }
             }
             catch (NetworkInformationException ex)
             {
@@ -363,7 +375,7 @@ namespace ChibitsLink.GameSide
             {
                 Debug.LogError($"[LobbyManager] Error de socket obteniendo IP: {ex.Message}");
             }
-            return "127.0.0.1";
+            return ipAddress;
         }
 
         /// <summary>
@@ -667,6 +679,7 @@ namespace ChibitsLink.GameSide
         /// <returns>ID del juego ganador</returns>
         private string ResolveWinnerGame(Dictionary<string, int> votes)
         {
+            string winner = "Minigame_Bomb";
             Debug.Log($"[LobbyManager] Resolviendo ganador entre {votes?.Count ?? 0} opciones de voto.");
             
             if (votes == null || votes.Count == 0)
@@ -675,20 +688,22 @@ namespace ChibitsLink.GameSide
                 {
                     var randomGame = initialGames[_random.Next(initialGames.Count)];
                     Debug.Log($"[LobbyManager] NO HAY VOTOS. Selección aleatoria: {randomGame.Id}");
-                    return randomGame.Id;
+                    winner = randomGame.Id;
                 }
-                return "Minigame_Bomb";
             }
+            else
+            {
+                foreach(var v in votes) Debug.Log($"[LobbyManager] - {v.Key}: {v.Value} votos");
 
-            foreach(var v in votes) Debug.Log($"[LobbyManager] - {v.Key}: {v.Value} votos");
+                int maxVotes = votes.Values.Max();
+                var topGames = votes.Where(v => v.Value == maxVotes)
+                                    .Select(v => v.Key)
+                                    .ToList();
 
-            int maxVotes = votes.Values.Max();
-            var topGames = votes.Where(v => v.Value == maxVotes)
-                                .Select(v => v.Key)
-                                .ToList();
-
-            string winner = topGames[_random.Next(topGames.Count)];
-            Debug.Log($"[LobbyManager] ¡GANADOR! El juego elegido es: {winner}");
+                winner = topGames[_random.Next(topGames.Count)];
+                Debug.Log($"[LobbyManager] ¡GANADOR! El juego elegido es: {winner}");
+            }
+            
             return winner;
         }
 
@@ -768,9 +783,13 @@ namespace ChibitsLink.GameSide
             {
                 await docRef.UpdateAsync(updates);
             }
-            catch (Exception ex)
+            catch (FirebaseException ex)
             {
-                Debug.LogWarning($"[LobbyManager] No se pudo actualizar estado a LOBBY en Firestore: {ex.Message}");
+                Debug.LogWarning($"[LobbyManager] No se pudo actualizar estado a LOBBY en Firestore (Firebase error): {ex.Message}");
+            }
+            catch (System.NullReferenceException ex)
+            {
+                Debug.LogWarning($"[LobbyManager] No se pudo actualizar estado a LOBBY en Firestore (Null reference): {ex.Message}");
             }
             
             GameState = "LOBBY";
@@ -798,6 +817,7 @@ namespace ChibitsLink.GameSide
         {
             await Task.CompletedTask;
         }
+
         /// <summary>
         /// Obtiene los datos de un usuario desde Firebase.
         /// </summary>
@@ -806,29 +826,31 @@ namespace ChibitsLink.GameSide
         public async Task<UserData> FetchUserDataAsync(string userId)
         {
             var data = new UserData();
-            if (string.IsNullOrWhiteSpace(userId)) return data;
-
-            try
+            if (!string.IsNullOrWhiteSpace(userId))
             {
-                await EnsureInitialized();
+                try
+                {
+                    await EnsureInitialized();
 
-                var snapshot = await _firestore
-                    .Collection("users")
-                    .Document(userId.Trim())
-                    .GetSnapshotAsync();
-                
-                if (!snapshot.Exists) return data;
+                    var snapshot = await _firestore
+                        .Collection("users")
+                        .Document(userId.Trim())
+                        .GetSnapshotAsync();
+                    
+                    if (snapshot.Exists)
+                    {
+                        // Firestore serializa con el mismo nombre que el modelo (PascalCase)
+                        if (snapshot.TryGetValue("Username", out string username))
+                            data.username = username;
 
-                // Firestore serializa con el mismo nombre que el modelo (PascalCase)
-                if (snapshot.TryGetValue("Username", out string username))
-                    data.username = username;
-
-                if (snapshot.TryGetValue("Level", out int level))
-                    data.level = level;
-            }
-            catch (InvalidOperationException ex)
-            {
-                Debug.LogWarning($"[LobbyManager] FetchUserDataAsync({userId}) operación inválida: {ex.Message}");
+                        if (snapshot.TryGetValue("Level", out int level))
+                            data.level = level;
+                    }
+                }
+                catch (InvalidOperationException ex)
+                {
+                    Debug.LogWarning($"[LobbyManager] FetchUserDataAsync({userId}) operación inválida: {ex.Message}");
+                }
             }
             return data;
         }

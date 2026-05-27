@@ -69,9 +69,13 @@ namespace ChibitsLink.Repositories
             {
                 throw new UserRetrievalException($"Failed to retrieve user {userId}", ex);
             }
-            catch (Exception ex)
+            catch (System.NullReferenceException ex)
             {
-                throw new RepositoryException($"Unexpected error retrieving user {userId}", ex);
+                throw new RepositoryException($"Unexpected null reference retrieving user {userId}", ex);
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                throw new RepositoryException($"Unexpected invalid operation retrieving user {userId}", ex);
             }
         }
         
@@ -119,9 +123,13 @@ namespace ChibitsLink.Repositories
             {
                 throw new UserCreationException($"Failed to create user {user.UserId}", ex);
             }
-            catch (Exception ex)
+            catch (System.NullReferenceException ex)
             {
-                throw new RepositoryException($"Unexpected error creating user {user.UserId}", ex);
+                throw new RepositoryException($"Unexpected null reference creating user {user.UserId}", ex);
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                throw new RepositoryException($"Unexpected invalid operation creating user {user.UserId}", ex);
             }
         }
 
@@ -185,9 +193,13 @@ namespace ChibitsLink.Repositories
             {
                 throw new UserUpdateException($"Failed to add game {partyId} to user {userId} history", ex);
             }
-            catch (Exception ex)
+            catch (System.NullReferenceException ex)
             {
-                throw new RepositoryException($"Unexpected error adding game {partyId} to user {userId} history", ex);
+                throw new RepositoryException($"Unexpected null reference adding game {partyId} to user {userId} history", ex);
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                throw new RepositoryException($"Unexpected invalid operation adding game {partyId} to user {userId} history", ex);
             }
         }
         
@@ -236,9 +248,13 @@ namespace ChibitsLink.Repositories
             {
                 throw new UserUpdateException($"Failed to update stats for user {userId}", ex);
             }
-            catch (Exception ex)
+            catch (System.NullReferenceException ex)
             {
-                throw new RepositoryException($"Unexpected error updating stats for user {userId}", ex);
+                throw new RepositoryException($"Unexpected null reference updating stats for user {userId}", ex);
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                throw new RepositoryException($"Unexpected invalid operation updating stats for user {userId}", ex);
             }
         }
         
@@ -291,9 +307,13 @@ namespace ChibitsLink.Repositories
             {
                 throw new UserRetrievalException("Failed to get top players", ex);
             }
-            catch (Exception ex)
+            catch (System.NullReferenceException ex)
             {
-                throw new RepositoryException("Unexpected error getting top players", ex);
+                throw new RepositoryException("Unexpected null reference getting top players", ex);
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                throw new RepositoryException("Unexpected invalid operation getting top players", ex);
             }
             
             return result;
@@ -332,9 +352,51 @@ namespace ChibitsLink.Repositories
             {
                 throw new RepositoryException($"Error checking if user {userId} exists", ex);
             }
-            catch (Exception ex)
+            catch (System.NullReferenceException ex)
             {
-                throw new RepositoryException($"Unexpected error checking if user {userId} exists", ex);
+                throw new RepositoryException($"Unexpected null reference checking if user {userId} exists", ex);
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                throw new RepositoryException($"Unexpected invalid operation checking if user {userId} exists", ex);
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Actualiza campos específicos de un usuario en Firestore.
+        /// </summary>
+        /// <param name="userId">ID del usuario a actualizar</param>
+        /// <param name="updates">Diccionario de campos y valores a actualizar</param>
+        /// <returns>Task que representa la operación asíncrona</returns>
+        /// <exception cref="UserUpdateException">Si falla la actualización</exception>
+        public async Task UpdateUserAsync(string userId, Dictionary<string, object> updates)
+        {
+            ValidateRepositoryInitialized();
+            ValidateUserId(userId);
+
+            if (updates == null || updates.Count == 0)
+            {
+                throw new ArgumentNullException(nameof(updates));
+            }
+
+            try
+            {
+                var docRef = _database.Collection(_collectionName).Document(userId);
+                await docRef.UpdateAsync(updates);
+            }
+            catch (FirebaseException ex)
+            {
+                throw new UserUpdateException($"Failed to update user {userId}", ex);
+            }
+            catch (System.NullReferenceException ex)
+            {
+                throw new RepositoryException($"Unexpected null reference updating user {userId}", ex);
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                throw new RepositoryException($"Unexpected invalid operation updating user {userId}", ex);
             }
         }
     }

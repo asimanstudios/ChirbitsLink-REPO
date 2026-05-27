@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -101,7 +103,7 @@ namespace ChibitsLink.Services.Network
                 _isInitialized = true;
                 Debug.Log("[TcpNetworkServer] Server initialized successfully");
             }
-            catch (System.Exception ex)
+            catch (InvalidOperationException ex)
             {
                 Debug.LogError($"[TcpNetworkServer] Failed to initialize server: {ex.Message}");
                 throw new NetworkServiceException("Failed to initialize TCP server", ex);
@@ -110,29 +112,30 @@ namespace ChibitsLink.Services.Network
 
         public async Task<bool> StartServerAsync()
         {
-            if (_isRunning)
+            bool result = true;
+            if (!_isRunning)
+            {
+                try
+                {
+                    _listener = new TcpListener(IPAddress.Any, port);
+                    _listener.Start();
+                    _isRunning = true;
+                    
+                    Debug.Log($"[TcpNetworkServer] Server started on port {port}");
+                    
+                    _ = Task.Run(AcceptConnectionsAsync);
+                }
+                catch (SocketException ex)
+                {
+                    Debug.LogError($"[TcpNetworkServer] Failed to start server: {ex.Message}");
+                    throw new NetworkServiceException("Failed to start TCP server", ex);
+                }
+            }
+            else
             {
                 Debug.LogWarning("[TcpNetworkServer] Server is already running");
-                return true;
             }
-
-            try
-            {
-                _listener = new TcpListener(IPAddress.Any, port);
-                _listener.Start();
-                _isRunning = true;
-                
-                Debug.Log($"[TcpNetworkServer] Server started on port {port}");
-                
-                _ = Task.Run(AcceptConnectionsAsync);
-                
-                return true;
-            }
-            catch (System.Exception ex)
-            {
-                Debug.LogError($"[TcpNetworkServer] Failed to start server: {ex.Message}");
-                throw new NetworkServiceException("Failed to start TCP server", ex);
-            }
+            return result;
         }
 
         /// <summary>
@@ -159,7 +162,7 @@ namespace ChibitsLink.Services.Network
                     
                     Debug.Log("[TcpNetworkServer] Server stopped successfully");
                 }
-                catch (System.Exception ex)
+                catch (ObjectDisposedException ex)
                 {
                     Debug.LogError($"[TcpNetworkServer] Error stopping server: {ex.Message}");
                     throw new NetworkServiceException("Failed to stop TCP server", ex);
@@ -198,7 +201,7 @@ namespace ChibitsLink.Services.Network
                     // Start handling this client
                     _ = Task.Run(() => HandleClientAsync(client));
                 }
-                catch (System.Exception ex) when (_isRunning)
+                catch (SocketException ex) when (_isRunning)
                 {
                     Debug.LogError($"[TcpNetworkServer] Error accepting connection: {ex.Message}");
                 }
@@ -234,7 +237,7 @@ namespace ChibitsLink.Services.Network
                     }
                 }
             }
-            catch (System.Exception ex)
+            catch (IOException ex)
             {
                 Debug.LogError($"[TcpNetworkServer] Error handling client: {ex.Message}");
             }
@@ -278,7 +281,7 @@ namespace ChibitsLink.Services.Network
                     }
                 }
             }
-            catch (System.Exception ex)
+            catch (KeyNotFoundException ex)
             {
                 Debug.LogError($"[TcpNetworkServer] Error processing client data: {ex.Message}");
                 throw new NetworkServiceException("Failed to process client data", ex);
@@ -324,7 +327,7 @@ namespace ChibitsLink.Services.Network
                     Debug.LogWarning($"[TcpNetworkServer] Invalid message format: {message}");
                 }
             }
-            catch (System.Exception ex)
+            catch (InvalidOperationException ex)
             {
                 Debug.LogError($"[TcpNetworkServer] Error processing message: {ex.Message}");
                 throw new NetworkServiceException("Failed to process message", ex);
@@ -380,7 +383,7 @@ namespace ChibitsLink.Services.Network
                     Debug.LogWarning("[TcpNetworkServer] Invalid connect data format");
                 }
             }
-            catch (System.Exception ex)
+            catch (FormatException ex)
             {
                 Debug.LogError($"[TcpNetworkServer] Error handling connect command: {ex.Message}");
                 throw new NetworkServiceException("Failed to handle connect command", ex);
@@ -420,7 +423,7 @@ namespace ChibitsLink.Services.Network
                 
                 DisconnectClient(client);
             }
-            catch (System.Exception ex)
+            catch (InvalidOperationException ex)
             {
                 Debug.LogError($"[TcpNetworkServer] Error handling disconnect command: {ex.Message}");
                 throw new NetworkServiceException("Failed to handle disconnect command", ex);
@@ -438,15 +441,7 @@ namespace ChibitsLink.Services.Network
             try
             {
                 // Find user ID for this client
-                string userId = null;
-                foreach (var kvp in _userIdToClient)
-                {
-                    if (kvp.Value == client)
-                    {
-                        userId = kvp.Key;
-                        break;
-                    }
-                }
+                string userId = _userIdToClient.FirstOrDefault(kvp => kvp.Value == client).Key;
                 
                 if (!string.IsNullOrEmpty(userId))
                 {
@@ -479,7 +474,7 @@ namespace ChibitsLink.Services.Network
                     Debug.LogWarning("[TcpNetworkServer] Received input from unauthenticated client");
                 }
             }
-            catch (System.Exception ex)
+            catch (FormatException ex)
             {
                 Debug.LogError($"[TcpNetworkServer] Error handling input command: {ex.Message}");
                 throw new NetworkServiceException("Failed to handle input command", ex);
@@ -517,7 +512,7 @@ namespace ChibitsLink.Services.Network
                     _userIdToClient.Remove(key);
                 }
             }
-            catch (System.Exception ex)
+            catch (ObjectDisposedException ex)
             {
                 Debug.LogError($"[TcpNetworkServer] Error disconnecting client: {ex.Message}");
             }
@@ -540,7 +535,7 @@ namespace ChibitsLink.Services.Network
                     stream.WriteAsync(data, 0, data.Length);
                 }
             }
-            catch (System.Exception ex)
+            catch (IOException ex)
             {
                 Debug.LogError($"[TcpNetworkServer] Error sending message to client: {ex.Message}");
             }
@@ -565,7 +560,7 @@ namespace ChibitsLink.Services.Network
                     Debug.LogWarning($"[TcpNetworkServer] User {userId} not found");
                 }
             }
-            catch (System.Exception ex)
+            catch (InvalidOperationException ex)
             {
                 Debug.LogError($"[TcpNetworkServer] Error sending message to user: {ex.Message}");
             }
@@ -585,7 +580,7 @@ namespace ChibitsLink.Services.Network
                     SendMessageToClient(client, message);
                 }
             }
-            catch (System.Exception ex)
+            catch (IOException ex)
             {
                 Debug.LogError($"[TcpNetworkServer] Error broadcasting message: {ex.Message}");
             }

@@ -63,6 +63,7 @@ namespace ChibitsLink.UI.Minigames
             {
                 var allTexts = GetComponentsInChildren<TextMeshPro>();
                 string name;
+                bool shouldAssignIcon;
                 
                 foreach (var t in allTexts)
                 {
@@ -70,7 +71,7 @@ namespace ChibitsLink.UI.Minigames
                     if (timeText == null && (name.Contains("time") || name.Contains("timer") || name.Contains("tiempo"))) 
                         timeText = t;
 
-                    bool shouldAssignIcon = iconText == null && (name.Contains("icon") || name.Contains("emoji") || name.Contains("bomb"));
+                    shouldAssignIcon = iconText == null && (name.Contains("icon") || name.Contains("emoji") || name.Contains("bomb"));
                     if (shouldAssignIcon) 
                         iconText = t;
                 }

@@ -119,11 +119,16 @@ namespace ChibitsLink.GameSide.HookParty
             GameObject[] found = GameObject.FindGameObjectsWithTag("Player");
             Debug.Log($"[HookParty] Detectados {found.Length} jugadores base. Equipándoles los ganchos de agarre...");
 
+            PlayerManager.IChibitsController oldController;
+            PlayerHookSystem hookSys;
+            CharacterController cc;
+            Rigidbody rb;
+
             foreach (var j in found)
             {
                 // 1. Deshabilitar cualquier controlador original para que no interfiera 
                 //    (ya que PlayerManager lee el primero que encuentra).
-                var oldController = j.GetComponentInChildren<PlayerManager.IChibitsController>(true);
+                oldController = j.GetComponentInChildren<PlayerManager.IChibitsController>(true);
                 if (oldController != null && oldController as MonoBehaviour != null)
                 {
                     Destroy((oldController as MonoBehaviour));
@@ -135,7 +140,7 @@ namespace ChibitsLink.GameSide.HookParty
                     j.AddComponent<HookPartyController>();
                 }
                 
-                var hookSys = j.GetComponent<PlayerHookSystem>();
+                hookSys = j.GetComponent<PlayerHookSystem>();
                 if (hookSys == null)
                 {
                     hookSys = j.AddComponent<PlayerHookSystem>();
@@ -152,10 +157,10 @@ namespace ChibitsLink.GameSide.HookParty
                 
                 // Asegurar física: Destruimos CharacterController si existe porque
                 // sobreescribe la gravedad y anula al Rigidbody.
-                var cc = j.GetComponent<CharacterController>();
+                cc = j.GetComponent<CharacterController>();
                 if (cc != null) Destroy(cc);
 
-                var rb = j.GetComponent<Rigidbody>();
+                rb = j.GetComponent<Rigidbody>();
                 if (rb != null)
                 {
                     rb.isKinematic = false; // El gancho requiere ser físico para usar fuerzas

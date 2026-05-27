@@ -149,9 +149,13 @@ namespace ChibitsLink.Services.Network
                 {
                     Debug.LogError($"[FirebaseManager] Repository operation failed: {ex.Message}");
                 }
-                catch (System.Exception ex)
+                catch (Firebase.FirebaseException ex)
                 {
-                    Debug.LogError($"[FirebaseManager] Unexpected error finalizing party scores: {ex.Message}");
+                    Debug.LogError($"[FirebaseManager] Firebase error finalizing party scores: {ex.Message}");
+                }
+                catch (System.InvalidOperationException ex)
+                {
+                    Debug.LogError($"[FirebaseManager] Invalid operation finalizing party scores: {ex.Message}");
                 }
             }
             else

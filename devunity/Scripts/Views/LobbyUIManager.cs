@@ -66,7 +66,7 @@ namespace ChibitsLink.UI
         /// <summary>Código de la sala actual</summary>
         private string _roomCode;
         /// <summary>Indica si hay votación en progreso</summary>
-        private bool _isVoting; = false;
+        private bool _isVoting = false;
 
         /// <summary>
         /// Se ejecuta al habilitar el componente.
@@ -78,10 +78,20 @@ namespace ChibitsLink.UI
             {
                 RefreshNetworkInterfaces();
             }
-            catch (System.Exception ex)
+            catch (ComponentNotFoundException ex)
             {
                 Debug.LogError($"[LobbyUIManager] Failed to initialize: {ex.Message}");
-                throw new ComponentNotFoundException("Failed to initialize LobbyUIManager", ex);
+                throw;
+            }
+            catch (NetworkServiceException ex)
+            {
+                Debug.LogError($"[LobbyUIManager] Failed to initialize: {ex.Message}");
+                throw;
+            }
+            catch (System.NullReferenceException ex)
+            {
+                Debug.LogError($"[LobbyUIManager] Failed to initialize: {ex.Message}");
+                throw new ComponentNotFoundException("Failed to initialize LobbyUIManager due to null reference", ex);
             }
         }
 
@@ -117,12 +127,26 @@ namespace ChibitsLink.UI
                     }
                 }
             }
-            catch (System.Exception ex)
+            catch (ComponentNotFoundException ex)
             {
-                Debug.LogError($"[LobbyUIManager] Failed to refresh network interfaces: {ex.Message}");
+                Debug.LogError($"[LobbyUIManager] LobbyManager not found: {ex.Message}");
+                throw;
+            }
+            catch (System.Net.NetworkInformation.NetworkInformationException ex)
+            {
+                Debug.LogError($"[LobbyUIManager] Failed to get network interfaces: {ex.Message}");
                 throw new NetworkServiceException("Failed to refresh network interfaces", ex);
             }
+            catch (System.NullReferenceException ex)
+            {
+                Debug.LogError($"[LobbyUIManager] Null reference during network refresh: {ex.Message}");
+                throw new NetworkServiceException("Failed to refresh network interfaces due to null reference", ex);
+            }
         }
+
+        public void RefreshInterfaces()
+        {
+            var mgr = LobbyManager.Instance != null ? LobbyManager.Instance : lobbyManager;
             if (mgr != null && ipDropdown != null)
             {
                 _availableInterfaces = mgr.GetAvailableNetworkInterfaces();
@@ -133,10 +157,12 @@ namespace ChibitsLink.UI
 
                 int bestIndex = 0;
                 bool preferredFound = false;
+                string name;
+                bool isPreferredInterface;
                 for (int i = 0; i < _availableInterfaces.Count; i++)
                 {
-                    string name = _availableInterfaces[i].Name.ToLower();
-                    bool isPreferredInterface = !name.Contains("virtual") && !name.Contains("vbox") && !name.Contains("vmware");
+                    name = _availableInterfaces[i].Name.ToLower();
+                    isPreferredInterface = !name.Contains("virtual") && !name.Contains("vbox") && !name.Contains("vmware");
                     if (isPreferredInterface && !preferredFound)
                     {
                         bestIndex = i;
@@ -321,6 +347,7 @@ namespace ChibitsLink.UI
         private async System.Threading.Tasks.Task MonitorLobbyState()
         {
             bool keepMonitoring = !string.IsNullOrEmpty(_roomCode) && !_isVoting;
+            Party party;
             while (keepMonitoring)
             {
                 // Consultar Firestore cada 2 segundos
@@ -329,7 +356,7 @@ namespace ChibitsLink.UI
                 
                 if (partyDoc.Exists)
                 {
-                    var party = partyDoc.ConvertTo<Party>();
+                    party = partyDoc.ConvertTo<Party>();
                     if (party.GameState == "VOTING")
                     {
                         Debug.Log("[LobbyUI] Fase de VOTACIÓN detectada desde Firestore.");

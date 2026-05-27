@@ -66,14 +66,19 @@ namespace ChibitsLink.Minigames.BombTag
             
             Debug.Log($"[BombTagScoring] Processing final scores. Ranking count: {_eliminationOrder.Count}");
             
+            GameObject player;
+            PlayerIdentity identity;
+            int score;
+            string playerName;
+            
             // Score from first eliminated (lowest score) to last survivor (highest score)
             for (int i = 0; i < _eliminationOrder.Count; i++)
             {
-                GameObject player = _eliminationOrder[i];
-                if (player != null && _playerIdentities.TryGetValue(player, out PlayerIdentity identity))
+                player = _eliminationOrder[i];
+                if (player != null && _playerIdentities.TryGetValue(player, out identity))
                 {
-                    int score = CalculateScore(i, _eliminationOrder.Count);
-                    string playerName = GetPlayerName(player);
+                    score = CalculateScore(i, _eliminationOrder.Count);
+                    playerName = GetPlayerName(player);
                     
                     Debug.Log($"[BombTagScoring] {playerName}: {score} points");
                     scoreCallback?.Invoke(identity.userId, score);
@@ -115,31 +120,51 @@ namespace ChibitsLink.Minigames.BombTag
         
         public string GetPlayerName(GameObject player)
         {
-            if (player == null) return "Unknown";
+            string result = "Unknown";
             
-            // Priority 1: Use cached identity username
-            if (_playerIdentities.TryGetValue(player, out PlayerIdentity identity))
+            if (player != null)
             {
-                if (!string.IsNullOrEmpty(identity.username)) 
-                    return identity.username;
+                bool nameFound = false;
+                PlayerIdentity identity;
                 
-                // Priority 2: Fetch from central repository
-                if (PlayerManager.Instance != null && !string.IsNullOrEmpty(identity.userId))
+                // Priority 1: Use cached identity username
+                if (_playerIdentities.TryGetValue(player, out identity))
                 {
-                    string repositoryName = PlayerManager.Instance.GetPlayerName(identity.userId);
-                    if (repositoryName != "Jugador") 
-                        return repositoryName;
+                    if (!string.IsNullOrEmpty(identity.username))
+                    {
+                        result = identity.username;
+                        nameFound = true;
+                    }
+                    else if (PlayerManager.Instance != null && !string.IsNullOrEmpty(identity.userId))
+                    {
+                        // Priority 2: Fetch from central repository
+                        string repositoryName = PlayerManager.Instance.GetPlayerName(identity.userId);
+                        if (repositoryName != "Jugador")
+                        {
+                            result = repositoryName;
+                            nameFound = true;
+                        }
+                    }
+                }
+                
+                // Priority 3: Manual search fallback
+                if (!nameFound)
+                {
+                    var manualIdentity = player.GetComponent<PlayerIdentity>() ?? player.GetComponentInParent<PlayerIdentity>();
+                    if (manualIdentity != null && PlayerManager.Instance != null)
+                    {
+                        result = PlayerManager.Instance.GetPlayerName(manualIdentity.userId);
+                        nameFound = true;
+                    }
+                }
+                
+                if (!nameFound)
+                {
+                    result = player.name;
                 }
             }
-
-            // Priority 3: Manual search fallback
-            var manualIdentity = player.GetComponent<PlayerIdentity>() ?? player.GetComponentInParent<PlayerIdentity>();
-            if (manualIdentity != null && PlayerManager.Instance != null)
-            {
-                return PlayerManager.Instance.GetPlayerName(manualIdentity.userId);
-            }
-
-            return player.name;
+            
+            return result;
         }
     }
 }

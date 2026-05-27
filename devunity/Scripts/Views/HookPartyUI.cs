@@ -47,10 +47,15 @@ namespace ChibitsLink.UI.Minigames
                 InitializeComponents();
                 SetupUI();
             }
-            catch (System.Exception ex)
+            catch (ComponentNotFoundException ex)
             {
                 Debug.LogError($"[HookPartyUI] Failed to initialize: {ex.Message}");
-                throw new ComponentNotFoundException("Failed to initialize HookPartyUI", ex);
+                throw;
+            }
+            catch (System.NullReferenceException ex)
+            {
+                Debug.LogError($"[HookPartyUI] Null reference during initialization: {ex.Message}");
+                throw new ComponentNotFoundException("Failed to initialize HookPartyUI due to null reference", ex);
             }
         }
         
@@ -121,9 +126,9 @@ namespace ChibitsLink.UI.Minigames
         /// Actualiza el HUD de puntuaciones.
         /// Muestra ranking de jugadores con nombres y niveles.
         /// </summary>
-        private void ActualizarRankingHUD()
+        private void UpdateRankingHUD()
         {
-            bool canUpdateScoreHud = textoPuntuacionGlobal != null && ScoreManager.Instance != null;
+            bool canUpdateScoreHud = globalScoreText != null && ScoreManager.Instance != null;
             if (canUpdateScoreHud)
             {
                 var scores = ScoreManager.Instance.GetAllScores();
@@ -160,7 +165,7 @@ namespace ChibitsLink.UI.Minigames
                     }
                 }
 
-                textoPuntuacionGlobal.text = sb.ToString();
+                globalScoreText.text = sb.ToString();
             }
         }
 
@@ -168,7 +173,7 @@ namespace ChibitsLink.UI.Minigames
         /// Actualiza el estado visual de la UI.
         /// Muestra/oculta paneles según el estado del juego.
         /// </summary>
-        private void ActualizarEstadoVisual()
+        private void UpdateVisualState()
         {
             var gestor = HookPartyManager.Instance;
             HookPartyState estado = gestor.CurrentState;
@@ -176,35 +181,35 @@ namespace ChibitsLink.UI.Minigames
             // Cuenta Atrás
             if (estado == HookPartyState.Countdown)
             {
-                if (textoCuentaAtras != null)
+                if (countdownText != null)
                 {
-                    textoCuentaAtras.gameObject.SetActive(true);
-                    textoCuentaAtras.text = gestor.CountdownValue.ToString();
+                    countdownText.gameObject.SetActive(true);
+                    countdownText.text = gestor.CountdownValue.ToString();
                 }
             }
             else
             {
-                if (textoCuentaAtras != null) textoCuentaAtras.gameObject.SetActive(false);
+                if (countdownText != null) countdownText.gameObject.SetActive(false);
             }
 
             // HUD: Visible desde el inicio (Preparación, Cuenta atrás e InGame)
             bool mostrarHUD = (estado == HookPartyState.Preparing || estado == HookPartyState.Countdown || estado == HookPartyState.InGame);
-            if (panelHUD != null) panelHUD.SetActive(mostrarHUD);
+            if (hudPanel != null) hudPanel.SetActive(mostrarHUD);
 
             // Resultados: Solo al terminar o en transición
             bool mostrarResultados = (estado == HookPartyState.Finished || estado == HookPartyState.TransitioningToLobby);
-            if (panelResultados != null)
+            if (resultsPanel != null)
             {
                 if (mostrarResultados)
                 {
-                    if (!panelResultados.activeSelf || estado == HookPartyState.TransitioningToLobby)
+                    if (!resultsPanel.activeSelf || estado == HookPartyState.TransitioningToLobby)
                     {
                         MostrarResultados();
                     }
                 }
                 else
                 {
-                    panelResultados.SetActive(false);
+                    resultsPanel.SetActive(false);
                 }
             }
         }
@@ -215,10 +220,10 @@ namespace ChibitsLink.UI.Minigames
         /// </summary>
         public void MostrarResultados()
         {
-            bool canShowResults = panelResultados != null && ScoreManager.Instance != null;
+            bool canShowResults = resultsPanel != null && ScoreManager.Instance != null;
             if (canShowResults)
             {
-                panelResultados.SetActive(true);
+                resultsPanel.SetActive(true);
 
                 var scores = ScoreManager.Instance.GetAllScores();
                 var ranking = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, int>>(scores);
@@ -234,12 +239,17 @@ namespace ChibitsLink.UI.Minigames
 
                 sb.AppendLine("<size=120%>SALDO DE LA FIESTA</size>\n");
 
+                string prefijo;
+                string uid;
+                string nombre;
+                int lvl;
+
                 for (int i = 0; i < ranking.Count; i++)
                 {
-                    string prefijo = (i == 0) ? "🏆 " : (i + 1) + ". ";
-                    string uid = ranking[i].Key;
-                    string nombre = uid;
-                    int lvl = 1;
+                    prefijo = (i == 0) ? "🏆 " : (i + 1) + ". ";
+                    uid = ranking[i].Key;
+                    nombre = uid;
+                    lvl = 1;
                     
                     if (ChibitsLink.GameSide.PlayerManager.Instance != null)
                     {
@@ -250,7 +260,7 @@ namespace ChibitsLink.UI.Minigames
                     sb.AppendLine($"{prefijo}[Lvl {lvl}] {nombre}: {ranking[i].Value} puntos");
                 }
 
-                if (textoRanking != null) textoRanking.text = sb.ToString();
+                if (rankingText != null) rankingText.text = sb.ToString();
             }
         }
     }

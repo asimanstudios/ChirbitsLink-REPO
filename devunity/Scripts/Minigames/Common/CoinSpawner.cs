@@ -45,7 +45,7 @@ namespace ChibitsLink.Minigames.Common
         {
             // Only spawn if game is active
             bool isInGame = CoinCollectorGameManager.Instance != null && 
-                           CoinCollectorGameManager.Instance.CurrentState == CoinCollectorState.InGame;
+                            CoinCollectorGameManager.Instance.CurrentState == CoinCollectorState.InGame;
             
             if (isInGame)
             {
@@ -66,12 +66,12 @@ namespace ChibitsLink.Minigames.Common
         private void CleanupCoinList()
         {
             // Eliminar referencias nulas (monedas recogidas)
-            monedasActivas.RemoveAll(m => m == null);
+            _activeCoins.RemoveAll(m => m == null);
         }
 
-        private void IntentarSpawnear()
+        private void SpawnCoin()
         {
-            bool hasCoinTiers = tiersMonedas != null && tiersMonedas.Count > 0;
+            bool hasCoinTiers = coinTiers != null && coinTiers.Count > 0;
             if (hasCoinTiers)
             {
                 // 1. Seleccionar Tier mediante Random con Pesos
@@ -91,7 +91,7 @@ namespace ChibitsLink.Minigames.Common
 
                         // Chequeo de colisión (Esfera invisible)
                         // Se asume que las monedas tienen un radio pequeño (~0.5f)
-                        if (!Physics.CheckSphere(spawnPos, 0.5f, capasObstaculos))
+                        if (!Physics.CheckSphere(spawnPos, 0.5f, obstacleLayers))
                         {
                             posicionValida = true;
                         }
@@ -100,11 +100,11 @@ namespace ChibitsLink.Minigames.Common
                     if (posicionValida)
                     {
                         GameObject moneda = Instantiate(tierSeleccionado.prefab, spawnPos, Quaternion.identity);
-                        monedasActivas.Add(moneda);
+                        _activeCoins.Add(moneda);
 
-                        if (sonidoSpawn != null)
+                        if (spawnSound != null)
                         {
-                            AudioSource.PlayClipAtPoint(sonidoSpawn, spawnPos, 0.8f);
+                            AudioSource.PlayClipAtPoint(spawnSound, spawnPos, 0.8f);
                         }
                     }
                 }
@@ -114,39 +114,54 @@ namespace ChibitsLink.Minigames.Common
         private CoinTier SeleccionarTierAleatorio()
         {
             float sumaPesos = 0;
-            foreach (var t in tiersMonedas) sumaPesos += t.probabilidad;
+            foreach (var t in coinTiers) sumaPesos += t.probability;
 
             float randomValue = Random.Range(0, sumaPesos);
             float acumulado = 0;
+            CoinTier selectedTier = null;
 
-            foreach (var t in tiersMonedas)
+            foreach (var t in coinTiers)
             {
-                acumulado += t.probabilidad;
-                if (randomValue <= acumulado) return t;
+                if (selectedTier == null)
+                {
+                    acumulado += t.probability;
+                    if (randomValue <= acumulado)
+                    {
+                        selectedTier = t;
+                    }
+                }
             }
 
-            return tiersMonedas[0];
+            if (selectedTier == null)
+            {
+                selectedTier = coinTiers[0];
+            }
+
+            return selectedTier;
         }
 
         private Vector3 ObtenerPuntoAleatorioArea()
         {
-            if (areaDeSpawn == null) return transform.position;
-
-            Bounds bounds = areaDeSpawn.bounds;
-            return new Vector3(
-                Random.Range(bounds.min.x, bounds.max.x),
-                transform.position.y, // Mantener altura del generador o suelo
-                Random.Range(bounds.min.z, bounds.max.z)
-            );
+            Vector3 result = transform.position;
+            if (spawnArea != null)
+            {
+                Bounds bounds = spawnArea.bounds;
+                result = new Vector3(
+                    Random.Range(bounds.min.x, bounds.max.x),
+                    transform.position.y, // Mantener altura del generador o suelo
+                    Random.Range(bounds.min.z, bounds.max.z)
+                );
+            }
+            return result;
         }
 
         // Visualización del área en el editor
         private void OnDrawGizmosSelected()
         {
-            if (areaDeSpawn != null)
+            if (spawnArea != null)
             {
                 Gizmos.color = new Color(0, 1, 0, 0.3f);
-                Gizmos.DrawCube(areaDeSpawn.bounds.center, areaDeSpawn.bounds.size);
+                Gizmos.DrawCube(spawnArea.bounds.center, spawnArea.bounds.size);
             }
         }
     }

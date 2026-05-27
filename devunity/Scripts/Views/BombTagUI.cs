@@ -59,10 +59,15 @@ namespace ChibitsLink.UI.Minigames
                 InitializeComponents();
                 SetupUI();
             }
-            catch (System.Exception ex)
+            catch (ComponentNotFoundException ex)
             {
                 Debug.LogError($"[BombTagUI] Failed to initialize: {ex.Message}");
-                throw new ComponentNotFoundException("Failed to initialize BombTagUI", ex);
+                throw;
+            }
+            catch (System.NullReferenceException ex)
+            {
+                Debug.LogError($"[BombTagUI] Null reference during initialization: {ex.Message}");
+                throw new ComponentNotFoundException("Failed to initialize BombTagUI due to null reference", ex);
             }
         }
         
@@ -271,22 +276,28 @@ namespace ChibitsLink.UI.Minigames
 
                 // Winners
                 var winners = manager.GetWinners();
+                string name;
                 foreach (var w in winners) 
                 {
-                    if (w == null) continue;
-                    string name = manager.GetPlayerName(w);
-                    sb.AppendLine($"🥇 WINNER: <color=yellow>{name}</color>");
+                    if (w != null)
+                    {
+                        name = manager.GetPlayerName(w);
+                        sb.AppendLine($"🥇 WINNER: <color=yellow>{name}</color>");
+                    }
                 }
 
                 sb.AppendLine("\n<b>ELIMINATION ORDER:</b>");
                 var elims = manager.GetEliminationOrder();
+                int pos;
                 // Start from the first eliminated to the last
                 for (int i = 0; i < elims.Count; i++)
                 {
-                    if (elims[i] == null) continue;
-                    string name = manager.GetPlayerName(elims[i]);
-                    int pos = elims.Count - i; // Convert index to rank (e.g. 4th, 3rd...)
-                    sb.AppendLine($"<color=white>#{pos}</color> {name}");
+                    if (elims[i] != null)
+                    {
+                        name = manager.GetPlayerName(elims[i]);
+                        pos = elims.Count - i; // Convert index to rank (e.g. 4th, 3rd...)
+                        sb.AppendLine($"<color=white>#{pos}</color> {name}");
+                    }
                 }
 
                 string finalStr = sb.ToString();

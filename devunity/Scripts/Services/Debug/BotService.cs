@@ -92,20 +92,25 @@ namespace ChibiCocina.Services
             }
             
             int spawnedCount = 0;
+            BotModel bot;
             
             for (int i = 0; i < count; i++)
             {
                 try
                 {
-                    BotModel bot = CreateBot();
+                    bot = CreateBot();
                     activeBots.Add(bot);
                     spawnedCount++;
                     
                     DebugLogService.Instance?.Log(DebugModule.Player, $"Bot creado: {bot.Id} ({bot.Name})");
                 }
-                catch (System.Exception ex)
+                catch (System.NullReferenceException ex)
                 {
-                    DebugLogService.Instance?.LogError(DebugModule.Player, $"Error creando bot {i + 1}: {ex.Message}");
+                    DebugLogService.Instance?.LogError(DebugModule.Player, $"Null reference error creating bot {i + 1}: {ex.Message}");
+                }
+                catch (System.ArgumentException ex)
+                {
+                    DebugLogService.Instance?.LogError(DebugModule.Player, $"Argument error creating bot {i + 1}: {ex.Message}");
                 }
             }
             

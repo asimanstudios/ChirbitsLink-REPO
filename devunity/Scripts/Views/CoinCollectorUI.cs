@@ -48,10 +48,15 @@ namespace ChibitsLink.UI.Minigames
                 InitializeComponents();
                 SetupUI();
             }
-            catch (System.Exception ex)
+            catch (ComponentNotFoundException ex)
             {
                 Debug.LogError($"[CoinCollectorUI] Failed to initialize: {ex.Message}");
-                throw new ComponentNotFoundException("Failed to initialize CoinCollectorUI", ex);
+                throw;
+            }
+            catch (System.NullReferenceException ex)
+            {
+                Debug.LogError($"[CoinCollectorUI] Null reference during initialization: {ex.Message}");
+                throw new ComponentNotFoundException("Failed to initialize CoinCollectorUI due to null reference", ex);
             }
         }
         
@@ -228,12 +233,17 @@ namespace ChibitsLink.UI.Minigames
 
                 sb.AppendLine("<size=120%>RANKING FINAL</size>\n");
 
+                string prefix;
+                string uid;
+                string name;
+                int lvl;
+
                 for (int i = 0; i < ranking.Count; i++)
                 {
-                    string prefix = (i == 0) ? "👑 " : (i + 1) + ". ";
-                    string uid = ranking[i].Key;
-                    string name = uid;
-                    int lvl = 1;
+                    prefix = (i == 0) ? "👑 " : (i + 1) + ". ";
+                    uid = ranking[i].Key;
+                    name = uid;
+                    lvl = 1;
                     
                     if (ChibitsLink.GameSide.PlayerManager.Instance != null)
                     {

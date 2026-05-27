@@ -116,15 +116,25 @@ namespace ChibitsLink.Editor
             // Add necessary tags
             SerializedObject tagManager = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset")[0]);
             
-            // Tags configuration would go here
             Debug.Log("Tags and layers configured.");
+            SerializedProperty layers = tagManager.FindProperty("layers");
+            bool layerExiste = false;
+            bool layerAsignada = false;
+            string currentLayer;
+            bool isTargetLayer;
+            bool canAssignLayer;
+            
+            for (int i = 8; i < 32; i++)
+            {
+                currentLayer = layers.GetArrayElementAtIndex(i).stringValue;
+                isTargetLayer = currentLayer == "Interaccion";
                 if (isTargetLayer)
                 {
                     layerExiste = true;
                     layerAsignada = true;
                 }
 
-                bool canAssignLayer = !layerAsignada && string.IsNullOrEmpty(currentLayer);
+                canAssignLayer = !layerAsignada && string.IsNullOrEmpty(currentLayer);
                 if (canAssignLayer)
                 {
                     layers.GetArrayElementAtIndex(i).stringValue = "Interaccion";

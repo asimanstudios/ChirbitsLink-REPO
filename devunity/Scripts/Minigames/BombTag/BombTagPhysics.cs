@@ -147,28 +147,29 @@ namespace ChibitsLink.Minigames.BombTag
         /// </remarks>
         public bool UpdateTransfer(List<GameObject> alivePlayers)
         {
-            if (_isExploding || _currentCarrier == null || _bombInstance == null)
+            bool hasTransferred = false;
+            
+            if (!_isExploding && _currentCarrier != null && _bombInstance != null)
             {
-                return false;
+                // Update cooldown
+                if (_transferCooldown > 0)
+                {
+                    _transferCooldown -= Time.deltaTime;
+                }
+                else
+                {
+                    // Check for transfers
+                    GameObject transferTarget = FindTransferTarget(alivePlayers);
+                    if (transferTarget != null)
+                    {
+                        SetCarrier(transferTarget);
+                        _transferCooldown = transferCooldownTime;
+                        hasTransferred = true;
+                    }
+                }
             }
             
-            // Update cooldown
-            if (_transferCooldown > 0)
-            {
-                _transferCooldown -= Time.deltaTime;
-                return false;
-            }
-            
-            // Check for transfers
-            GameObject transferTarget = FindTransferTarget(alivePlayers);
-            if (transferTarget != null)
-            {
-                SetCarrier(transferTarget);
-                _transferCooldown = transferCooldownTime;
-                return true;
-            }
-            
-            return false;
+            return hasTransferred;
         }
         
         /// <summary>
@@ -182,24 +183,26 @@ namespace ChibitsLink.Minigames.BombTag
         /// </remarks>
         private GameObject FindTransferTarget(List<GameObject> alivePlayers)
         {
-            if (_currentCarrier == null) return null;
-            
-            Vector3 carrierPosition = _currentCarrier.transform.position;
-            
-            float distance;
-            
-            foreach (GameObject player in alivePlayers)
+            GameObject result = null;
+            if (_currentCarrier != null)
             {
-                if (player == _currentCarrier) continue;
+                Vector3 carrierPosition = _currentCarrier.transform.position;
+                float distance;
                 
-                distance = Vector3.Distance(carrierPosition, player.transform.position);
-                if (distance < transferDistance)
+                foreach (GameObject player in alivePlayers)
                 {
-                    return player;
+                    if (player != _currentCarrier && result == null)
+                    {
+                        distance = Vector3.Distance(carrierPosition, player.transform.position);
+                        if (distance < transferDistance)
+                        {
+                            result = player;
+                        }
+                    }
                 }
             }
             
-            return null;
+            return result;
         }
         
         /// <summary>
@@ -290,34 +293,34 @@ namespace ChibitsLink.Minigames.BombTag
         /// </remarks>
         public IEnumerator ProcessExplosion()
         {
-            if (_isExploding || _currentCarrier == null)
-                yield break;
-            
-            _isExploding = true;
-            GameObject victim = _currentCarrier;
-            
-            Debug.Log($"[BombTagPhysics] BOOM! Explosion for {victim.name}");
-            
-            // Spawn explosion effects
-            SpawnExplosionEffects(victim);
-            
-            // Clean up bomb
-            if (_bombInstance != null)
+            if (!_isExploding && _currentCarrier != null)
             {
-                Destroy(_bombInstance);
-                _bombInstance = null;
+                _isExploding = true;
+                GameObject victim = _currentCarrier;
+                
+                Debug.Log($"[BombTagPhysics] BOOM! Explosion for {victim.name}");
+                
+                // Spawn explosion effects
+                SpawnExplosionEffects(victim);
+                
+                // Clean up bomb
+                if (_bombInstance != null)
+                {
+                    Destroy(_bombInstance);
+                    _bombInstance = null;
+                }
+                
+                _currentCarrier = null;
+                
+                // Disable victim after delay
+                yield return new WaitForSecondsRealtime(0.3f);
+                if (victim != null)
+                {
+                    victim.SetActive(false);
+                }
+                
+                _isExploding = false;
             }
-            
-            _currentCarrier = null;
-            
-            // Disable victim after delay
-            yield return new WaitForSecondsRealtime(0.3f);
-            if (victim != null)
-            {
-                victim.SetActive(false);
-            }
-            
-            _isExploding = false;
         }
         
         /// <summary>

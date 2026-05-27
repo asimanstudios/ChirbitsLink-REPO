@@ -169,6 +169,7 @@ namespace ChibitsLink.GameSide.HookParty
 
             bool anchorAssigned = false;
             bool canAttachToHit;
+            float dist;
             
             foreach (var hit in hits)
             {
@@ -197,7 +198,7 @@ namespace ChibitsLink.GameSide.HookParty
                     _hookJoint.autoConfigureConnectedAnchor = false;
                     _hookJoint.connectedAnchor = _anchorPoint;
 
-                    float dist = Vector3.Distance(transform.position, _anchorPoint);
+                    dist = Vector3.Distance(transform.position, _anchorPoint);
                     _hookJoint.maxDistance = dist * 0.9f;   
                     _hookJoint.minDistance = dist * 0.1f;
 

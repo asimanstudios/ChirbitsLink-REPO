@@ -72,9 +72,13 @@ namespace ChibitsLink.Repositories
             {
                 throw new PartyCreationException($"Failed to create party {party.RoomCode}", ex);
             }
-            catch (Exception ex)
+            catch (System.NullReferenceException ex)
             {
-                throw new RepositoryException($"Unexpected error creating party {party.RoomCode}", ex);
+                throw new RepositoryException($"Unexpected null reference creating party {party.RoomCode}", ex);
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                throw new RepositoryException($"Unexpected invalid operation creating party {party.RoomCode}", ex);
             }
         }
         
@@ -139,9 +143,13 @@ namespace ChibitsLink.Repositories
             {
                 throw new PartyRetrievalException($"Failed to retrieve party {roomCode}", ex);
             }
-            catch (Exception ex)
+            catch (System.NullReferenceException ex)
             {
-                throw new RepositoryException($"Unexpected error retrieving party {roomCode}", ex);
+                throw new RepositoryException($"Unexpected null reference retrieving party {roomCode}", ex);
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                throw new RepositoryException($"Unexpected invalid operation retrieving party {roomCode}", ex);
             }
         }
         
@@ -179,9 +187,13 @@ namespace ChibitsLink.Repositories
             {
                 throw new PartyUpdateException($"Failed to update party {roomCode}", ex);
             }
-            catch (Exception ex)
+            catch (System.NullReferenceException ex)
             {
-                throw new RepositoryException($"Unexpected error updating party {roomCode}", ex);
+                throw new RepositoryException($"Unexpected null reference updating party {roomCode}", ex);
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                throw new RepositoryException($"Unexpected invalid operation updating party {roomCode}", ex);
             }
         }
         
@@ -220,9 +232,13 @@ namespace ChibitsLink.Repositories
             {
                 throw new PartyUpdateException($"Failed to close party {roomCode}", ex);
             }
-            catch (Exception ex)
+            catch (System.NullReferenceException ex)
             {
-                throw new RepositoryException($"Unexpected error closing party {roomCode}", ex);
+                throw new RepositoryException($"Unexpected null reference closing party {roomCode}", ex);
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                throw new RepositoryException($"Unexpected invalid operation closing party {roomCode}", ex);
             }
         }
         
@@ -277,9 +293,13 @@ namespace ChibitsLink.Repositories
             {
                 throw new PartyDeletionException($"Failed to delete party {roomCode}", ex);
             }
-            catch (Exception ex)
+            catch (System.NullReferenceException ex)
             {
-                throw new RepositoryException($"Unexpected error deleting party {roomCode}", ex);
+                throw new RepositoryException($"Unexpected null reference deleting party {roomCode}", ex);
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                throw new RepositoryException($"Unexpected invalid operation deleting party {roomCode}", ex);
             }
         }
 
@@ -312,9 +332,13 @@ namespace ChibitsLink.Repositories
             {
                 throw new PartyRetrievalException("Failed to retrieve active parties", ex);
             }
-            catch (Exception ex)
+            catch (System.NullReferenceException ex)
             {
-                throw new RepositoryException("Unexpected error retrieving active parties", ex);
+                throw new RepositoryException("Unexpected null reference retrieving active parties", ex);
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                throw new RepositoryException("Unexpected invalid operation retrieving active parties", ex);
             }
         }
     }

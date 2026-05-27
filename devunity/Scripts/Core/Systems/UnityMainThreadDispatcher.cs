@@ -77,9 +77,21 @@ namespace ChibitsLink.Utils
                     {
                         _executionQueue.Dequeue().Invoke();
                     }
-                    catch (Exception ex)
+                    catch (System.NullReferenceException ex)
                     {
-                        Debug.LogError($"[UnityMainThreadDispatcher] Error executing action: {ex.Message}\n{ex.StackTrace}");
+                        Debug.LogError($"[UnityMainThreadDispatcher] Null reference error executing action: {ex.Message}\n{ex.StackTrace}");
+                    }
+                    catch (System.InvalidOperationException ex)
+                    {
+                        Debug.LogError($"[UnityMainThreadDispatcher] Invalid operation error executing action: {ex.Message}\n{ex.StackTrace}");
+                    }
+                    catch (System.ArgumentException ex)
+                    {
+                        Debug.LogError($"[UnityMainThreadDispatcher] Argument error executing action: {ex.Message}\n{ex.StackTrace}");
+                    }
+                    catch (System.IndexOutOfRangeException ex)
+                    {
+                        Debug.LogError($"[UnityMainThreadDispatcher] Index out of range error executing action: {ex.Message}\n{ex.StackTrace}");
                     }
                 }
             }
@@ -114,10 +126,20 @@ namespace ChibitsLink.Utils
                     action();
                     tcs.SetResult(true);
                 }
-                catch (Exception ex)
+                catch (System.NullReferenceException ex)
                 {
                     tcs.SetException(ex);
-                    Debug.LogError($"[UnityMainThreadDispatcher] Async error: {ex.Message}");
+                    Debug.LogError($"[UnityMainThreadDispatcher] Async null reference error: {ex.Message}");
+                }
+                catch (System.InvalidOperationException ex)
+                {
+                    tcs.SetException(ex);
+                    Debug.LogError($"[UnityMainThreadDispatcher] Async invalid operation error: {ex.Message}");
+                }
+                catch (System.ArgumentException ex)
+                {
+                    tcs.SetException(ex);
+                    Debug.LogError($"[UnityMainThreadDispatcher] Async argument error: {ex.Message}");
                 }
             });
 

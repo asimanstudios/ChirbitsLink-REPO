@@ -95,7 +95,11 @@ public class MainMenuViewModel : BaseViewModel
     {
         var dbChars = await _masterRepo.GetCharactersAsync();
         Characters.Clear();
-        foreach (var c in dbChars) Characters.Add(c);
+        var _cList = dbChars;
+        foreach (var cItem in _cList)
+        {
+            Characters.Add(cItem);
+        }
 
         var user = _accountService.GetCurrentUser();
         if (user != null)

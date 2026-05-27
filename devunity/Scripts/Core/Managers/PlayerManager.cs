@@ -136,12 +136,14 @@ namespace ChibitsLink.GameSide
             FindSpawnPointsInScene();
 
             int idx = 0;
+            string charId;
+            int spawnIndex;
             foreach (var userId in _connectionOrder)
             {
-                if (_playerLastCharId.TryGetValue(userId, out string charId))
+                if (_playerLastCharId.TryGetValue(userId, out charId))
                 {
                     // Usar módulo para evitar solapamiento si hay más jugadores que spawn points
-                    int spawnIndex = idx % spawnPoints.Count;
+                    spawnIndex = idx % spawnPoints.Count;
                     SpawnPlayer(userId, charId, spawnIndex);
                     idx++;
                 }
@@ -187,28 +189,29 @@ namespace ChibitsLink.GameSide
                 {
                     Debug.LogWarning($"[PlayerManager] Cannot spawn player {userId} - transition in progress");
                 }
-                return;
             }
-
-            // Nuevo jugador - añadir al final
-            _connectionOrder.Add(userId);
-            _playerNames[userId] = username;
-            _playerLevels[userId] = level;
-            if (notifications != null) notifications.ShowNotification($"{username} (Lvl {level}) se ha unido");
-            
-            _playerLastCharId[userId] = charId;
-
-            // Si es un BOT, avisar al servidor TCP para que lo sincronice con Firestore
-            if (userId.StartsWith("BOT_") && TcpServer.Instance != null)
+            else
             {
-                TcpServer.Instance.RegisterBot(userId, charId, username, level);
-            }
+                // Nuevo jugador - añadir al final
+                _connectionOrder.Add(userId);
+                _playerNames[userId] = username;
+                _playerLevels[userId] = level;
+                if (notifications != null) notifications.ShowNotification($"{username} (Lvl {level}) se ha unido");
+                
+                _playerLastCharId[userId] = charId;
 
-            // Solo spawnear si no estamos en medio de una transición de escena
-            if (!isTransitioning)
-            {
-                SpawnPlayer(userId, charId, _connectionOrder.IndexOf(userId));
-                ConfigureCameras();
+                // Si es un BOT, avisar al servidor TCP para que lo sincronice con Firestore
+                if (userId.StartsWith("BOT_") && TcpServer.Instance != null)
+                {
+                    TcpServer.Instance.RegisterBot(userId, charId, username, level);
+                }
+
+                // Solo spawnear si no estamos en medio de una transición de escena
+                if (!isTransitioning)
+                {
+                    SpawnPlayer(userId, charId, _connectionOrder.IndexOf(userId));
+                    ConfigureCameras();
+                }
             }
         }
 
@@ -272,16 +275,22 @@ namespace ChibitsLink.GameSide
             // 1. Buscar TODAS las cámaras de la escena, incluidas las desactivadas
             var allCams = GameObject.FindObjectsOfType<Camera>(true); // true = includeInactive
             Camera sceneCamera = null;
+            bool isPlayerCam;
+            GameObject playerObjForCam;
+            bool enableCam;
+            Camera playerCam;
+            AudioListener listener;
 
             foreach (var cam in allCams)
             {
                 if (cam.targetTexture != null) continue; // ignorar render textures (minimapas, etc.)
 
                 // Comprobar si pertenece a algún jugador instanciado
-                bool isPlayerCam = false;
+                isPlayerCam = false;
                 foreach (var playerObj in _playerObjects.Values)
                 {
-                    if (playerObj != null && cam.transform.IsChildOf(playerObj.transform))
+                    playerObjForCam = playerObj;
+                    if (playerObjForCam != null && cam.transform.IsChildOf(playerObjForCam.transform))
                     {
                         isPlayerCam = true;
                     }
@@ -304,21 +313,22 @@ namespace ChibitsLink.GameSide
 
             // 3. Configurar cámaras de los prefabs de jugadores
             int idx = 0;
+            GameObject currentObj;
             foreach (var userId in _connectionOrder)
             {
-                if (!_playerObjects.TryGetValue(userId, out GameObject playerObj) || playerObj == null)
+                if (!_playerObjects.TryGetValue(userId, out currentObj) || currentObj == null)
                 {
                     idx++;
                     continue;
                 }
 
                 // Solo P1 puede tener cámara cuando NO hay cámara de escena
-                bool enableCam = !hasSceneCamera && idx == 0;
+                enableCam = !hasSceneCamera && idx == 0;
 
-                var cam = playerObj.GetComponentInChildren<Camera>(true);
-                if (cam != null) cam.gameObject.SetActive(enableCam);
+                playerCam = currentObj.GetComponentInChildren<Camera>(true);
+                if (playerCam != null) playerCam.gameObject.SetActive(enableCam);
 
-                var listener = playerObj.GetComponentInChildren<AudioListener>(true);
+                listener = currentObj.GetComponentInChildren<AudioListener>(true);
                 if (listener != null) listener.enabled = enableCam;
 
                 idx++;
@@ -363,10 +373,11 @@ namespace ChibitsLink.GameSide
             if (input == null)
             {
                 Debug.LogWarning($"[PlayerManager] JSON inválido para {userId}: {json}");
-                return;
             }
-            
-            ProcessInputType(controller, input);
+            else
+            {
+                ProcessInputType(controller, input);
+            }
         }
         
         private void ProcessInputType(IChibitsController controller, TcpServer.ControllerInput input)
@@ -494,12 +505,13 @@ namespace ChibitsLink.GameSide
             
             // Eliminar todos los bots de las estructuras
             var botIds = _connectionOrder.Where(id => id.StartsWith("BOT_")).ToList();
+            GameObject botObj;
             foreach (var botId in botIds)
             {
                 Debug.Log($"[PlayerManager] Eliminando bot: {botId}");
                 
                 // Destruir objeto físico si existe
-                if (_playerObjects.TryGetValue(botId, out GameObject botObj))
+                if (_playerObjects.TryGetValue(botId, out botObj))
                 {
                     if (botObj != null) Destroy(botObj);
                     _playerObjects.Remove(botId);

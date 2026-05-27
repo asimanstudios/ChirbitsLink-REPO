@@ -68,9 +68,13 @@ namespace ChibitsLink.Repositories
             {
                 throw new SessionUpdateException($"Failed to update game session for host {hostId}", ex);
             }
-            catch (Exception ex)
+            catch (System.NullReferenceException ex)
             {
-                throw new RepositoryException($"Unexpected error updating game session for host {hostId}", ex);
+                throw new RepositoryException($"Unexpected null reference updating game session for host {hostId}", ex);
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                throw new RepositoryException($"Unexpected invalid operation updating game session for host {hostId}", ex);
             }
         }
         
@@ -156,9 +160,13 @@ namespace ChibitsLink.Repositories
             {
                 throw new SessionRetrievalException($"Game session for host {hostId} not found", ex);
             }
-            catch (Exception ex)
+            catch (System.NullReferenceException ex)
             {
-                throw new RepositoryException($"Unexpected error retrieving game session for host {hostId}", ex);
+                throw new RepositoryException($"Unexpected null reference retrieving game session for host {hostId}", ex);
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                throw new RepositoryException($"Unexpected invalid operation retrieving game session for host {hostId}", ex);
             }
             
             return result;
@@ -178,9 +186,13 @@ namespace ChibitsLink.Repositories
             {
                 throw new SessionDeletionException($"Failed to delete game session for host {hostId}", ex);
             }
-            catch (Exception ex)
+            catch (System.NullReferenceException ex)
             {
-                throw new RepositoryException($"Unexpected error deleting game session for host {hostId}", ex);
+                throw new RepositoryException($"Unexpected null reference deleting game session for host {hostId}", ex);
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                throw new RepositoryException($"Unexpected invalid operation deleting game session for host {hostId}", ex);
             }
         }
 
@@ -207,9 +219,13 @@ namespace ChibitsLink.Repositories
             {
                 throw new SessionRetrievalException("Failed to retrieve active sessions", ex);
             }
-            catch (Exception ex)
+            catch (System.NullReferenceException ex)
             {
-                throw new RepositoryException("Unexpected error retrieving active sessions", ex);
+                throw new RepositoryException("Unexpected null reference retrieving active sessions", ex);
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                throw new RepositoryException("Unexpected invalid operation retrieving active sessions", ex);
             }
             
             return result;

@@ -91,7 +91,7 @@ namespace ChibiCocina.Editor
                     }
                 }
             }
-            catch (System.Exception ex)
+            catch (InvalidOperationException ex)
             {
                 GUILayout.Label($"Error: {ex.Message}", EditorStyles.helpBox);
                 if (GUILayout.Button("Reiniciar Herramienta"))
@@ -107,18 +107,25 @@ namespace ChibiCocina.Editor
             objectsWithMissingScripts.Clear();
             
             GameObject[] allObjects = FindObjectsOfType<GameObject>();
+            Component[] components;
+            bool hasMissingScript;
             
             foreach (GameObject obj in allObjects)
             {
-                Component[] components = obj.GetComponents<Component>();
+                components = obj.GetComponents<Component>();
+                hasMissingScript = false;
                 
                 foreach (Component component in components)
                 {
                     if (component == null)
                     {
-                        objectsWithMissingScripts.Add(obj);
-                        break;
+                        hasMissingScript = true;
                     }
+                }
+                
+                if (hasMissingScript)
+                {
+                    objectsWithMissingScripts.Add(obj);
                 }
             }
             
@@ -133,21 +140,22 @@ namespace ChibiCocina.Editor
         private void FindPossibleScript(GameObject obj)
         {
             Component[] components = obj.GetComponents<Component>();
+            string possibleScript;
+            bool alreadyShown = false;
             
             foreach (Component component in components)
             {
-                if (component == null)
+                if (component == null && !alreadyShown)
                 {
                     // Intentar adivinar qué script era basado en el nombre del GameObject
-                    string possibleScript = GetPossibleScriptName(obj.name);
+                    possibleScript = GetPossibleScriptName(obj.name);
+                    alreadyShown = true;
                     
                     EditorUtility.DisplayDialog(
                         "Sugerencia de Script",
                         $"Para el GameObject '{obj.name}'\n\nPosible script necesario:\n{possibleScript}\n\nBusca en la nueva estructura de carpetas:\n- Controllers/Player/\n- Controllers/Gameplay/\n- Services/Network/\n- Core/Managers/\n- Core/Systems/",
                         "OK"
                     );
-                    
-                    break;
                 }
             }
         }
@@ -155,23 +163,20 @@ namespace ChibiCocina.Editor
         private string GetPossibleScriptName(string gameObjectName)
         {
             string name = gameObjectName.ToLower();
+            string result = "Revisa la guía UNITY_SCRIPT_REASSIGNMENT_GUIDE.md";
             
             if (name.Contains("jugador") || name.Contains("player") || name.Contains("personaje"))
-                return "Movimiento.cs o PlayerController.cs (Controllers/Player/)";
+                result = "Movimiento.cs o PlayerController.cs (Controllers/Player/)";
+            else if (name.Contains("manager") || name.Contains("gestor"))
+                result = "DebugManager.cs (Core/Systems/) o PlayerManager.cs (Core/Managers/)";
+            else if (name.Contains("tcp") || name.Contains("server") || name.Contains("red"))
+                result = "TcpServer.cs (Services/Network/) o NetworkService.cs (Services/Network/)";
+            else if (name.Contains("moneda") || name.Contains("coin"))
+                result = "Moneda.cs (Controllers/Gameplay/)";
+            else if (name.Contains("bomba") || name.Contains("tag"))
+                result = "BombaTag.cs (Controllers/Gameplay/)";
             
-            if (name.Contains("manager") || name.Contains("gestor"))
-                return "DebugManager.cs (Core/Systems/) o PlayerManager.cs (Core/Managers/)";
-            
-            if (name.Contains("tcp") || name.Contains("server") || name.Contains("red"))
-                return "TcpServer.cs (Services/Network/) o NetworkService.cs (Services/Network/)";
-            
-            if (name.Contains("moneda") || name.Contains("coin"))
-                return "Moneda.cs (Controllers/Gameplay/)";
-            
-            if (name.Contains("bomba") || name.Contains("tag"))
-                return "BombaTag.cs (Controllers/Gameplay/)";
-            
-            return "Revisa la guía UNITY_SCRIPT_REASSIGNMENT_GUIDE.md";
+            return result;
         }
         
         [MenuItem("ChibiCocina/Herramientas/Mostrar Guía de Reasignación")]

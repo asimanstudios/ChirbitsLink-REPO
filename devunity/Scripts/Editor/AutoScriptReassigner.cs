@@ -95,46 +95,47 @@ namespace ChibiCocina.Editor
                 ScanForMissingScripts();
             }
             
-            if (!hasScanned) return;
-            
-            GUILayout.Space(10);
-            GUILayout.Label($"Se encontraron {missingScriptsMap.Count} GameObjects con scripts faltantes", EditorStyles.helpBox);
-            
-            if (missingScriptsMap.Count > 0)
+            if (hasScanned)
             {
                 GUILayout.Space(10);
+                GUILayout.Label($"Se encontraron {missingScriptsMap.Count} GameObjects con scripts faltantes", EditorStyles.helpBox);
                 
-                // Botones de acción
-                GUILayout.BeginHorizontal();
-                if (GUILayout.Button("🔧 Auto-Reasignar Todo", GUILayout.Height(30)))
-                {
-                    AutoReassignAll();
-                }
-                
-                if (GUILayout.Button("📋 Ver Detalles", GUILayout.Width(120), GUILayout.Height(30)))
-                {
-                    ShowDetails = !ShowDetails;
-                }
-                GUILayout.EndHorizontal();
-                
-                if (totalFixed > 0)
-                {
-                    GUILayout.Label($"✅ {totalFixed} scripts reasignados correctamente", EditorStyles.helpBox);
-                }
-                
-                if (ShowDetails)
+                if (missingScriptsMap.Count > 0)
                 {
                     GUILayout.Space(10);
-                    GUILayout.Label("Detalles por GameObject:", EditorStyles.boldLabel);
                     
-                    scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
-                    
-                    foreach (var kvp in missingScriptsMap)
+                    // Botones de acción
+                    GUILayout.BeginHorizontal();
+                    if (GUILayout.Button("🔧 Auto-Reasignar Todo", GUILayout.Height(30)))
                     {
-                        DrawGameObjectCard(kvp.Key, kvp.Value);
+                        AutoReassignAll();
                     }
                     
-                    EditorGUILayout.EndScrollView();
+                    if (GUILayout.Button("📋 Ver Detalles", GUILayout.Width(120), GUILayout.Height(30)))
+                    {
+                        ShowDetails = !ShowDetails;
+                    }
+                    GUILayout.EndHorizontal();
+                    
+                    if (totalFixed > 0)
+                    {
+                        GUILayout.Label($"✅ {totalFixed} scripts reasignados correctamente", EditorStyles.helpBox);
+                    }
+                    
+                    if (ShowDetails)
+                    {
+                        GUILayout.Space(10);
+                        GUILayout.Label("Detalles por GameObject:", EditorStyles.boldLabel);
+                        
+                        scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
+                        
+                        foreach (var kvp in missingScriptsMap)
+                        {
+                            DrawGameObjectCard(kvp.Key, kvp.Value);
+                        }
+                        
+                        EditorGUILayout.EndScrollView();
+                    }
                 }
             }
         }
@@ -379,14 +380,17 @@ namespace ChibiCocina.Editor
         {
             int fixedCount = 0;
             int errorCount = 0;
+            GameObject obj;
+            List<ScriptMatch> loopMatches;
+            IEnumerable<ScriptMatch> highConfidenceMatches;
             
             foreach (var kvp in missingScriptsMap)
             {
-                GameObject obj = kvp.Key;
-                var matches = kvp.Value;
+                obj = kvp.Key;
+                loopMatches = kvp.Value;
                 
                 // Solo auto-reasignar scripts con alta confianza
-                var highConfidenceMatches = matches.Where(m => m.Confidence >= 0.8f && m.IsAutoFixable);
+                highConfidenceMatches = loopMatches.Where(m => m.Confidence >= 0.8f && m.IsAutoFixable);
                 
                 foreach (var match in highConfidenceMatches)
                 {
@@ -422,34 +426,34 @@ namespace ChibiCocina.Editor
         /// <returns>True si se añadió correctamente</returns>
         private bool AddScriptToGameObject(GameObject obj, ScriptMatch match)
         {
+            bool result = false;
             try
             {
-                // Cargar el script
                 var scriptType = GetScriptType(match.ScriptPath);
-                if (scriptType == null)
+                if (scriptType != null)
+                {
+                    if (obj.GetComponent(scriptType) != null)
+                    {
+                        Debug.LogWarning($"[AutoScriptReassigner] {obj.name} ya tiene {match.ScriptName}");
+                        result = true;
+                    }
+                    else
+                    {
+                        obj.AddComponent(scriptType);
+                        Debug.Log($"[AutoScriptReassigner] ✅ {match.ScriptName} añadido a {obj.name}");
+                        result = true;
+                    }
+                }
+                else
                 {
                     Debug.LogError($"[AutoScriptReassigner] No se pudo cargar el script: {match.ScriptPath}");
-                    return false;
                 }
-                
-                // Verificar si ya tiene el script
-                if (obj.GetComponent(scriptType) != null)
-                {
-                    Debug.LogWarning($"[AutoScriptReassigner] {obj.name} ya tiene {match.ScriptName}");
-                    return true;
-                }
-                
-                // Añadir el componente
-                obj.AddComponent(scriptType);
-                
-                Debug.Log($"[AutoScriptReassigner] ✅ {match.ScriptName} añadido a {obj.name}");
-                return true;
             }
-            catch (System.Exception ex)
+            catch (InvalidOperationException ex)
             {
                 Debug.LogError($"[AutoScriptReassigner] Error añadiendo {match.ScriptName} a {obj.name}: {ex.Message}");
-                return false;
             }
+            return result;
         }
         
         /// <summary>
@@ -466,13 +470,13 @@ namespace ChibiCocina.Editor
             {
                 // Intentar buscar en todas las carpetas
                 string[] guids = AssetDatabase.FindAssets("t:MonoScript");
+                string path;
                 foreach (string guid in guids)
                 {
-                    string path = AssetDatabase.GUIDToAssetPath(guid);
-                    if (path.EndsWith(System.IO.Path.GetFileName(scriptPath)))
+                    path = AssetDatabase.GUIDToAssetPath(guid);
+                    if (path.EndsWith(System.IO.Path.GetFileName(scriptPath)) && scriptAsset == null)
                     {
                         scriptAsset = AssetDatabase.LoadAssetAtPath<MonoScript>(path);
-                        break;
                     }
                 }
             }
