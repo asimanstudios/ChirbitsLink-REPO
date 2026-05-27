@@ -235,25 +235,35 @@ public class LobbyViewModel : BaseViewModel
                 // Reconstruir la lista para asegurar sincronización total
                 Players.Clear();
 
+                string name;
+                string n;
+                string charId;
+                string c;
+                string charImg;
+                Character? character;
+                bool ready;
+                int level;
+                int lvl;
+
                 foreach (var userId in currentIds)
                 {
                     Debug.WriteLine($"[Lobby] Procesando jugador: {userId}");
-                    string name = "JUGADOR";
-                    if (party.ParticipantNames != null && party.ParticipantNames.TryGetValue(userId, out var n))
+                    name = "JUGADOR";
+                    if (party.ParticipantNames != null && party.ParticipantNames.TryGetValue(userId, out n))
                         name = n;
 
-                    string charId = "";
-                    if (party.ParticipantCharacters != null && party.ParticipantCharacters.TryGetValue(userId, out var c))
+                    charId = "";
+                    if (party.ParticipantCharacters != null && party.ParticipantCharacters.TryGetValue(userId, out c))
                         charId = c;
 
-                    string charImg = "char_placeholder";
-                    var character = Characters.FirstOrDefault(ch => ch.Id == charId);
+                    charImg = "char_placeholder";
+                    character = Characters.FirstOrDefault(ch => ch.Id == charId);
                     if (character != null) charImg = character.ImageUrl;
 
-                    bool ready = party.ReadyPlayerIds != null && party.ReadyPlayerIds.Contains(userId);
+                    ready = party.ReadyPlayerIds != null && party.ReadyPlayerIds.Contains(userId);
 
-                    int level = 1;
-                    if (party.ParticipantLevels != null && party.ParticipantLevels.TryGetValue(userId, out var lvl))
+                    level = 1;
+                    if (party.ParticipantLevels != null && party.ParticipantLevels.TryGetValue(userId, out lvl))
                         level = lvl;
 
                     Players.Add(new PlayerItem

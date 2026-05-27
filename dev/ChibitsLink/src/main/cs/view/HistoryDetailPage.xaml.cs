@@ -59,28 +59,41 @@ public partial class HistoryDetailPage : ContentPage
             var users = await Task.WhenAll(userTasks);
 
             // 4. Construir las tarjetas cruzando Datos de la BBDD + Puntos de la Partida
+            string userId;
+            User? dbUser;
+            int score;
+            int s;
+            int rank;
+            string name;
+            string charId;
+            int level;
+            string? n;
+            string? c;
+            int l;
+            Character? character;
+
             for (int i = 0; i < rankedIds.Count; i++)
             {
-                string userId = rankedIds[i];
-                var dbUser = users[i]; // El perfil descargado desde Firestore
+                userId = rankedIds[i];
+                dbUser = users[i]; // El perfil descargado desde Firestore
                 
-                int score = scoresDict.TryGetValue(userId, out var s) ? s : 0;
-                int rank = i + 1;
+                score = scoresDict.TryGetValue(userId, out s) ? s : 0;
+                rank = i + 1;
 
                 // Si se encontró al usuario en la base de datos, usamos sus datos reales
-                string name = dbUser != null ? dbUser.Username : "JUGADOR";
-                string charId = dbUser != null ? dbUser.SelectedCharacterId : "";
-                int level = dbUser != null ? dbUser.Level : 1;
+                name = dbUser != null ? dbUser.Username : "JUGADOR";
+                charId = dbUser != null ? dbUser.SelectedCharacterId : "";
+                level = dbUser != null ? dbUser.Level : 1;
 
                 // Si no se encontró en la BBDD, intentamos sacar lo que se guardó de respaldo en la Party
                 if (dbUser == null)
                 {
-                    if (_party.ParticipantNames != null && _party.ParticipantNames.TryGetValue(userId, out var n)) name = n;
-                    if (_party.ParticipantCharacters != null && _party.ParticipantCharacters.TryGetValue(userId, out var c)) charId = c;
-                    if (_party.ParticipantLevels != null && _party.ParticipantLevels.TryGetValue(userId, out var l)) level = l;
+                    if (_party.ParticipantNames != null && _party.ParticipantNames.TryGetValue(userId, out n)) name = n;
+                    if (_party.ParticipantCharacters != null && _party.ParticipantCharacters.TryGetValue(userId, out c)) charId = c;
+                    if (_party.ParticipantLevels != null && _party.ParticipantLevels.TryGetValue(userId, out l)) level = l;
                 }
 
-                charMap.TryGetValue(charId, out var character);
+                charMap.TryGetValue(charId, out character);
                 
                 playerItems.Add(new HistoryPlayerItem
                 {
@@ -120,12 +133,15 @@ public partial class HistoryDetailPage : ContentPage
         GamesFlexList.Children.Clear();
         if (_party.PlayedGames != null)
         {
+            Game? gameInfo;
+            string displayName;
+            Border chip;
             foreach (var gameId in _party.PlayedGames)
             {
-                gameMap.TryGetValue(gameId, out var gameInfo);
-                string displayName = gameInfo?.Name ?? gameId.Replace("Minigame_", "").ToUpper();
+                gameMap.TryGetValue(gameId, out gameInfo);
+                displayName = gameInfo?.Name ?? gameId.Replace("Minigame_", "").ToUpper();
 
-                var chip = new Border
+                chip = new Border
                 {
                     Style = (Style)Application.Current!.Resources["GlassFrame"],
                     Margin = new Thickness(4),

@@ -94,9 +94,10 @@ public class UserRepository : IUserRepository
             var result = new List<Party>();
             var recentHistory = user.GameHistory.TakeLast(20).Reverse().ToList();
 
+            Party? party;
             foreach (var roomCode in recentHistory)
             {
-                var party = await _lobbyRepo.GetPartyAsync(roomCode);
+                party = await _lobbyRepo.GetPartyAsync(roomCode);
                 if (party != null && party.GameState == "CLOSED")
                 {
                     result.Add(party);

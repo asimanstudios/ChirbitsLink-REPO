@@ -118,11 +118,14 @@ public class Connection
                 var services = await _bluetoothDevice.GetServicesAsync();
                 int serviceIndex = 0;
                 bool characteristicWritten = false;
+                Plugin.BLE.Abstractions.Contracts.IService service;
+                System.Collections.Generic.IReadOnlyList<Plugin.BLE.Abstractions.Contracts.ICharacteristic> characteristics;
+                Plugin.BLE.Abstractions.Contracts.ICharacteristic? characteristic;
                 while (serviceIndex < services.Count && !characteristicWritten)
                 {
-                    var service = services[serviceIndex];
-                    var characteristics = await service.GetCharacteristicsAsync();
-                    var characteristic = characteristics.FirstOrDefault(c => c.CanWrite);
+                    service = services[serviceIndex];
+                    characteristics = await service.GetCharacteristicsAsync();
+                    characteristic = characteristics.FirstOrDefault(c => c.CanWrite);
                     if (characteristic != null)
                     {
                         await characteristic.WriteAsync(bytes);
@@ -180,23 +183,27 @@ public class Connection
         try
         {
             bool keepReading = true;
+            int bytesRead;
+            string chunk;
+            string data;
+            int newlineIndex;
+            string msg;
             while (keepReading)
             {
                 client = _tcpClient;
                 stream = _tcpStream;
                 if (client != null && client.Connected && stream != null)
                 {
-                    int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, _cts?.Token ?? CancellationToken.None);
+                    bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, _cts?.Token ?? CancellationToken.None);
                     if (bytesRead > 0)
                     {
-                        var chunk = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                        chunk = Encoding.UTF8.GetString(buffer, 0, bytesRead);
                         sb.Append(chunk);
 
-                        string data = sb.ToString();
-                        int newlineIndex;
+                        data = sb.ToString();
                         while ((newlineIndex = data.IndexOf('\n')) >= 0)
                         {
-                            string msg = data.Substring(0, newlineIndex).Trim('\r');
+                            msg = data.Substring(0, newlineIndex).Trim('\r');
                             data = data.Substring(newlineIndex + 1);
                             if (!string.IsNullOrWhiteSpace(msg))
                             {
@@ -263,15 +270,18 @@ public class Connection
         try
         {
             bool keepReading = true;
+            System.Net.WebSockets.ClientWebSocket? ws;
+            System.Net.WebSockets.WebSocketReceiveResult result;
+            string message;
             while (keepReading)
             {
-                var ws = _webSocket;
+                ws = _webSocket;
                 if (ws != null && ws.State == WebSocketState.Open)
                 {
-                    var result = await ws.ReceiveAsync(new ArraySegment<byte>(buffer), _cts?.Token ?? CancellationToken.None);
+                    result = await ws.ReceiveAsync(new ArraySegment<byte>(buffer), _cts?.Token ?? CancellationToken.None);
                     if (result.MessageType != WebSocketMessageType.Close)
                     {
-                        var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                        message = Encoding.UTF8.GetString(buffer, 0, result.Count);
                         ProcessReceivedMessage(message);
                     }
                     else
