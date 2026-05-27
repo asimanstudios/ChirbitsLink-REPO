@@ -347,10 +347,12 @@ public class AccountService : BaseService
                 var parties = await Task.WhenAll(partyTasks);
 
                 bool updated = false;
+                string roomCode;
+                Party? party;
                 for (int i = 0; i < pendingRooms.Count; i++)
                 {
-                    var roomCode = pendingRooms[i];
-                    var party = parties[i];
+                    roomCode = pendingRooms[i];
+                    party = parties[i];
 
                     if (party != null && party.GameState == "CLOSED")
                     {

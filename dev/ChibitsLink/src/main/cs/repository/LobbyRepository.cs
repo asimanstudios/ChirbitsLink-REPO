@@ -32,19 +32,22 @@ public class LobbyRepository : ILobbyRepository
 
     public async Task<Party?> GetPartyAsync(string roomCode)
     {
+        Party? party = null;
         try
         {
             var snapshot = await _firestore.Collection(CollectionName).Document(roomCode).GetAsync();
-            return snapshot.Exists ? snapshot.ToObject<Party>() : null;
+            party = snapshot.Exists ? snapshot.ToObject<Party>() : null;
         }
         catch (Plugin.CloudFirestore.CloudFirestoreException ex)
         {
             throw new DatabaseException("Error al obtener la sala", ex, CollectionName, roomCode);
         }
+        return party;
     }
 
     public async Task<bool> ExistsAsync(string roomCode)
     {
+        bool exists = false;
         try
         {
             var snapshot = await _firestore.Collection(CollectionName)
@@ -52,15 +55,17 @@ public class LobbyRepository : ILobbyRepository
                 .LimitTo(1)
                 .GetAsync();
 
-            if (snapshot.IsEmpty) return false;
-
-            var party = snapshot.Documents.First().ToObject<Party>();
-            return party != null && party.GameState != "CLOSED";
+            if (!snapshot.IsEmpty)
+            {
+                var party = snapshot.Documents.First().ToObject<Party>();
+                exists = party != null && party.GameState != "CLOSED";
+            }
         }
         catch (Plugin.CloudFirestore.CloudFirestoreException ex)
         {
             throw new DatabaseException("Error al validar existencia de la sala", ex, CollectionName, roomCode);
         }
+        return exists;
     }
 
     public IDisposable ListenToParty(string roomCode, Action<Party?> onChanged)

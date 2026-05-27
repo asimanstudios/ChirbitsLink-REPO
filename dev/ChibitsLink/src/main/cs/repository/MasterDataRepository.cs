@@ -25,34 +25,40 @@ public class MasterDataRepository : IMasterDataRepository
 
     public async Task<List<Character>> GetCharactersAsync()
     {
-        if (_cachedCharacters != null) return _cachedCharacters;
-
-        try
+        List<Character>? result = _cachedCharacters;
+        if (result == null)
         {
-            var snapshot = await _firestore.Collection(ColCharacters).GetAsync();
-            _cachedCharacters = snapshot.Documents.Select(d => d.ToObject<Character>()).Where(x => x != null).Cast<Character>().ToList();
-            return _cachedCharacters;
+            try
+            {
+                var snapshot = await _firestore.Collection(ColCharacters).GetAsync();
+                _cachedCharacters = snapshot.Documents.Select(d => d.ToObject<Character>()).Where(x => x != null).Cast<Character>().ToList();
+                result = _cachedCharacters;
+            }
+            catch (Plugin.CloudFirestore.CloudFirestoreException ex)
+            {
+                throw new DatabaseException("Error al listar personajes", ex, ColCharacters);
+            }
         }
-        catch (Plugin.CloudFirestore.CloudFirestoreException ex)
-        {
-            throw new DatabaseException("Error al listar personajes", ex, ColCharacters);
-        }
+        return result;
     }
 
     public async Task<List<Game>> GetGamesAsync()
     {
-        if (_cachedGames != null) return _cachedGames;
-
-        try
+        List<Game>? result = _cachedGames;
+        if (result == null)
         {
-            var snapshot = await _firestore.Collection(ColGames).GetAsync();
-            _cachedGames = snapshot.Documents.Select(d => d.ToObject<Game>()).Where(x => x != null).Cast<Game>().ToList();
-            return _cachedGames;
+            try
+            {
+                var snapshot = await _firestore.Collection(ColGames).GetAsync();
+                _cachedGames = snapshot.Documents.Select(d => d.ToObject<Game>()).Where(x => x != null).Cast<Game>().ToList();
+                result = _cachedGames;
+            }
+            catch (Plugin.CloudFirestore.CloudFirestoreException ex)
+            {
+                throw new DatabaseException("Error al listar minijuegos", ex, ColGames);
+            }
         }
-        catch (Plugin.CloudFirestore.CloudFirestoreException ex)
-        {
-            throw new DatabaseException("Error al listar minijuegos", ex, ColGames);
-        }
+        return result;
     }
 
     public async Task InitializeCharactersAsync()

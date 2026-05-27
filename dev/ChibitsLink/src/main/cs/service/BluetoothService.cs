@@ -48,14 +48,16 @@ public class BluetoothService
 
     public async Task<bool> ConnectToDeviceAsync(IDevice device)
     {
+        bool success = false;
         try
         {
             await _adapter.ConnectToDeviceAsync(device);
-            return true;
+            success = true;
         }
         catch (DeviceConnectionException)
         {
-            return false;
+            success = false;
         }
+        return success;
     }
 }

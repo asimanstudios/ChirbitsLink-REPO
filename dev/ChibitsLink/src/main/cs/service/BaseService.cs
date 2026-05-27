@@ -25,6 +25,7 @@ public abstract class BaseService
     {
         try
         {
+            T? result = default;
             var json = JsonSerializer.Serialize(data);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             
@@ -32,9 +33,9 @@ public abstract class BaseService
             if (response.IsSuccessStatusCode)
             {
                 var responseString = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<T>(responseString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                result = JsonSerializer.Deserialize<T>(responseString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             }
-            return default;
+            return result;
         }
         catch (HttpRequestException ex)
         {

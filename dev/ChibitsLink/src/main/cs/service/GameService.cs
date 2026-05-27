@@ -37,8 +37,12 @@ public class GameService
     /// </summary>
     public async Task<bool> ValidateLobbyAsync(string roomCode)
     {
-        if (string.IsNullOrWhiteSpace(roomCode)) return false;
-        return await _lobbyRepo.ExistsAsync(roomCode);
+        bool exists = false;
+        if (!string.IsNullOrWhiteSpace(roomCode))
+        {
+            exists = await _lobbyRepo.ExistsAsync(roomCode);
+        }
+        return exists;
     }
 
     /// <summary>

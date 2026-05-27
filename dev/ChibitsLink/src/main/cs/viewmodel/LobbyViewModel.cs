@@ -235,6 +235,7 @@ public class LobbyViewModel : BaseViewModel
                 // Reconstruir la lista para asegurar sincronización total
                 Players.Clear();
 
+                // Variables usadas dentro del bucle
                 string name;
                 string n;
                 string charId;

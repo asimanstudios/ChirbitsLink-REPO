@@ -52,10 +52,7 @@ public class JoinRoomViewModel : BaseViewModel
                 string details = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
                 await Shell.Current.DisplayAlert("Error de Conexión", $"No se pudo verificar la sala: {details}", "OK");
             }
-            catch (System.Exception ex)
-            {
-                await Shell.Current.DisplayAlert("Error Inesperado", $"Ocurrió un error al buscar la sala: {ex.Message}", "OK");
-            }
+
             finally
             {
                 IsBusy = false;

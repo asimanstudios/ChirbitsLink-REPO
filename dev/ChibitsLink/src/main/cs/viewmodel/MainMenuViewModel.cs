@@ -100,7 +100,7 @@ public class MainMenuViewModel : BaseViewModel
         var user = _accountService.GetCurrentUser();
         if (user != null)
         {
-            var selected = Characters.FirstOrDefault(c => c.Id == user.SelectedCharacterId);
+            var selected = Characters.FirstOrDefault(charac => charac.Id == user.SelectedCharacterId);
             if (selected != null)
             {
                 SelectedCharacterName = selected.Name;

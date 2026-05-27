@@ -22,15 +22,17 @@ public class UserRepository : IUserRepository
 
     public async Task<User?> GetUserAsync(string id)
     {
+        User? user = null;
         try
         {
             var snapshot = await _firestore.Collection(CollectionName).Document(id).GetAsync();
-            return snapshot.Exists ? snapshot.ToObject<User>() : null;
+            user = snapshot.Exists ? snapshot.ToObject<User>() : null;
         }
         catch (Plugin.CloudFirestore.CloudFirestoreException ex)
         {
             throw new DatabaseException("Error al obtener usuario", ex, CollectionName, id);
         }
+        return user;
     }
 
     public async Task SaveUserAsync(User user)
@@ -87,23 +89,21 @@ public class UserRepository : IUserRepository
     {
         try
         {
-            var user = await GetUserAsync(userId);
-            if (user == null || user.GameHistory == null || user.GameHistory.Count == 0)
-                return new List<Party>();
-
             var result = new List<Party>();
-            var recentHistory = user.GameHistory.TakeLast(20).Reverse().ToList();
-
-            Party? party;
-            foreach (var roomCode in recentHistory)
+            var user = await GetUserAsync(userId);
+            if (user != null && user.GameHistory != null && user.GameHistory.Count > 0)
             {
-                party = await _lobbyRepo.GetPartyAsync(roomCode);
-                if (party != null && party.GameState == "CLOSED")
+                var recentHistory = user.GameHistory.TakeLast(20).Reverse().ToList();
+                Party? party;
+                foreach (var roomCode in recentHistory)
                 {
-                    result.Add(party);
+                    party = await _lobbyRepo.GetPartyAsync(roomCode);
+                    if (party != null && party.GameState == "CLOSED")
+                    {
+                        result.Add(party);
+                    }
                 }
             }
-
             return result;
         }
         catch (Plugin.CloudFirestore.CloudFirestoreException ex)

@@ -21,7 +21,7 @@ public class GameServiceTests
         bool result = await service.ValidateLobbyAsync("");
 
         if (result)
-            throw new Exception("FAILED: ValidateLobbyAsync debería devolver false para código vacío.");
+            throw new InvalidOperationException("FAILED: ValidateLobbyAsync debería devolver false para código vacío.");
 
         Console.WriteLine("PASSED: ValidateLobbyAsync devuelve false para código vacío.");
     }
@@ -33,7 +33,7 @@ public class GameServiceTests
         bool result = await service.ValidateLobbyAsync("123");
 
         if (result)
-            throw new Exception("FAILED: ValidateLobbyAsync debería devolver false para código corto.");
+            throw new InvalidOperationException("FAILED: ValidateLobbyAsync debería devolver false para código corto.");
 
         Console.WriteLine("PASSED: ValidateLobbyAsync devuelve false para código corto.");
     }
