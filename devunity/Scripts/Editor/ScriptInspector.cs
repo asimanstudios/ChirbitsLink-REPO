@@ -285,13 +285,14 @@ namespace ChibiCocina.Editor
         
         private void SearchScripts(string searchText)
         {
-            if (string.IsNullOrEmpty(searchText))
+            if (!string.IsNullOrEmpty(searchText))
+            {
+                // La búsqueda se hace automáticamente en OnGUI
+            }
+            else
             {
                 LoadScriptInformation();
-                return;
             }
-            
-            // La búsqueda se hace automáticamente en OnGUI
         }
         
         private void GenerateReport()

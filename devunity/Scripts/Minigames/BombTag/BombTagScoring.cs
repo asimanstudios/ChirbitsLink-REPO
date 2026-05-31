@@ -70,12 +70,14 @@ namespace ChibitsLink.Minigames.BombTag
             PlayerIdentity identity;
             int score;
             string playerName;
+            bool hasIdentity;
             
             // Score from first eliminated (lowest score) to last survivor (highest score)
             for (int i = 0; i < _eliminationOrder.Count; i++)
             {
                 player = _eliminationOrder[i];
-                if (player != null && _playerIdentities.TryGetValue(player, out identity))
+                hasIdentity = player != null && _playerIdentities.TryGetValue(player, out identity);
+                if (hasIdentity)
                 {
                     score = CalculateScore(i, _eliminationOrder.Count);
                     playerName = GetPlayerName(player);
@@ -106,11 +108,13 @@ namespace ChibitsLink.Minigames.BombTag
         {
             var alive = new List<GameObject>();
             GameObject player;
+            bool isPlayerActive;
             
             foreach (var kvp in _playerIdentities)
             {
                 player = kvp.Key;
-                if (player != null && player.activeInHierarchy)
+                isPlayerActive = player != null && player.activeInHierarchy;
+                if (isPlayerActive)
                 {
                     alive.Add(player);
                 }
@@ -126,11 +130,19 @@ namespace ChibitsLink.Minigames.BombTag
             {
                 bool nameFound = false;
                 PlayerIdentity identity;
+                bool hasCachedIdentity;
+                bool hasUsername;
+                string repositoryName;
+                bool isNotDefaultName;
+                var manualIdentity;
+                bool hasManualIdentity;
                 
                 // Priority 1: Use cached identity username
-                if (_playerIdentities.TryGetValue(player, out identity))
+                hasCachedIdentity = _playerIdentities.TryGetValue(player, out identity);
+                if (hasCachedIdentity)
                 {
-                    if (!string.IsNullOrEmpty(identity.username))
+                    hasUsername = !string.IsNullOrEmpty(identity.username);
+                    if (hasUsername)
                     {
                         result = identity.username;
                         nameFound = true;
@@ -138,8 +150,9 @@ namespace ChibitsLink.Minigames.BombTag
                     else if (PlayerManager.Instance != null && !string.IsNullOrEmpty(identity.userId))
                     {
                         // Priority 2: Fetch from central repository
-                        string repositoryName = PlayerManager.Instance.GetPlayerName(identity.userId);
-                        if (repositoryName != "Jugador")
+                        repositoryName = PlayerManager.Instance.GetPlayerName(identity.userId);
+                        isNotDefaultName = repositoryName != "Jugador";
+                        if (isNotDefaultName)
                         {
                             result = repositoryName;
                             nameFound = true;
@@ -150,8 +163,9 @@ namespace ChibitsLink.Minigames.BombTag
                 // Priority 3: Manual search fallback
                 if (!nameFound)
                 {
-                    var manualIdentity = player.GetComponent<PlayerIdentity>() ?? player.GetComponentInParent<PlayerIdentity>();
-                    if (manualIdentity != null && PlayerManager.Instance != null)
+                    manualIdentity = player.GetComponent<PlayerIdentity>() ?? player.GetComponentInParent<PlayerIdentity>();
+                    hasManualIdentity = manualIdentity != null && PlayerManager.Instance != null;
+                    if (hasManualIdentity)
                     {
                         result = PlayerManager.Instance.GetPlayerName(manualIdentity.userId);
                         nameFound = true;

@@ -23,7 +23,7 @@ namespace ChibitsLink.Editor
         public static void ShowWindow()
         {
             if (EditorUtility.DisplayDialog("ChibitsLink Project Configuration", 
-                "Do you want to automatically configure the project? This will create tags, layers and necessary folders.", 
+                "Configurar el proyecto con esta plantilla?"
                 "Yes, configure", "Cancel"))
             {
                 ConfigureEverything();

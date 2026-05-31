@@ -34,10 +34,10 @@ namespace ChibitsLink.Services.Gameplay
         /// </summary>
         /// <param name="source">AudioSource a utilizar para reproducción</param>
         public void Initialize(AudioSource source)
-    {
-        audioSource = source;
-        SetupAudioSource();
-    }
+        {
+            audioSource = source;
+            SetupAudioSource();
+        }
 
         /// <summary>
         /// Configura las propiedades del AudioSource para uso en el juego.
@@ -48,15 +48,15 @@ namespace ChibitsLink.Services.Gameplay
         /// Evita reproducción automática al iniciar.
         /// </remarks>
         private void SetupAudioSource()
-    {
-        if (audioSource != null)
         {
-            audioSource.playOnAwake = false;
-            audioSource.spatialBlend = 1f;
-            audioSource.priority = 0;
-            audioSource.volume = 1f;
+            if (audioSource != null)
+            {
+                audioSource.playOnAwake = false;
+                audioSource.spatialBlend = 1f;
+                audioSource.priority = 0;
+                audioSource.volume = 1f;
+            }
         }
-    }
 
         /// <summary>
         /// Actualiza la reproducción de sonidos de pasos según el estado del jugador.
@@ -71,25 +71,25 @@ namespace ChibitsLink.Services.Gameplay
         /// Resetea el contador cuando no se cumplen las condiciones.
         /// </remarks>
         public void UpdateStepAudio(bool grounded, float velocityMagnitude, bool running)
-    {
-        bool canPlaySteps = grounded && velocityMagnitude >= 0.1f;
-        if (!canPlaySteps)
         {
-            stepTimer = 0;
-        }
-        else
-        {
-            isRunning = running;
-            float interval = running ? runStepInterval : normalStepInterval;
-            stepTimer += Time.deltaTime;
-
-            if (stepTimer >= interval)
+            bool canPlaySteps = grounded && velocityMagnitude >= 0.1f;
+            if (!canPlaySteps)
             {
                 stepTimer = 0;
-                PlayRandomStep();
+            }
+            else
+            {
+                isRunning = running;
+                float interval = running ? runStepInterval : normalStepInterval;
+                stepTimer += Time.deltaTime;
+
+                if (stepTimer >= interval)
+                {
+                    stepTimer = 0;
+                    PlayRandomStep();
+                }
             }
         }
-    }
 
         /// <summary>
         /// Reproduce un sonido de paso aleatorio del array disponible.
@@ -100,14 +100,14 @@ namespace ChibitsLink.Services.Gameplay
         /// Usa PlayOneShot para permitir superposición de sonidos.
         /// </remarks>
         private void PlayRandomStep()
-    {
-        bool hasStepAudio = stepSounds != null && stepSounds.Length > 0 && audioSource != null;
-        if (hasStepAudio)
         {
-            int index = Random.Range(0, stepSounds.Length);
-            audioSource.PlayOneShot(stepSounds[index]);
+            bool hasStepAudio = stepSounds != null && stepSounds.Length > 0 && audioSource != null;
+            if (hasStepAudio)
+            {
+                int index = Random.Range(0, stepSounds.Length);
+                audioSource.PlayOneShot(stepSounds[index]);
+            }
         }
-    }
 
         /// <summary>
         /// Reproduce el sonido de salto especificado.
@@ -118,11 +118,13 @@ namespace ChibitsLink.Services.Gameplay
         /// Usa PlayOneShot para no interrumpir otros sonidos.
         /// </remarks>
         public void PlayJumpSound(AudioClip jumpSound)
-    {
-        if (jumpSound != null && audioSource != null)
         {
-            audioSource.PlayOneShot(jumpSound);
+            if (jumpSound != null && audioSource != null)
+            {
+                audioSource.PlayOneShot(jumpSound);
+            }
         }
-    }
 }
+}
+
 

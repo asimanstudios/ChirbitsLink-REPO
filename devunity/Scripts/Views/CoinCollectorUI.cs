@@ -51,7 +51,7 @@ namespace ChibitsLink.UI.Minigames
             catch (ComponentNotFoundException ex)
             {
                 Debug.LogError($"[CoinCollectorUI] Failed to initialize: {ex.Message}");
-                throw;
+                throw new ComponentNotFoundException("CoinCollectorUI initialization failed", ex);
             }
             catch (System.NullReferenceException ex)
             {

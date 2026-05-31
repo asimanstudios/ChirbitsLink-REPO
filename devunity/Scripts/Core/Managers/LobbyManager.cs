@@ -320,26 +320,40 @@ namespace ChibitsLink.GameSide
             {
                 // Estrategia 1: Buscar interfaces activas con Gateway (las más probables de ser la REAL)
                 bool foundIp = false;
+                string name;
+                bool isValidInterface;
+                bool isVirtualInterface;
+                var props;
+                bool hasGateway;
+                bool isValidIp;
+                
                 foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
                 {
-                    if (ni.OperationalStatus == OperationalStatus.Up && 
-                        (ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 || ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet) && !foundIp)
+                    isValidInterface = ni.OperationalStatus == OperationalStatus.Up && 
+                        (ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 || ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet) && !foundIp;
+                    
+                    if (isValidInterface)
                     {
                         // Ignorar interfaces virtuales conocidas
-                        string name = ni.Name.ToLower();
-                        if (name.Contains("virtual") || name.Contains("wsl") || name.Contains("hyper-v") || name.Contains("vbox") || name.Contains("vmware"))
-                            continue;
-
-                        var props = ni.GetIPProperties();
-                        if (props.GatewayAddresses.Count > 0)
+                        name = ni.Name.ToLower();
+                        isVirtualInterface = name.Contains("virtual") || name.Contains("wsl") || name.Contains("hyper-v") || name.Contains("vbox") || name.Contains("vmware");
+                        
+                        if (!isVirtualInterface)
                         {
-                            foreach (var ip in props.UnicastAddresses)
+                            props = ni.GetIPProperties();
+                            hasGateway = props.GatewayAddresses.Count > 0;
+                            
+                            if (hasGateway)
                             {
-                                if (ip.Address.AddressFamily == AddressFamily.InterNetwork && !foundIp)
+                                foreach (var ip in props.UnicastAddresses)
                                 {
-                                    Debug.Log($"[LobbyManager] Detectada IP Principal (con Gateway): {ip.Address} en {ni.Name}");
-                                    ipAddress = ip.Address.ToString();
-                                    foundIp = true;
+                                    isValidIp = ip.Address.AddressFamily == AddressFamily.InterNetwork && !foundIp;
+                                    if (isValidIp)
+                                    {
+                                        Debug.Log($"[LobbyManager] Detectada IP Principal (con Gateway): {ip.Address} en {ni.Name}");
+                                        ipAddress = ip.Address.ToString();
+                                        foundIp = true;
+                                    }
                                 }
                             }
                         }

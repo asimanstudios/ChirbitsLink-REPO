@@ -62,7 +62,7 @@ namespace ChibitsLink.UI.Minigames
             catch (ComponentNotFoundException ex)
             {
                 Debug.LogError($"[BombTagUI] Failed to initialize: {ex.Message}");
-                throw;
+                throw new ComponentNotFoundException("BombTagUI initialization failed", ex);
             }
             catch (System.NullReferenceException ex)
             {

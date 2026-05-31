@@ -78,15 +78,16 @@ namespace ChibitsLink.Controllers
         public void UpdateStepAudio(bool isGrounded, float movementSpeed, bool isRunning)
         {
             bool shouldPlayFootsteps = isGrounded && movementSpeed > 0.1f;
-            if (!shouldPlayFootsteps) return;
-            
-            float currentInterval = isRunning ? runFootstepInterval : footstepInterval;
-            bool canPlayFootstep = Time.time - _lastFootstepTime >= currentInterval;
-            
-            if (canPlayFootstep)
+            if (shouldPlayFootsteps)
             {
-                PlayRandomFootstep();
-                _lastFootstepTime = Time.time;
+                float currentInterval = isRunning ? runFootstepInterval : footstepInterval;
+                bool canPlayFootstep = Time.time - _lastFootstepTime >= currentInterval;
+                
+                if (canPlayFootstep)
+                {
+                    PlayRandomFootstep();
+                    _lastFootstepTime = Time.time;
+                }
             }
         }
         
@@ -117,10 +118,11 @@ namespace ChibitsLink.Controllers
         private void PlayRandomFootstep()
         {
             bool hasFootstepSounds = footstepSounds != null && footstepSounds.Length > 0;
-            if (!hasFootstepSounds) return;
-            
-            AudioClip randomFootstep = footstepSounds[Random.Range(0, footstepSounds.Length)];
-            _audioSource.PlayOneShot(randomFootstep);
+            if (hasFootstepSounds)
+            {
+                AudioClip randomFootstep = footstepSounds[Random.Range(0, footstepSounds.Length)];
+                _audioSource.PlayOneShot(randomFootstep);
+            }
         }
     }
 }

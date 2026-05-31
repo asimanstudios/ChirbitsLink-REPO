@@ -188,13 +188,19 @@ namespace ChibitsLink.Minigames.BombTag
             {
                 Vector3 carrierPosition = _currentCarrier.transform.position;
                 float distance;
+                bool isNotCarrier;
+                bool isResultNull;
+                bool isWithinDistance;
                 
                 foreach (GameObject player in alivePlayers)
                 {
-                    if (player != _currentCarrier && result == null)
+                    isNotCarrier = player != _currentCarrier;
+                    isResultNull = result == null;
+                    if (isNotCarrier && isResultNull)
                     {
                         distance = Vector3.Distance(carrierPosition, player.transform.position);
-                        if (distance < transferDistance)
+                        isWithinDistance = distance < transferDistance;
+                        if (isWithinDistance)
                         {
                             result = player;
                         }

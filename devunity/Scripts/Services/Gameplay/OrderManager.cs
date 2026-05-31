@@ -4,7 +4,7 @@ using ChibiCocina.Models;
 using System.Collections.Generic;
 
 namespace ChibitsLink.Services.Gameplay
-{
+{   //NO ESTA EN USO DE MOMENTO SERA PARA JUEGO DE COCINA 
     /// <summary>
     /// Gestor de pedidos para el sistema de gameplay.
     /// Maneja creación, seguimiento y finalización de pedidos.

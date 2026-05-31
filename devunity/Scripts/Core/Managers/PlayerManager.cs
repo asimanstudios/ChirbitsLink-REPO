@@ -80,7 +80,10 @@ namespace ChibitsLink.GameSide
                 SceneManager.sceneLoaded += OnSceneLoaded;
                 FindSpawnPointsInScene();
             }
-            else Destroy(gameObject);
+            else
+            {
+                Destroy(gameObject);
+            }
         }
 
         /// <summary>
@@ -140,7 +143,8 @@ namespace ChibitsLink.GameSide
             int spawnIndex;
             foreach (var userId in _connectionOrder)
             {
-                if (_playerLastCharId.TryGetValue(userId, out charId))
+                bool hasCharId = _playerLastCharId.TryGetValue(userId, out charId);
+                if (hasCharId)
                 {
                     // Usar módulo para evitar solapamiento si hay más jugadores que spawn points
                     spawnIndex = idx % spawnPoints.Count;
@@ -283,20 +287,26 @@ namespace ChibitsLink.GameSide
 
             foreach (var cam in allCams)
             {
-                if (cam.targetTexture != null) continue; // ignorar render textures (minimapas, etc.)
+                bool hasTargetTexture = cam.targetTexture != null;
+                if (hasTargetTexture)
+                {
+                    continue; // ignorar render textures (minimapas, etc.)
+                }
 
                 // Comprobar si pertenece a algún jugador instanciado
                 isPlayerCam = false;
                 foreach (var playerObj in _playerObjects.Values)
                 {
                     playerObjForCam = playerObj;
-                    if (playerObjForCam != null && cam.transform.IsChildOf(playerObjForCam.transform))
+                    bool isChildOfPlayer = playerObjForCam != null && cam.transform.IsChildOf(playerObjForCam.transform);
+                    if (isChildOfPlayer)
                     {
                         isPlayerCam = true;
                     }
                 }
 
-                if (!isPlayerCam && sceneCamera == null)
+                bool shouldSetSceneCamera = !isPlayerCam && sceneCamera == null;
+                if (shouldSetSceneCamera)
                 {
                     sceneCamera = cam;
                 }
@@ -316,7 +326,8 @@ namespace ChibitsLink.GameSide
             GameObject currentObj;
             foreach (var userId in _connectionOrder)
             {
-                if (!_playerObjects.TryGetValue(userId, out currentObj) || currentObj == null)
+                bool hasValidPlayer = _playerObjects.TryGetValue(userId, out currentObj) && currentObj != null;
+                if (!hasValidPlayer)
                 {
                     idx++;
                     continue;
@@ -511,7 +522,8 @@ namespace ChibitsLink.GameSide
                 Debug.Log($"[PlayerManager] Eliminando bot: {botId}");
                 
                 // Destruir objeto físico si existe
-                if (_playerObjects.TryGetValue(botId, out botObj))
+                bool hasBotObject = _playerObjects.TryGetValue(botId, out botObj);
+                if (hasBotObject)
                 {
                     if (botObj != null) Destroy(botObj);
                     _playerObjects.Remove(botId);

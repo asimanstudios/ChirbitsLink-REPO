@@ -74,7 +74,7 @@ namespace ChibitsLink.Core.Systems
 
         private void OnGUI()
         {
-            if (mostrarEnPantalla)
+            if (showOnScreen)
             {
                 InitStyles();
 
@@ -108,10 +108,12 @@ namespace ChibitsLink.Core.Systems
                     {
                         sb.AppendLine($"\n<b>Jugadores ({dict.Count}):</b>");
                         int idx = 1;
+                        string uid;
+                        GameObject obj;
                         foreach (var kv in dict)
                         {
-                            string uid = kv.Key;
-                            GameObject obj = kv.Value;
+                            uid = kv.Key;
+                            obj = kv.Value;
 
                             if (obj == null)
                             {

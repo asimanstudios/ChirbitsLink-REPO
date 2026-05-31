@@ -81,12 +81,12 @@ namespace ChibitsLink.UI
             catch (ComponentNotFoundException ex)
             {
                 Debug.LogError($"[LobbyUIManager] Failed to initialize: {ex.Message}");
-                throw;
+                throw new ComponentNotFoundException("LobbyUIManager initialization failed", ex);
             }
             catch (NetworkServiceException ex)
             {
                 Debug.LogError($"[LobbyUIManager] Failed to initialize: {ex.Message}");
-                throw;
+                throw new NetworkServiceException("LobbyUIManager initialization failed", ex);
             }
             catch (System.NullReferenceException ex)
             {
@@ -130,7 +130,7 @@ namespace ChibitsLink.UI
             catch (ComponentNotFoundException ex)
             {
                 Debug.LogError($"[LobbyUIManager] LobbyManager not found: {ex.Message}");
-                throw;
+                throw new ComponentNotFoundException("LobbyUIManager failed to refresh network interfaces", ex);
             }
             catch (System.Net.NetworkInformation.NetworkInformationException ex)
             {
@@ -321,11 +321,11 @@ namespace ChibitsLink.UI
         private void OnQuitGame()
         {
             Debug.Log("[LobbyUI] Saliendo del juego...");
-#if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-#else
-            Application.Quit();
-#endif
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+            #else
+                Application.Quit();
+            #endif
         }
 
         /// <summary>

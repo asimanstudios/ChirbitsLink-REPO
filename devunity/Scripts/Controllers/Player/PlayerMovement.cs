@@ -262,15 +262,16 @@ public class PlayerMovementController : MonoBehaviour, PlayerManager.IChibitsCon
     private void Update()
     {
         bool canProcessUpdate = _controller != null && _controller.enabled;
-        if (!canProcessUpdate) return;
-        
-        SmoothMovementInput();
-        CheckCombatGround();
-        ApplyExternalForces();
-        ApplyMovement();
-        ApplyGravity();
-        UpdateAnimator();
-        UpdateStepAudio();
+        if (canProcessUpdate)
+        {
+            SmoothMovementInput();
+            CheckCombatGround();
+            ApplyExternalForces();
+            ApplyMovement();
+            ApplyGravity();
+            UpdateAnimator();
+            UpdateStepAudio();
+        }
     }
 
     /// <summary>

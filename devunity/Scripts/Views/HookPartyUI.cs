@@ -50,7 +50,7 @@ namespace ChibitsLink.UI.Minigames
             catch (ComponentNotFoundException ex)
             {
                 Debug.LogError($"[HookPartyUI] Failed to initialize: {ex.Message}");
-                throw;
+                throw new ComponentNotFoundException("HookPartyUI initialization failed", ex);
             }
             catch (System.NullReferenceException ex)
             {

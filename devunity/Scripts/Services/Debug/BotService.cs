@@ -280,4 +280,5 @@ namespace ChibiCocina.Services
                 DebugLogService.Instance?.Log(DebugModule.Player, $"Bot {botId} personaje actualizado a {newCharacterId}");
             }
         }
+    }
 }

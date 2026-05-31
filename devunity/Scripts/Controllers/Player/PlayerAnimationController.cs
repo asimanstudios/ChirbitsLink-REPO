@@ -62,10 +62,11 @@ namespace ChibitsLink.Controllers
         public void UpdateAnimator()
         {
             bool hasAnimator = _animator != null;
-            if (!hasAnimator) return;
-            
-            UpdateJumpAnimation();
-            UpdateMovementAnimation();
+            if (hasAnimator)
+            {
+                UpdateJumpAnimation();
+                UpdateMovementAnimation();
+            }
         }
         
         /// <summary>
@@ -98,13 +99,14 @@ namespace ChibitsLink.Controllers
         private void UpdateMovementAnimation()
         {
             bool isGrounded = _jumpModel.IsGrounded;
-            if (!isGrounded) return;
-            
-            float speedScale = _movementModel.CurrentVelocity.magnitude;
-            bool isMoving = speedScale > 0.1f;
-            
-            _animator.SetBool("andar", isMoving && !_movementModel.IsRunning);
-            _animator.SetBool("correr", isMoving && _movementModel.IsRunning);
+            if (isGrounded)
+            {
+                float speedScale = _movementModel.CurrentVelocity.magnitude;
+                bool isMoving = speedScale > 0.1f;
+                
+                _animator.SetBool("andar", isMoving && !_movementModel.IsRunning);
+                _animator.SetBool("correr", isMoving && _movementModel.IsRunning);
+            }
         }
         
         /// <summary>
