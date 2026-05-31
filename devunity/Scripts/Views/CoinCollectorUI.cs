@@ -103,7 +103,6 @@ namespace ChibitsLink.UI.Minigames
 
         private void UpdateHUD()
         {
-            // Timer
             if (timerText != null)
             {
                 float time = _gameManager.remainingTime;
@@ -112,7 +111,6 @@ namespace ChibitsLink.UI.Minigames
                 timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
             }
 
-            // Score
             UpdateRankingHUD();
         }
 
@@ -126,7 +124,6 @@ namespace ChibitsLink.UI.Minigames
             {
                 var ranking = CoinCollectorGameManager.Instance.GetRanking();
                 
-                // OPTIMIZATION: Only rebuild string if score hash has changed
                 int currentHash = 0;
                 foreach (var r in ranking) currentHash ^= r.Key.GetHashCode() ^ r.Value.GetHashCode();
 
@@ -177,7 +174,6 @@ namespace ChibitsLink.UI.Minigames
             var manager = CoinCollectorGameManager.Instance;
             GameState state = manager.CurrentState;
 
-            // Countdown
             if (state == GameState.Countdown)
             {
                 if (countdownText != null)
@@ -191,7 +187,6 @@ namespace ChibitsLink.UI.Minigames
                 if (countdownText != null) countdownText.gameObject.SetActive(false);
             }
 
-            // HUD and Results
             if (state == GameState.InGame)
             {
                 if (hudPanel != null) hudPanel.SetActive(true);
@@ -207,8 +202,6 @@ namespace ChibitsLink.UI.Minigames
                     ShowResults();
                 }
                 
-                // If we're in transition, reload points in results 
-                // to show the return time counter
                 if (state == GameState.TransitioningToLobby)
                 {
                     ShowResults();

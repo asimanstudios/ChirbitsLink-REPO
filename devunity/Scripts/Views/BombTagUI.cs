@@ -178,7 +178,6 @@ namespace ChibitsLink.UI.Minigames
         {
             var manager = BombTagGameManager.Instance;
 
-            // Timer MM:SS
             if (timerText != null)
             {
                 float t = manager.remainingBombTime;
@@ -188,13 +187,11 @@ namespace ChibitsLink.UI.Minigames
                 timerText.color = t <= 5f ? Color.red : Color.black;
             }
 
-            // Carrier
             if (carrierText != null)
             {
                 carrierText.text = $"WITH BOMB: <color=yellow>{manager.GetCarrierName()}</color>";
             }
 
-            // Alive
             if (aliveText != null)
             {
                 aliveText.text = $"Alive: {manager.GetAliveCount()}";
@@ -271,10 +268,8 @@ namespace ChibitsLink.UI.Minigames
                     sb.AppendLine($"<color=orange>Returning to lobby in... {manager.resultTimeRemaining:0}</color>\n");
                 }
 
-                // Optimization: Only rebuild full list if text changed significantly or it's the first time
                 sb.AppendLine("<size=120%>GAME OVER!</size>\n");
 
-                // Winners
                 var winners = manager.GetWinners();
                 string name;
                 foreach (var w in winners) 

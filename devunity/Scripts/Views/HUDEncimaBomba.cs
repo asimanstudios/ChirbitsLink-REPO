@@ -58,7 +58,6 @@ namespace ChibitsLink.UI.Minigames
             FindCamera();
             _originalScale = transform.localScale;
 
-            // Smart Auto-Connector
             if (timeText == null || iconText == null)
             {
                 var allTexts = GetComponentsInChildren<TextMeshPro>();
@@ -86,7 +85,6 @@ namespace ChibitsLink.UI.Minigames
             FindCamera();
             if (_mainCamera != null)
             {
-                // Inverse LookAt for perfect UI Billboard
                 transform.rotation = Quaternion.LookRotation(transform.position - _mainCamera.transform.position);
             }
         }
@@ -119,7 +117,6 @@ namespace ChibitsLink.UI.Minigames
         {
             if (_mainCamera != null)
             {
-                // Inverse LookAt for perfect UI Billboard
                 transform.rotation = Quaternion.LookRotation(transform.position - _mainCamera.transform.position);
             }
         }
@@ -161,8 +158,7 @@ namespace ChibitsLink.UI.Minigames
                 }
                 else
                 {
-                    // Smooth scale back to original
-                    float easedProgress = 1f - Mathf.Pow(1f - progress, 3f); // Ease-out cubic
+                    float easedProgress = 1f - Mathf.Pow(1f - progress, 3f);
                     float currentScale = Mathf.Lerp(maxAppearanceScale, 1f, easedProgress);
                     transform.localScale = _originalScale * currentScale;
                 }

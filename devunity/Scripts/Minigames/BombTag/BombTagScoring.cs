@@ -136,8 +136,7 @@ namespace ChibitsLink.Minigames.BombTag
                 bool isNotDefaultName;
                 var manualIdentity;
                 bool hasManualIdentity;
-                
-                // Priority 1: Use cached identity username
+
                 hasCachedIdentity = _playerIdentities.TryGetValue(player, out identity);
                 if (hasCachedIdentity)
                 {
@@ -149,7 +148,7 @@ namespace ChibitsLink.Minigames.BombTag
                     }
                     else if (PlayerManager.Instance != null && !string.IsNullOrEmpty(identity.userId))
                     {
-                        // Priority 2: Fetch from central repository
+        
                         repositoryName = PlayerManager.Instance.GetPlayerName(identity.userId);
                         isNotDefaultName = repositoryName != "Jugador";
                         if (isNotDefaultName)
@@ -160,7 +159,7 @@ namespace ChibitsLink.Minigames.BombTag
                     }
                 }
                 
-                // Priority 3: Manual search fallback
+
                 if (!nameFound)
                 {
                     manualIdentity = player.GetComponent<PlayerIdentity>() ?? player.GetComponentInParent<PlayerIdentity>();
