@@ -152,7 +152,7 @@ public partial class ControllerPage : ContentPage
                 break;
 
             case GestureStatus.Running:
-                // Limit movement within boundary
+               
                 double totalX = e.TotalX;
                 double totalY = e.TotalY;
                 double distance = Math.Sqrt(totalX * totalX + totalY * totalY);
@@ -167,13 +167,13 @@ public partial class ControllerPage : ContentPage
                 JoystickKnob.TranslationX = totalX;
                 JoystickKnob.TranslationY = totalY;
 
-                // Fire event for the controller WITHOUT await to avoid UI flicker
+              
                 _ = _controller.HandleJoystickMoved((float)(totalX / maxRadius), (float)(-totalY / maxRadius));
                 break;
 
             case GestureStatus.Completed:
             case GestureStatus.Canceled:
-                // Snap back to center
+                
                 _ = JoystickKnob.TranslateTo(0, 0, 100, Easing.SpringOut);
                 _ = _controller.HandleJoystickMoved(0, 0);
                 break;

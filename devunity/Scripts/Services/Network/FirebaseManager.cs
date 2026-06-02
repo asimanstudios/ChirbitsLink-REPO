@@ -227,7 +227,7 @@ namespace ChibitsLink.Services.Network
         /// </remarks>
         private async Task UpdatePlayerStatistics(string userId, int score)
         {
-            const int EXPERIENCE_POINTS = 0; // XP handled elsewhere
+            const int EXPERIENCE_POINTS = 0; 
             await _userRepository.UpdateUserStatsAsync(userId, EXPERIENCE_POINTS, score);
         }
         

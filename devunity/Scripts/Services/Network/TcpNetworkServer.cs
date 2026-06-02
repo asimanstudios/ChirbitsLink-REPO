@@ -344,7 +344,6 @@ namespace ChibitsLink.Services.Network
         {
             try
             {
-                // Parse connection data: "userId:userName:characterId:level"
                 string[] parts = data.Split(':');
                 if (parts.Length >= 4)
                 {

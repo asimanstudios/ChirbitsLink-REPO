@@ -36,7 +36,7 @@ public class Connection
         _bluetoothDevice = device;
     }
 
-    // TCP Connection (App as Client)
+    // TCP Connection 
     public async Task ConnectTcpAsync(string? host = null, int? port = null)
     {
         if (!_isConnecting && !(_tcpClient?.Connected ?? false))
