@@ -72,7 +72,7 @@ namespace ChibiCocina.Editor
         /// </summary>
         private void OnGUI()
         {
-            GUILayout.Label("🔍 Inspector de Scripts - Identificación Visual", EditorStyles.boldLabel);
+            GUILayout.Label(" Inspector de Scripts - Identificación Visual", EditorStyles.boldLabel);
             GUILayout.Space(10);
             
             // Filtros
@@ -178,7 +178,7 @@ namespace ChibiCocina.Editor
             
             // Botones de acción
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("📍 Ir al Script", GUILayout.Width(100)))
+            if (GUILayout.Button(" Ir al Script", GUILayout.Width(100)))
             {
                 Selection.activeObject = AssetDatabase.LoadMainAssetAtPath(script.Path);
                 EditorGUIUtility.PingObject(Selection.activeObject);

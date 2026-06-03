@@ -162,8 +162,6 @@ namespace ChibitsLink.GameSide
         {
             spawnPoints = new List<Transform>();
             var tagged = GameObject.FindGameObjectsWithTag("SpawnPoint");
-            
-            // MODULAR FIX: Sort by X position to fill "Left to Right" regardless of object name
             var sortedList = new List<GameObject>(tagged);
             sortedList.Sort((a, b) => a.transform.position.x.CompareTo(b.transform.position.x));
             
