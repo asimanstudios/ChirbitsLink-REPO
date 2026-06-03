@@ -141,9 +141,10 @@ namespace ChibitsLink.GameSide
             int idx = 0;
             string charId;
             int spawnIndex;
+            bool hasCharId;
             foreach (var userId in _connectionOrder)
             {
-                bool hasCharId = _playerLastCharId.TryGetValue(userId, out charId);
+                hasCharId = _playerLastCharId.TryGetValue(userId, out charId);
                 if (hasCharId)
                 {
                     // Usar módulo para evitar solapamiento si hay más jugadores que spawn points
@@ -284,31 +285,39 @@ namespace ChibitsLink.GameSide
             bool enableCam;
             Camera playerCam;
             AudioListener listener;
+            bool hasTargetTexture;
+            bool shouldProcessCamera;
+            bool shouldSetSceneCamera;
 
             foreach (var cam in allCams)
             {
-                bool hasTargetTexture = cam.targetTexture != null;
-                if (hasTargetTexture)
+                hasTargetTexture = cam.targetTexture != null;
+                shouldProcessCamera = !hasTargetTexture;
+                if (!shouldProcessCamera)
                 {
-                    continue; // ignorar render textures (minimapas, etc.)
+                    // ignorar render textures (minimapas, etc.)
                 }
+                else
+                {
 
                 // Comprobar si pertenece a algún jugador instanciado
                 isPlayerCam = false;
+                bool isChildOfPlayer;
                 foreach (var playerObj in _playerObjects.Values)
                 {
                     playerObjForCam = playerObj;
-                    bool isChildOfPlayer = playerObjForCam != null && cam.transform.IsChildOf(playerObjForCam.transform);
+                    isChildOfPlayer = playerObjForCam != null && cam.transform.IsChildOf(playerObjForCam.transform);
                     if (isChildOfPlayer)
                     {
                         isPlayerCam = true;
                     }
                 }
 
-                bool shouldSetSceneCamera = !isPlayerCam && sceneCamera == null;
-                if (shouldSetSceneCamera)
-                {
-                    sceneCamera = cam;
+                    shouldSetSceneCamera = !isPlayerCam && sceneCamera == null;
+                    if (shouldSetSceneCamera)
+                    {
+                        sceneCamera = cam;
+                    }
                 }
             }
 
@@ -324,23 +333,21 @@ namespace ChibitsLink.GameSide
             // 3. Configurar cámaras de los prefabs de jugadores
             int idx = 0;
             GameObject currentObj;
+            bool hasValidPlayer;
             foreach (var userId in _connectionOrder)
             {
-                bool hasValidPlayer = _playerObjects.TryGetValue(userId, out currentObj) && currentObj != null;
-                if (!hasValidPlayer)
+                hasValidPlayer = _playerObjects.TryGetValue(userId, out currentObj) && currentObj != null;
+                if (hasValidPlayer)
                 {
-                    idx++;
-                    continue;
+                    // Solo P1 puede tener cámara cuando NO hay cámara de escena
+                    enableCam = !hasSceneCamera && idx == 0;
+
+                    playerCam = currentObj.GetComponentInChildren<Camera>(true);
+                    if (playerCam != null) playerCam.gameObject.SetActive(enableCam);
+
+                    listener = currentObj.GetComponentInChildren<AudioListener>(true);
+                    if (listener != null) listener.enabled = enableCam;
                 }
-
-                // Solo P1 puede tener cámara cuando NO hay cámara de escena
-                enableCam = !hasSceneCamera && idx == 0;
-
-                playerCam = currentObj.GetComponentInChildren<Camera>(true);
-                if (playerCam != null) playerCam.gameObject.SetActive(enableCam);
-
-                listener = currentObj.GetComponentInChildren<AudioListener>(true);
-                if (listener != null) listener.enabled = enableCam;
 
                 idx++;
             }
@@ -517,12 +524,13 @@ namespace ChibitsLink.GameSide
             // Eliminar todos los bots de las estructuras
             var botIds = _connectionOrder.Where(id => id.StartsWith("BOT_")).ToList();
             GameObject botObj;
+            bool hasBotObject;
             foreach (var botId in botIds)
             {
                 Debug.Log($"[PlayerManager] Eliminando bot: {botId}");
                 
                 // Destruir objeto físico si existe
-                bool hasBotObject = _playerObjects.TryGetValue(botId, out botObj);
+                hasBotObject = _playerObjects.TryGetValue(botId, out botObj);
                 if (hasBotObject)
                 {
                     if (botObj != null) Destroy(botObj);

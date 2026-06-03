@@ -76,14 +76,14 @@ namespace ChibitsLink.Core
             _connectedClients = 0;
             _isServerActive = false;
             
-            // Subscribe to NetworkManager events
+            // Suscribirse a eventos de NetworkManager
             if (NetworkManager.Singleton != null)
             {
                 NetworkManager.Singleton.OnClientConnectedCallback += HandleClientConnected;
                 NetworkManager.Singleton.OnClientDisconnectCallback += HandleClientDisconnected;
             }
             
-            Debug.Log("[ServidorControlMando] Server initialized");
+            Debug.Log("[ServidorControlMando] Servidor inicializado");
         }
         
         /// <summary>
@@ -108,13 +108,13 @@ namespace ChibitsLink.Core
         {
             if (_isServerActive)
             {
-                Debug.LogWarning("[ServidorControlMando] Server is already active");
+                Debug.LogWarning("[ServidorControlMando] El servidor ya está activo");
                 return false;
             }
             
             if (NetworkManager.Singleton == null)
             {
-                Debug.LogError("[ServidorControlMando] NetworkManager not found");
+                Debug.LogError("[ServidorControlMando] NetworkManager no encontrado");
                 return false;
             }
             
@@ -124,15 +124,18 @@ namespace ChibitsLink.Core
             if (NetworkManager.Singleton.StartServer())
             {
                 _isServerActive = true;
-                Debug.Log($"[ServidorControlMando] Server started on port {port}");
+                Debug.Log($"[ServidorControlMando] Servidor iniciado en puerto {port}");
                 return true;
+            }
+            
+            return false;
         }
         
         public void StopServer()
         {
             if (!_isServerActive)
             {
-                Debug.LogWarning("[ServidorControlMando] Server is already stopped");
+                Debug.LogWarning("[ServidorControlMando] El servidor ya está detenido");
             }
             else
             {
@@ -145,7 +148,7 @@ namespace ChibitsLink.Core
                 _clients.Clear();
                 _connectedClients = 0;
                 
-                Debug.Log("[ServidorControlMando] Server stopped");
+                Debug.Log("[ServidorControlMando] Servidor detenido");
             }
         }
         
@@ -153,7 +156,7 @@ namespace ChibitsLink.Core
         {
             if (_clients.ContainsKey(clientId))
             {
-                Debug.LogWarning($"[ServidorControlMando] Client {clientId} is already connected");
+                Debug.LogWarning($"[ServidorControlMando] Cliente {clientId} ya está conectado");
             }
             else
             {
@@ -171,7 +174,7 @@ namespace ChibitsLink.Core
                 OnClientConnected?.Invoke(clientId);
                 OnClientsUpdated?.Invoke(_connectedClients);
                 
-                Debug.Log($"[ServidorControlMando] Client connected: {clientId} ({newClient.Name})");
+                Debug.Log($"[ServidorControlMando] Cliente conectado: {clientId} ({newClient.Name})");
             }
         }
         
@@ -179,7 +182,7 @@ namespace ChibitsLink.Core
         {
             if (!_clients.ContainsKey(clientId))
             {
-                Debug.LogWarning($"[ServidorControlMando] Client {clientId} is not connected");
+                Debug.LogWarning($"[ServidorControlMando] Cliente {clientId} no está conectado");
             }
             else
             {
@@ -192,7 +195,7 @@ namespace ChibitsLink.Core
                 OnClientDisconnected?.Invoke(clientId);
                 OnClientsUpdated?.Invoke(_connectedClients);
                 
-                Debug.Log($"[ServidorControlMando] Client disconnected: {clientId} ({client.Name})");
+                Debug.Log($"[ServidorControlMando] Cliente desconectado: {clientId} ({client.Name})");
             }
         }
         
@@ -200,12 +203,12 @@ namespace ChibitsLink.Core
         {
             if (!_isServerActive)
             {
-                Debug.LogWarning("[ServidorControlMando] Cannot send message - server inactive");
+                Debug.LogWarning("[ServidorControlMando] No se puede enviar mensaje - servidor inactivo");
             }
             else
             {
-                // Send message to all connected clients
-                Debug.Log($"[ServidorControlMando] Sending message to all: {message}");
+                // Enviar mensaje a todos los clientes conectados
+                Debug.Log($"[ServidorControlMando] Enviando mensaje a todos: {message}");
             }
         }
         
@@ -213,16 +216,16 @@ namespace ChibitsLink.Core
         {
             if (!_isServerActive)
             {
-                Debug.LogWarning("[ServidorControlMando] Cannot send message - server inactive");
+                Debug.LogWarning("[ServidorControlMando] No se puede enviar mensaje - servidor inactivo");
             }
             else if (!_clients.ContainsKey(clientId))
             {
-                Debug.LogWarning($"[ServidorControlMando] Client {clientId} does not exist");
+                Debug.LogWarning($"[ServidorControlMando] Cliente {clientId} no existe");
             }
             else
             {
-                // Send message to specific client
-                Debug.Log($"[ServidorControlMando] Sending message to {clientId}: {message}");
+                // Enviar mensaje a cliente específico
+                Debug.Log($"[ServidorControlMando] Enviando mensaje a {clientId}: {message}");
             }
         }
         
@@ -250,8 +253,8 @@ namespace ChibitsLink.Core
         {
             if (_isServerActive)
             {
-                // Unity Netcode handles network updates automatically
-                // No custom update logic needed for this server manager
+                // Unity Netcode maneja las actualizaciones de red automáticamente
+                // No se necesita lógica de actualización personalizada para este gestor de servidor
             }
         }
         
@@ -260,10 +263,10 @@ namespace ChibitsLink.Core
             if (_isServerActive)
             {
                 GUILayout.BeginArea(new Rect(10, 320, 300, 150));
-                GUILayout.Label($"Server Active - Port: {port}");
-                GUILayout.Label($"Clients: {_connectedClients}/{maxConnections}");
+                GUILayout.Label($"Servidor Activo - Puerto: {port}");
+                GUILayout.Label($"Clientes: {_connectedClients}/{maxConnections}");
                 
-                if (GUILayout.Button("Stop Server"))
+                if (GUILayout.Button("Detener Servidor"))
                 {
                     StopServer();
                 }
@@ -272,9 +275,9 @@ namespace ChibitsLink.Core
             else
             {
                 GUILayout.BeginArea(new Rect(10, 320, 300, 150));
-                GUILayout.Label($"Server Inactive - Port: {port}");
+                GUILayout.Label($"Servidor Inactivo - Puerto: {port}");
                 
-                if (GUILayout.Button("Start Server"))
+                if (GUILayout.Button("Iniciar Servidor"))
                 {
                     StartServer();
                 }

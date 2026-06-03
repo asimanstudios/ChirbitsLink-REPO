@@ -505,3 +505,4 @@ namespace ChibitsLink.Core
         public int[] activeCameras;
     }
 }
+}

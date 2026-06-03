@@ -149,12 +149,30 @@ public class Connection
     {
         if (_cts != null)
         {
-            try { _cts.Cancel(); } catch { }
+            try 
+            { 
+                _cts.Cancel(); 
+            } 
+            catch (ObjectDisposedException ex)
+            {
+                Debug.WriteLine($"Error al cancelar CancellationTokenSource: {ex.Message}");
+            }
         }
 
         if (_webSocket != null && _webSocket.State == WebSocketState.Open)
         {
-            try { await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Disconnected by user", CancellationToken.None); } catch { }
+            try 
+            { 
+                await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Disconnected by user", CancellationToken.None); 
+            }
+            catch (WebSocketException ex)
+            {
+                Debug.WriteLine($"Error al cerrar WebSocket: {ex.Message}");
+            }
+            catch (ObjectDisposedException ex)
+            {
+                Debug.WriteLine($"WebSocket ya disposed al intentar cerrar: {ex.Message}");
+            }
             _webSocket.Dispose();
             _webSocket = null;
         }
@@ -169,7 +187,14 @@ public class Connection
 
         if (_cts != null)
         {
-            try { _cts.Dispose(); } catch { }
+            try 
+            { 
+                _cts.Dispose(); 
+            }
+            catch (ObjectDisposedException ex)
+            {
+                Debug.WriteLine($"CancellationTokenSource ya disposed: {ex.Message}");
+            }
             _cts = null;
         }
     }
@@ -354,8 +379,9 @@ public class Connection
                     // Send a lightweight ping to keep connection alive and detect failures
                     await SendMessageAsync("PING");
                 }
-                catch 
+                catch (Exception ex)
                 {
+                    Debug.WriteLine($"Error en heartbeat: {ex.Message}");
                     StopHeartbeat();
                     Disconnected?.Invoke();
                 }
